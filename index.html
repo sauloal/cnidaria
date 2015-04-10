@@ -224,6 +224,13 @@ test01.json.no_scale.jaccard_dissimilarity.nj.png
 test01.json.no_scale.jaccard_dissimilarity.nj.tree
 </pre>
 
+<strong>CNE</strong> - a Cnidaria Complete Database file containing both k-mer and presence/absence list
+<strong>JSON</strong> - a Cnidaria Summary Database file containing only the matrix of shared/total k-mers counts
+<strong>MATRIX</strong> - a jaccard distance matrix calculated from the JSON file
+<strong>NJ</strong> - a NEWICK neighbour-joining tree based in MATRIX
+<strong>PNG</strong> - a tree image beased in NJ
+<strong>TREE</strong> - an ASCII art tree based in NJ
+
 <h4>To create HTML report</h4>
 <pre>
 /home/user/cnidaria/scripts/report/stats_report.py test01.json \
