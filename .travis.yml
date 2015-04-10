@@ -5,17 +5,16 @@ compiler: gcc
 sudo: required
 
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y swig libc6-i386 lib32stdc++6 make g++
+  - sudo apt-add-repository ppa:boost-latest -y
+  - sudo apt-add-repository ppa:mapnik/boost-backports-1-54 -y
+  - then sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt-get clean -qq
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libboost1.54-all-dev swig libc6-i386 lib32stdc++6 make
   - sudo apt-get install -y python python-setuptools python-numpy python-pandas python-matplotlib python-cogent python-imaging python-qt4 python-pip python-lxml
-  - if [ "$CXX" = "g++" ]; then sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; fi
-  - if [ "$CXX" = "g++" ]; then sudo apt-get update -qq; fi
   - if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50; fi
   - if [ "$CXX" = "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
-  - sudo apt-add-repository "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted"
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq libboost-all-dev
   - sudo easy_install ete2
   - sudo easy_install hcluster
 
