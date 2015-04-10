@@ -68,7 +68,7 @@ $ bash INSTALL.2.compile
 The compilation creates a python library called _cnidariapy.so, a shared library for python.
 
 
-<h2>Run</h2>
+<h2>Setup</h2>
 <h3>how to generate jf database files:</h3>
 In analysis/data/converters you can find helper scripts.
 fasta2jf.sh converts FASTA fo JF. 
@@ -144,7 +144,9 @@ test01  /home/user/cnidaria/data/input/spp4.fas.21.jf
 test01  /home/user/cnidaria/data/input/spp5.fas.21.jf
 </pre>
 
-<h3>Create a Makefile</h3>
+<h2>Run</h2>
+<h3>Automatically</h3>
+<h4>Create a Makefile</h4>
 Create a Makefile for your runs by using scripts/gen_mkfile.py.
 It will create a Makefile for your analysis calling all programs in the
 correct order for: split, calculate, merge, generate statistics and plot 
@@ -160,10 +162,82 @@ scripts/gen_mkfile.py -h
   /home/user/cnidaria/data/test_def.csv \
   /home/user/cnidaria/data/output 21 20
 </pre>
+<h4>Run Makefile</h4>
+Go to the output folder ( /home/user/cnidaria/data/output ) and run:
+<pre>
+  Make all
+</pre>
+
+Or do a specific run:
+<pre>
+  Make test01
+</pre>
+
+the makefile contains:
+<pre>
+# Run Cnidaria for each of the pieces
+ulimit -c unlimited && time /home/user/cnidaria/scripts/cnidaria.py --export-complete \
+--num-pieces 20 --piece-num 1 --outfile test01 /home/user/cnidaria/data/input/spp{1,2,3,4,5}.fas.21.jf
+
+# Merge all the pieces
+ulimit -c unlimited && time /home/user/cnidaria/scripts/cnidaria.py --export-complete \
+--num-pieces 20 --merge-only --outfile test01 /home/user/cnidaria/data/input/spp{1,2,3,4,5}.fas.21.jf
+  
+# Create statistics of the results
+/home/user/cnidaria/scripts/cnidaria_stats.py test01_0001_0020.json /home/user/cnidaria/data/filelist.csv
+...
+/home/user/cnidaria/scripts/cnidaria_stats.py test01_0020_0020.json /home/user/cnidaria/data/filelist.csv
+  
+# Verify if the merging occured well
+/home/user/cnidaria/scripts/verify_csvs.py test01_00{01,02,...,19,20}_0020.json.csv test01.json.csv
+  
+# Merge statistics in single files
+cat test*.json.csv               > test01.all.csv
+cat test01_*_0020.json.count.csv > test01.all.count.csv
+
+# Convert trees into PNG
+/home/user/cnidaria/scripts/newick_to_png.py test01_00{01,02,...,19,20}_0020.json.no_scale.jaccard_dissimilarity.nj
+</pre>
+
+The output files are:
+<pre>
+# Results of individual pieces
+test01_0001_0020.cne
+test01_0001_0020.cnm
+test01_0001_0020.json
+test01_0001_0020.json.count.csv
+test01_0001_0020.json.csv
+test01_0001_0020.json.no_scale.jaccard_dissimilarity.matrix
+test01_0001_0020.json.no_scale.jaccard_dissimilarity.nj
+test01_0001_0020.json.no_scale.jaccard_dissimilarity.nj.png
+test01_0001_0020.json.no_scale.jaccard_dissimilarity.nj.tree
+
+# Global results
+test01.all.count.csv
+test01.all.csv
+test01.cne
+test01.cnm
+test01.json
+test01.json.count.csv
+test01.json.csv
+test01.json.no_scale.jaccard_dissimilarity.matrix
+test01.json.no_scale.jaccard_dissimilarity.nj
+test01.json.no_scale.jaccard_dissimilarity.nj.png
+test01.json.no_scale.jaccard_dissimilarity.nj.tree
+</pre>
+
+<h4>To create HTML report</h4>
+<pre>
+/home/user/cnidaria/scripts/report/stats_report.py test01.json \
+/home/user/cnidaria/data/filelist.csv \
+test01.json.no_scale.jaccard_dissimilarity.nj
+
+#which will generate:
+#test01_kmer_stats_report.html
+</pre>
 
 
-
-<h3>Run Manually</h3>
+<h3>Manually</h3>
 Alternatively, you can run scripts/cnidaria.py, the main program, for the analysis.
 <pre>
 scripts/cnidaria.py -h
