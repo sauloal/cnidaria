@@ -9,22 +9,3 @@ easy_install --user ete2
 easy_install --user hcluster
 
 
-#compile
-cd src
-
-#compile jellyfish
-cd libs/jellyfish-2.1.3
-make clean
-./configure
-make
-cd ../..
-
-#compile cnidaria
-make clean
-make all
-
-
-#check cnidaria
-cd ../scripts
-
-./cnidaria.py -h
