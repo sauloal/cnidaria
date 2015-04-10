@@ -18,11 +18,13 @@ before_install:
   - sudo easy_install ete2
   - sudo easy_install hcluster
   - sed -i 's/TIME_UTC/TIME_UTC_/' src/libs/threadpool/boost/./threadpool/./detail/../task_adaptors.hpp
+
 install:
   - cd src
   - make clean
   - make all
   - cd libs/jellyfish-2.1.3
+  - ./configure
   - make clean
   - ./configure
   - make
