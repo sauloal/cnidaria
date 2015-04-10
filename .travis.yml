@@ -1,31 +1,23 @@
-language: c++
-#python:
-#  - "2.7"
-# use pre-compiled system wide packages
-# http://danielnouri.org/notes/2012/11/23/use-apt-get-to-install-python-dependencies-for-travis-ci/
-#virtualenv:
-#  system_site_packages: true
-# command to install system dependencies
+language: cpp
+
+compiler: gcc
+
 before_script:
   - apt-get install -y libboost-all-dev swig libc6-i386 lib32stdc++6 make g++
   - apt-get install -y python python-setuptools python-numpy python-pandas python-matplotlib python-cogent python-imaging python-qt4 python-pip python-lxml
   - easy_install ete2
   - easy_install hcluster
-#compile
+
 install:
   - cd src
-#compile cnidaria
   - make clean
   - make all
-#compile jellyfish
   - cd libs/jellyfish-2.1.3
   - make clean
   - ./configure
-# ignore the error: config.status: error: cannot find input file: `tests/compat.sh.in'
   - make
   - cd ../..
-#check cnidaria
   - cd ../scripts
-# command to run tests
+
 script:
   - ./cnidaria.py -h
