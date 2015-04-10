@@ -5,6 +5,7 @@ compiler: gcc
 sudo: required
 
 before_install:
+  - sudo apt-get update
   - sudo apt-get install -y libboost-all-dev swig libc6-i386 lib32stdc++6 make g++
   - sudo apt-get install -y python python-setuptools python-numpy python-pandas python-matplotlib python-cogent python-imaging python-qt4 python-pip python-lxml
   - sudo easy_install ete2
