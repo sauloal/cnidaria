@@ -2,7 +2,7 @@ language: cpp
 
 compiler: gcc
 
-before_script:
+before_install:
   - apt-get install -y libboost-all-dev swig libc6-i386 lib32stdc++6 make g++
   - apt-get install -y python python-setuptools python-numpy python-pandas python-matplotlib python-cogent python-imaging python-qt4 python-pip python-lxml
   - easy_install ete2
