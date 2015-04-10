@@ -34,7 +34,7 @@ h3, h4, h5, h6 {
 
 a {
   color:#39c;
-  font-weight:500;
+  font-weight:700;
   text-decoration:none;
 }
 
@@ -98,7 +98,7 @@ img {
 header {
   width:540px;
   float:center;
-  position:fixed;
+  /* position:fixed; */
 }
 
 header ul {
@@ -164,7 +164,7 @@ section {
   width:540px;
   float:center;
   padding-bottom:50px;
-  padding-top:100px;
+  padding-top:50px;
 }
 
 small {
@@ -181,7 +181,7 @@ hr {
 footer {
   width:270px;
   float:left;
-  position:fixed;
+  /* position:fixed; */
   top:0px;
   margin-left:270px;
 }
