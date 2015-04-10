@@ -58,6 +58,35 @@ Bioinformatics online.</p>
 $ sudo bash INSTALL.1.requirements
 </pre>
 
+<h3>Minimum requirements:</h3>
+<p><strong>Ubuntu >= 13.4</strong></p>
+<pre>
+lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 14.04.2 LTS
+Release:        14.04
+Codename:       trusty
+</pre>
+
+<p><strong>libboost >= 1.50</strong></p>
+<pre>
+$ dpkg -s libboost-dev | grep 'Version'
+Version: 1.54.0.1ubuntu1
+
+$ cat /usr/include/boost/version.hpp | grep "BOOST_LIB_VERSION"
+//  BOOST_LIB_VERSION must be defined to be the same as BOOST_VERSION
+#define BOOST_LIB_VERSION "1_54"
+</pre>
+
+<p><strong>gcc >= 4.8</strong></p>
+<pre>
+$gcc -v  
+gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1)
+</pre>
+
+
+
 <h3>To re-compile code:</h3>
 <pre>
 $ bash INSTALL.2.compile
