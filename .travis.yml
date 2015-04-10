@@ -10,14 +10,14 @@ before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get clean -qq
   - sudo apt-get update -qq
-  - sudo apt-get install -y libboost1.55-all-dev swig libc6-i386 lib32stdc++6 make
+  - sudo apt-get install -y libboost1.54-all-dev swig libc6-i386 lib32stdc++6 make
   - sudo apt-get install -y python python-setuptools python-numpy python-pandas python-matplotlib python-cogent python-imaging python-qt4 python-pip python-lxml
   - if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50; fi
   - if [ "$CXX" = "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
   - sudo easy_install ete2
   - sudo easy_install hcluster
-
+  - sed -i 's/TIME_UTC/TIME_UTC_/' libs/threadpool/boost/./threadpool/./detail/../task_adaptors.hpp
 install:
   - cd src
   - make clean
