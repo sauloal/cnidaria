@@ -50,7 +50,7 @@ Bioinformatics online.</p>
 
 <h1>How to run</h1>
 <h2>Docker</h2>
-At src/docker you can find the docker recipes.
+<p>At src/docker you can find the docker recipes.</p>
 
 <h2>Install</h2>
 <h3>To install the system requirements:</h3>
@@ -63,22 +63,24 @@ $ sudo bash INSTALL.1.requirements
 $ bash INSTALL.2.compile
 </pre>
 
-The compilation creates a python library called _cnidariapy.so, a shared library for python.
+<p>The compilation creates a python library called _cnidariapy.so, a shared library for python.</p>
 
 
 <h2>Setup</h2>
 <h3>how to generate jf database files:</h3>
-In analysis/data/converters you can find helper scripts.
-fasta2jf.sh converts FASTA fo JF. 
-cram2jf.sh converts CRAM fo JF (requires recent samtools).
-bam2jf.sh converts BAM fo JF (requires samtools). 
+<p>In analysis/data/converters you can find helper scripts.</p>
+<ul>
+  <li>fasta2jf.sh converts FASTA fo JF. </li>
+  <li>cram2jf.sh converts CRAM fo JF (requires recent samtools).</li>
+  <li>bam2jf.sh converts BAM fo JF (requires samtools). </li>
+</ul>
 
 <h3>Go to the folder where your fasta files are</h3>
-Symlink jopts, fasta2jf.sh, cram2jf.sh, bam2jf.sh and run.sh from analysis/data/converters.
-Edit jopts to match your kmer requirements and the jellyfish/samtools executables
-analysis/data/converters/jopts
-The jopts file should have the path to your jellyfish and samtools executables and the
-kmer size. Samtools are only needed if you are importing BAM files
+<p>Symlink jopts, fasta2jf.sh, cram2jf.sh, bam2jf.sh and run.sh from analysis/data/converters.</p>
+<p>Edit jopts to match your kmer requirements and the jellyfish/samtools executables
+analysis/data/converters/jopts</p>
+<p>The jopts file should have the path to your jellyfish and samtools executables and the
+kmer size. Samtools are only needed if you are importing BAM files</p>
 <pre>
 JELLYFISH=/home/user/cnidaria/src/libs/Jellyfish/bin/jellyfish
 SAMTOOLS=/home/user/bin/samtools/samtools-1.1/samtools
@@ -118,12 +120,12 @@ JCMD="${JELLYFISH} count -m ${MER_SIZE} -s ${HASH_SIZE} -t 5 -F 300 --disk --cou
 ulimit -Sn 4096
 </pre>
 
-Run ./run.sh
+<p>Run ./run.sh</p>
 
-It will search for all fasta/cram/bam under the current folder and convert them to JF.
+<p>It will search for all fasta/cram/bam under the current folder and convert them to JF.</p>
 
 <h3>Create a filelist.csv file</h3>
-Create a filelist.csv file, a tab delimited file containg the name of your JF files and their "pretty" name:
+<p>Create a filelist.csv file, a tab delimited file containg the name of your JF files and their "pretty" name:</p>
 <pre>
 /home/user/cnidaria/data/input/spp1.fas.21.jf	Species 01
 /home/user/cnidaria/data/input/spp2.fas.21.jf	Species 02
@@ -133,7 +135,7 @@ Create a filelist.csv file, a tab delimited file containg the name of your JF fi
 </pre>
 
 <h3>Create a test_def.csv file</h3>
-Create a test_def.csv file, a tab delimited file containing the run names
+<p>Create a test_def.csv file, a tab delimited file containing the run names</p>
 <pre>
 test01	/home/user/cnidaria/data/input/spp1.fas.21.jf
 test01	/home/user/cnidaria/data/input/spp2.fas.21.jf
@@ -145,10 +147,10 @@ test01  /home/user/cnidaria/data/input/spp5.fas.21.jf
 <h2>Run</h2>
 <h3>Automatically</h3>
 <h4>Create a Makefile</h4>
-Create a Makefile for your runs by using scripts/gen_mkfile.py.
-It will create a Makefile for your analysis calling all programs in the
+<p>Create a Makefile for your runs by using scripts/gen_mkfile.py.</p>
+<p>It will create a Makefile for your analysis calling all programs in the
 correct order for: split, calculate, merge, generate statistics and plot 
-graphs in one go
+graphs in one go</p>
 <pre>
 scripts/gen_mkfile.py -h
 #usage: gen_mkfile.py [-h] [-thr [NUM_THREADS]] [-min [MINVAL]]
@@ -160,18 +162,21 @@ scripts/gen_mkfile.py -h
   /home/user/cnidaria/data/test_def.csv \
   /home/user/cnidaria/data/output 21 20
 </pre>
+
+
+
 <h4>Run Makefile</h4>
-Go to the output folder ( /home/user/cnidaria/data/output ) and run:
+<p>Go to the output folder ( /home/user/cnidaria/data/output ) and run:</p>
 <pre>
   Make all
 </pre>
 
-Or do a specific run:
+<p>Or do a specific run:</p>
 <pre>
   Make test01
 </pre>
 
-the makefile contains:
+<p>the makefile contains:</p>
 <pre>
 # Run Cnidaria for each of the pieces
 ulimit -c unlimited && time /home/user/cnidaria/scripts/cnidaria.py --export-complete \
@@ -197,7 +202,7 @@ cat test01_*_0020.json.count.csv > test01.all.count.csv
 /home/user/cnidaria/scripts/newick_to_png.py test01_00{01,02,...,19,20}_0020.json.no_scale.jaccard_dissimilarity.nj
 </pre>
 
-The output files are:
+<p>The output files are:</p>
 <pre>
 # Results of individual pieces
 test01_0001_0020.cne
@@ -224,12 +229,12 @@ test01.json.no_scale.jaccard_dissimilarity.nj.png
 test01.json.no_scale.jaccard_dissimilarity.nj.tree
 </pre>
 
-<strong>CNE</strong> - a Cnidaria Complete Database file containing both k-mer and presence/absence list<br/>
-<strong>JSON</strong> - a Cnidaria Summary Database file containing only the matrix of shared/total k-mers counts<br/>
-<strong>MATRIX</strong> - a jaccard distance matrix calculated from the JSON file<br/><br/>
-<strong>NJ</strong> - a NEWICK neighbour-joining tree based in MATRIX<br/>
-<strong>PNG</strong> - a tree image beased in NJ<br/>
-<strong>TREE</strong> - an ASCII art tree based in NJ<br/>
+<p><strong>CNE</strong> - a Cnidaria Complete Database file containing both k-mer and presence/absence list</p>
+<p><strong>JSON</strong> - a Cnidaria Summary Database file containing only the matrix of shared/total k-mers counts</p>
+<p><strong>MATRIX</strong> - a jaccard distance matrix calculated from the JSON file</p>
+<p><strong>NJ</strong> - a NEWICK neighbour-joining tree based in MATRIX</p>
+<p><strong>PNG</strong> - a tree image beased in NJ</p>
+<p><strong>TREE</strong> - an ASCII art tree based in NJ</p>
 
 <h4>To create HTML report</h4>
 <pre>
@@ -243,7 +248,7 @@ test01.json.no_scale.jaccard_dissimilarity.nj
 
 
 <h3>Manually</h3>
-Alternatively, you can run scripts/cnidaria.py, the main program, for the analysis.
+<p>Alternatively, you can run scripts/cnidaria.py, the main program, for the analysis.</p>
 <pre>
 scripts/cnidaria.py -h
 #usage: cnidaria.py [-h] [-out [OUT_FILE]] [-thr [NUM_THREADS]] [-min [MINVAL]]
