@@ -48,6 +48,125 @@ is available at <a href="http://www.ab.wur.nl/cnidaria">http://www.ab.wur.nl/cni
 
 <p>Supplementary information: Supplementary data are available at 
 Bioinformatics online.</p>
+
+
+At src/docker you can find the docker recipes.
+
+To install the system requirements:
+<pre>
+$ sudo bash INSTALL.1.requirements
+</pre>
+
+To re-compile code:
+<pre>
+$ bash INSTALL.2.compile
+</pre>
+
+The compilation creates a python library called _cnidariapy.so, a shared library for python.
+
+how to generate jf database files:
+In analysis/data/converters you can find helper scripts for that.
+fasta2jf.sh converts FASTA fo JF. 
+cram2jf.sh converts CRAM fo JF (requires recent samtools).
+bam2jf.sh converts BAM fo JF (requires samtools). 
+
+Go to the folder where your fasta files are
+Symlink jopts, fasta2jf.sh, cram2jf.sh, bam2jf.sh and run.sh from analysis/data/converters.
+Edit jopts to match your kmer requirements and the jellyfish/samtools executables
+Run ./run.sh
+
+It will search for all fasta/cram/bam under the current folder and convert them to JF.
+
+analysis/data/converters/jopts
+The jopts file should have the path to your jellyfish and samtools executables and the kmer size. Samtools are only needed if you are importing BAM files
+<pre>
+JELLYFISH=/home/user/cnidaria/src/libs/Jellyfish/bin/jellyfish
+SAMTOOLS=/home/user/bin/samtools/samtools-1.1/samtools
+
+KSIZE=15
+
+if [[ "$KSIZE" == 31 ]]; then
+MER_SIZE=31
+HASH_SIZE=4G
+fi
+
+if [[ "$KSIZE" == 21 ]]; then
+MER_SIZE=21
+HASH_SIZE=1G
+fi
+
+if [[ "$KSIZE" == 17 ]]; then
+MER_SIZE=17
+HASH_SIZE=512M
+fi
+
+if [[ "$KSIZE" == 15 ]]; then
+MER_SIZE=15
+HASH_SIZE=256M
+fi
+
+if [[ "$KSIZE" == 11 ]]; then
+MER_SIZE=11
+HASH_SIZE=128M
+fi
+
+
+
+COUNTER_LEN=7
+OUT_COUNTER_LEN=1
+JCMD="${JELLYFISH} count -m ${MER_SIZE} -s ${HASH_SIZE} -t 5 -F 300 --disk --counter-len=${COUNTER_LEN} --out-counter-len=${OUT_COUNTER_LEN} --canonical"
+ulimit -Sn 4096
+</pre>
+
+Create a filelist.csv file, a tab delimited file containg the name of your JF files and their "pretty" name:
+<pre>
+/home/user/cnidaria/data/input/spp1.fas.21.jf	Species 01
+/home/user/cnidaria/data/input/spp2.fas.21.jf	Species 02
+/home/user/cnidaria/data/input/spp3.fas.21.jf	Species 03
+/home/user/cnidaria/data/input/spp4.fas.21.jf	Species 04
+/home/user/cnidaria/data/input/spp5.fas.21.jf	Species 05
+</pre>
+
+Create a test_def.csv file, a tab delimited file containing the run names
+<pre>
+test01	/home/user/cnidaria/data/input/spp1.fas.21.jf
+test01	/home/user/cnidaria/data/input/spp2.fas.21.jf
+test01  /home/user/cnidaria/data/input/spp3.fas.21.jf
+test01  /home/user/cnidaria/data/input/spp4.fas.21.jf
+test01  /home/user/cnidaria/data/input/spp5.fas.21.jf
+</pre>
+
+Create a Makefile for your runs by using scripts/gen_mkfile.py.
+It will create a Makefile for your analysis calling all programs in the
+correct order for: split, calculate, merge, generate statistics and plot 
+graphs in one go
+<pre>
+scripts/gen_mkfile.py -h
+#usage: gen_mkfile.py [-h] [-thr [NUM_THREADS]] [-min [MINVAL]]
+#                     [-se [SAVE_EVERY]] [-me] [-nm] [-ec] [-nem]
+#                     file_list def_file out_dir kmer_size num_pieces
+
+# ./gen_mkfile.py file_list def_file out_folder kmer_size number_of_pieces
+./gen_mkfile.py /home/user/cnidaria/data/filelist.csv \
+  /home/user/cnidaria/data/test_def.csv \
+  /home/user/cnidaria/data/output 21 20
+</pre>
+
+
+
+Alternatively, you can run scripts/cnidaria.py, the main program, for the analysis.
+<pre>
+scripts/cnidaria.py -h
+#usage: cnidaria.py [-h] [-out [OUT_FILE]] [-thr [NUM_THREADS]] [-min [MINVAL]]
+#                   [-se [SAVE_EVERY]] [-np [NUM_PIECES]] [-pn [PIECE_NUM]]
+#                   [-n] [-d] [-me] [-nm] [-ec] [-nem]
+#                   infiles [infiles ...]
+</pre>
+
+
+
+
+
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/sauloal">sauloal</a></p>
