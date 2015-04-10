@@ -24,9 +24,9 @@ install:
   - make clean
   - make all
   - cd libs/jellyfish-2.1.3
-  - ./configure || true
+  - ./configure
   - make clean
-  - ./configure || true
+  - ./configure
   - make
   - cd ../..
   - cd ../scripts
