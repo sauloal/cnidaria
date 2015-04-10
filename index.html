@@ -28,7 +28,7 @@
         </ul>
       </header>
       <section>
-        <h2><p>CNIDARIA: fast, reference-free phylogenomic clustering</p></h2>
+        <h1><p>CNIDARIA: fast, reference-free phylogenomic clustering</p></h1>
 
 <p>Motivation: Identification of biological specimens is a major requirement 
 for a range of applications. Reference-free methods analyse unprocessed 
@@ -54,13 +54,13 @@ Bioinformatics online.</p>
 <h2>Docker</h2>
 At src/docker you can find the docker recipes.
 
-<h3>Install</h3>
-<h4>To install the system requirements:</h4>
+<h2>Install</h2>
+<h3>To install the system requirements:</h3>
 <pre>
 $ sudo bash INSTALL.1.requirements
 </pre>
 
-<h4>To re-compile code:</h4>
+<h3>To re-compile code:</h3>
 <pre>
 $ bash INSTALL.2.compile
 </pre>
@@ -68,13 +68,14 @@ $ bash INSTALL.2.compile
 The compilation creates a python library called _cnidariapy.so, a shared library for python.
 
 
-<h4>how to generate jf database files:</h4>
+<h2>Run</h2>
+<h3>how to generate jf database files:</h3>
 In analysis/data/converters you can find helper scripts.
 fasta2jf.sh converts FASTA fo JF. 
 cram2jf.sh converts CRAM fo JF (requires recent samtools).
 bam2jf.sh converts BAM fo JF (requires samtools). 
 
-<h5>Go to the folder where your fasta files are</h5>
+<h3>Go to the folder where your fasta files are</h3>
 Symlink jopts, fasta2jf.sh, cram2jf.sh, bam2jf.sh and run.sh from analysis/data/converters.
 Edit jopts to match your kmer requirements and the jellyfish/samtools executables
 analysis/data/converters/jopts
@@ -123,7 +124,7 @@ Run ./run.sh
 
 It will search for all fasta/cram/bam under the current folder and convert them to JF.
 
-<h5>Create a filelist.csv file</h5>
+<h3>Create a filelist.csv file</h3>
 Create a filelist.csv file, a tab delimited file containg the name of your JF files and their "pretty" name:
 <pre>
 /home/user/cnidaria/data/input/spp1.fas.21.jf	Species 01
@@ -133,7 +134,7 @@ Create a filelist.csv file, a tab delimited file containg the name of your JF fi
 /home/user/cnidaria/data/input/spp5.fas.21.jf	Species 05
 </pre>
 
-<h5>Create a test_def.csv file</h5>
+<h3>Create a test_def.csv file</h3>
 Create a test_def.csv file, a tab delimited file containing the run names
 <pre>
 test01	/home/user/cnidaria/data/input/spp1.fas.21.jf
@@ -143,7 +144,7 @@ test01  /home/user/cnidaria/data/input/spp4.fas.21.jf
 test01  /home/user/cnidaria/data/input/spp5.fas.21.jf
 </pre>
 
-<h5>Create a Makefile</h5>
+<h3>Create a Makefile</h3>
 Create a Makefile for your runs by using scripts/gen_mkfile.py.
 It will create a Makefile for your analysis calling all programs in the
 correct order for: split, calculate, merge, generate statistics and plot 
@@ -162,7 +163,7 @@ scripts/gen_mkfile.py -h
 
 
 
-<h5>Run Manually</h5>
+<h3>Run Manually</h3>
 Alternatively, you can run scripts/cnidaria.py, the main program, for the analysis.
 <pre>
 scripts/cnidaria.py -h
