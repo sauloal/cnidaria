@@ -1,5 +1,8 @@
 CNIDARIA: fast, reference-free phylogenomic clustering
 
+![Travis Continuous Integration Build Status](https://travis-ci.org/sauloal/cnidaria.svg?branch=master "Travis Continuous Integration Build Status")
+
+
 Motivation: Identification of biological specimens is a major requirement 
 for a range of applications. Reference-free methods analyse unprocessed 
 sequencing data without relying on prior knowledge, but these do not scale 
