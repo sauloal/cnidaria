@@ -1,0 +1,9 @@
+.R*
+.~l*
+*.Rproj
+*.xlsx
+data/
+trees/
+old/
+*.tar.gz
+classes*/

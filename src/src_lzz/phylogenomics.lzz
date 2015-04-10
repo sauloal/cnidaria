@@ -1,0 +1,757 @@
+// TYPEDEF AND STRUCTS
+#hdr
+
+#include "phylogenomics_shared.hpp"
+#include "phylogenomics_distance.hpp"
+#include "phylogenomics_binomialtree.hpp"
+
+#include "rapidjson/document.h"     // rapidjson's DOM-style API
+#include "rapidjson/prettywriter.h" // for stringify JSON
+#include "rapidjson/filestream.h"   // wrapper of C stream for prettywriter as output
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/filereadstream.h"
+#include "rapidjson/encodedstream.h"
+
+#end
+
+namespace phylogenomics {
+    typedef rapidjson::Document                     json_doc_t;
+    typedef rapidjson::Value                        json_val_t;
+    typedef rapidjson::Document::AllocatorType      json_allo_t;
+    typedef rapidjson::StringBuffer                 json_str_buff_t;
+    typedef rapidjson::SizeType                     json_size_t;
+    typedef rapidjson::Writer<json_str_buff_t>      json_writer_fil_t;
+	
+	typedef binomialTree::binomialTree              binTree;
+	typedef binomialTree::binomialPair              binomialPair;
+	typedef binomialTree::binomialPairVector        binomialPairVector;
+  
+
+	class phylogenomics;
+    
+    class header {
+        public:
+            header() {}
+
+            header( string_t &infile, phylogenomics &phy ) {
+				phy = load( infile );
+            }
+			
+            header( std::ifstream &infile, phylogenomics &phy ) {
+                phy = load( infile );
+            }
+			
+            header( std::ofstream &outfile, phylogenomics &phy ) {
+                save( outfile, phy );
+            }
+			
+			phylogenomics load( string_t &infile ) {
+				std::ifstream infile_;
+        
+                infile_.open( infile, std::ifstream::binary );
+                if (!infile_.good()) {
+                    std::cout << "error opening " << infile << std::endl;
+                    exit(1);
+                }
+                
+                return load( infile_ );
+			}
+			
+            phylogenomics load( std::ifstream &infile ) {
+                baseInt           json_size = 0;
+                infile.read( (char*)&json_size, sizeof(baseInt) );
+                std::cout << "size " << json_size << "\n";
+                
+                char jsonstr[ json_size ];
+                infile.read( jsonstr, json_size );
+                jsonstr[ json_size ] = '\0';
+                std::cout << "json " << jsonstr << "\n";
+                
+				json_doc_t doc;
+                doc.Parse(jsonstr);
+                
+                if ( doc.HasParseError() ) {
+                    std::cout << "parse error" << std::endl;
+                    exit(1);
+                }
+				
+				
+				/*
+				o.AddMember( "modeNum"           ,            mn                       , a );
+                
+				o.AddMember( "binomialSample"    , (uint64_t) phy.get_binomialSample() , a );
+                o.AddMember( "binomialSize"      , (uint64_t) phy.get_binomialSize()   , a );
+                o.AddMember( "num_files"         , (uint64_t) phy.get_num_files()      , a );
+                o.AddMember( "num_kmers_total"   , (uint64_t) phy.get_num_kmers_total(), a );
+                o.AddMember( "num_kmers_valid"   , (uint64_t) phy.get_num_kmers_valid(), a );
+                
+				o.AddMember( "filenames"         ,            filenames_j              , a );
+                o.AddMember( "num_kmer_valid_spp",            num_kmer_valid_spp_j     , a );
+                o.AddMember( "num_kmer_total_spp",            num_kmer_total_spp_j     , a );
+				o.AddMember( "num_points_spp"    ,            num_points_spp_j         , a );
+                o.AddMember( "scale"             ,            scale_j                  , a );	
+                */
+				
+				
+				string_t          modeNum              = doc["modeNum"           ].GetString();
+                baseInt           binomialSample       = doc["binomialSample"    ].GetUint64();
+                //baseInt           binomialSize         = doc["binomialSize"      ].GetUint64();
+                //baseInt           num_files            = doc["num_files"         ].GetUint64();
+                baseInt           num_kmers_total      = doc["num_kmers_total"   ].GetUint64();
+                baseInt           num_kmers_valid      = doc["num_kmers_valid"   ].GetUint64();
+				
+                const json_val_t& d_filenames          = doc["filenames"         ];
+                const json_val_t& d_num_kmer_valid_spp = doc["num_kmer_valid_spp"];
+                const json_val_t& d_num_kmer_total_spp = doc["num_kmer_total_spp"];
+                const json_val_t& d_num_points_spp     = doc["num_points_spp"    ];
+                const json_val_t& d_scale              = doc["scale"             ];
+
+                json_size_t       s_filenames          = d_filenames         .Size();
+                json_size_t       s_num_kmer_valid_spp = d_num_kmer_valid_spp.Size();
+                json_size_t       s_num_kmer_total_spp = d_num_kmer_total_spp.Size();
+                json_size_t       s_num_points_spp     = d_num_points_spp    .Size();
+                json_size_t       s_scale              = d_scale             .Size();
+
+				string_vec_t      filenames;
+				intVector         num_kmer_valid_spp;
+				intVector         num_kmer_total_spp;
+				intVector         num_points_spp;
+				intVector         scale;
+
+				filenames         .resize( s_filenames          );
+				num_kmer_valid_spp.resize( s_num_kmer_valid_spp );
+				num_kmer_total_spp.resize( s_num_kmer_total_spp );
+				num_points_spp    .resize( s_num_points_spp     );
+				scale             .resize( s_scale              );
+				
+                for ( json_size_t k = 0; k < s_filenames; ++k ) { // rapidjson uses SizeType instead of size_t.
+                    filenames         [k] = d_filenames[k]         .GetString();
+                }
+				
+                for ( json_size_t k = 0; k < s_num_kmer_valid_spp; ++k ) { // rapidjson uses SizeType instead of size_t.
+                    num_kmer_valid_spp[k] = d_num_kmer_valid_spp[k].GetUint64();
+                }
+				
+                for ( json_size_t k = 0; k < s_num_points_spp    ; ++k ) { // rapidjson uses SizeType instead of size_t.
+                    num_points_spp    [k] = d_num_points_spp    [k].GetUint64();
+                }
+				
+                for ( json_size_t k = 0; k < s_num_kmer_total_spp; ++k ) { // rapidjson uses SizeType instead of size_t.
+                    num_kmer_total_spp[k] = d_num_kmer_total_spp[k].GetUint64();
+                }
+				
+                for ( json_size_t k = 0; k < s_scale             ; ++k ) { // rapidjson uses SizeType instead of size_t.
+                    scale             [k] = d_scale             [k].GetUint64();
+                }
+				
+				phylogenomics phy( filenames, modeNum, binomialSample );
+
+				phy.set_num_kmers_total    ( num_kmers_total    );
+				phy.set_num_kmers_valid    ( num_kmers_valid    );
+				phy.set_filenames          ( filenames          );
+				phy.set_num_kmer_valid_spp ( num_kmer_valid_spp );
+				phy.set_num_kmer_total_spp ( num_kmer_total_spp );
+				phy.set_num_points_spp     ( num_points_spp     );
+
+				deserialize_links( infile, phy );
+				
+				return phy;
+            }
+    
+            void save( string_t &outfile, phylogenomics &phy ) {
+                std::ofstream outfile_;
+        
+                outfile_.open( outfile, std::ifstream::binary );
+                if (!outfile_.good()) {
+                    std::cout << "error opening " << outfile << std::endl;
+                    exit(1);
+                }
+                
+                save( outfile_, phy );
+			}
+
+            void save( std::ofstream &outfile, phylogenomics &phy ) {
+                std::cout << "exporting to stream. saving" << std::endl;
+                
+                json_doc_t   doc;
+                json_allo_t& a = doc.GetAllocator();
+                json_val_t   o( rapidjson::kObjectType );    
+
+				string_vec_t filenames          = phy.get_filenames();
+				intVector    num_kmer_valid_spp = phy.get_num_kmer_valid_spp();
+				intVector    num_kmer_total_spp = phy.get_num_kmer_total_spp();
+				intVector    num_points_spp     = phy.get_num_points_spp();
+				intVector    scale              = phy.get_scale();
+  				intVector    links              = phy.get_db_links();
+
+                json_val_t filenames_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < filenames.size(); ++k1 ) {
+                    json_val_t st;
+                    st.SetString( filenames[k1].c_str(), filenames[k1].size() );
+                    filenames_j.PushBack( st, a );
+                }
+
+
+                json_val_t num_kmer_valid_spp_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < num_kmer_valid_spp.size(); ++k1 ) {
+                    num_kmer_valid_spp_j.PushBack( (uint64_t) num_kmer_valid_spp[k1], a );
+                }
+
+
+                json_val_t num_kmer_total_spp_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < num_kmer_total_spp.size(); ++k1 ) {
+                    num_kmer_total_spp_j.PushBack( (uint64_t) num_kmer_total_spp[k1], a );
+                }
+
+
+                json_val_t num_points_spp_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < num_points_spp.size(); ++k1 ) {
+                    num_points_spp_j.PushBack( (uint64_t) num_points_spp[k1], a );
+                }
+
+                json_val_t scale_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < scale.size(); ++k1 ) {
+                    scale_j.PushBack( (uint64_t) scale[k1], a );
+                }
+
+
+				/*
+				baseInt      get_binomialSample     () const { return binomialSample;     }
+				baseInt      get_binomialSize       () const { return binomialSize;       }
+				baseInt      get_num_files          () const { return num_files;          }
+				baseInt      get_num_kmers_total    () const { return num_kmers_total;    }
+				baseInt      get_num_kmers_valid    () const { return num_kmers_valid;    }
+				string_t     get_modeNum            () const { return modeNum;            }
+				
+				string_vec_t get_filenames          () const { return filenames;          }
+				intVector    get_num_kmer_valid_spp () const { return num_kmer_valid_spp; }
+				intVector    get_num_kmer_total_spp () const { return num_kmer_total_spp; }
+				intVector    get_num_points_spp     () const { return num_points_spp;     }
+				intVector    get_scale              () const { return scale;              }
+				intVector    get_db_links           () const { return db.get_links();     }
+				*/
+				
+				json_val_t mn;
+				mn.SetString( phy.get_modeNum().c_str(), phy.get_modeNum().size() );
+                o.AddMember( "modeNum"           ,            mn                       , a );
+                
+				o.AddMember( "binomialSample"    , (uint64_t) phy.get_binomialSample() , a );
+                o.AddMember( "binomialSize"      , (uint64_t) phy.get_binomialSize()   , a );
+                o.AddMember( "num_files"         , (uint64_t) phy.get_num_files()      , a );
+                o.AddMember( "num_kmers_total"   , (uint64_t) phy.get_num_kmers_total(), a );
+                o.AddMember( "num_kmers_valid"   , (uint64_t) phy.get_num_kmers_valid(), a );
+                
+				o.AddMember( "filenames"         ,            filenames_j              , a );
+                o.AddMember( "num_kmer_valid_spp",            num_kmer_valid_spp_j     , a );
+                o.AddMember( "num_kmer_total_spp",            num_kmer_total_spp_j     , a );
+				o.AddMember( "num_points_spp"    ,            num_points_spp_j         , a );
+                o.AddMember( "scale"             ,            scale_j                  , a );				
+				
+				
+                doc.Swap( o );
+    
+                json_str_buff_t   buff;
+                json_writer_fil_t writer(buff);
+                doc.Accept(writer);
+    
+                baseInt           json_size = buff.GetSize();
+                std::cout << "size " << json_size << " " << buff.GetString() << "\n";
+                
+                outfile.write( reinterpret_cast<const char *>(&json_size), sizeof(baseInt) );
+                outfile   << buff.GetString();
+				
+				serialize_links( outfile, phy, links );
+            }
+			
+			void serialize_links( std::ofstream &outfile, phylogenomics &phy, intVector &links ) {
+                baseInt so = sizeof( baseInt );
+				baseInt ls = links.size();
+				
+				std::cout << "binomialSize " << ls << std::endl;
+				
+				for ( baseInt k1 = 0; k1 < ls; ++k1 ) {
+					outfile.write( reinterpret_cast<const char *>(&links[k1]), so );
+                }
+				
+				outfile.write( reinterpret_cast<const char *>(&ls), so );
+			}
+
+			void deserialize_links( std::ifstream &infile, phylogenomics &phy ) {
+                baseInt so           = sizeof( baseInt );
+				baseInt binomialSize = phy.get_binomialSize();
+				baseInt val          = 0;
+				
+				std::cout << "binomialSize  " << binomialSize << std::endl;
+
+				for ( baseInt k1 = 0; k1 < binomialSize; ++k1 ) {
+					infile.read( (char*)&val, so );
+					if ( !infile.good() ) {
+						std::cout << "reached end of file at " << k1 << " / " << binomialSize << std::endl;
+						exit(1);
+					}
+					phy.set_db_links( k1, val );
+				}
+				
+				baseInt ls = 0;
+				infile.read( (char*)&ls, so );
+				
+				std::cout << "num registers " << ls << std::endl;
+				
+				if ( ls != binomialSize ) {
+					std::cout << "wrong number of registers. binomial size: " << binomialSize << " registers: " << ls << std::endl;
+					exit(1);
+				}
+			}
+    }
+
+  
+
+	void gen_scale_Binomial(intVector &scale, baseInt binomialSample, baseInt num_files) {
+		for ( baseInt p = binomialSample; p < num_files + binomialSample + 1; ++p ) {
+			/*
+			if ( scale[p] == 0 || p < binomialSample ) {
+			  scale[p] = 1;
+			}
+			*/
+			scale[p - binomialSample] = binomialTree::binomial(p, binomialSample);
+		}
+	}
+
+	void gen_scale_Fibonacci(intVector &fibonacci, baseInt max, baseInt curr=0) {
+		if ( curr > 1 ) {
+			fibonacci[ curr ] = fibonacci[ curr - 1 ] + fibonacci[ curr - 2 ];
+		} else {
+			fibonacci[ curr ] = 1;
+		}
+		
+		if ( curr < max ) {
+			gen_scale_Fibonacci(fibonacci, max, curr + 1);
+		}
+	}
+
+
+
+	class phylogenomics {
+		private:
+			baseInt      binomialSample;
+			baseInt      binomialSize;
+			baseInt      num_files;
+			baseInt      num_kmers_total;
+			baseInt      num_kmers_valid;
+			baseInt      cutOff;
+			bool         verbose_flag;
+
+			string_t     modeNum;
+
+			string_vec_t filenames;
+
+			intVector    tmpSpps;
+			intVector    tmpTmpSpps;
+			intVector    num_kmer_valid_spp;
+			intVector    num_kmer_total_spp;
+			intVector    num_points_spp;
+			intVector    scale;
+			binTree      db;
+		
+		public:
+			phylogenomics():
+				binomialSample(  0     ),
+				binomialSize(    0     ),
+				num_files(       0     ),
+				num_kmers_total( 0     ),
+				num_kmers_valid( 0     ),
+				cutOff(          0     ),
+				verbose_flag(    false ),
+				modeNum(         ""    )
+			{}
+  
+			phylogenomics(
+						const string_vec_t &filenamesl,
+						const string_t      modeNuml,
+						const baseInt       binomialSamplel=0,
+						const double       &cutOffL=0.7,
+						const bool          verbose_flagl=false):
+				binomialSample(  binomialSamplel   ),
+				binomialSize(    0                 ),
+				num_files(       filenamesl.size() ),
+				num_kmers_total( 0                 ),
+				num_kmers_valid( 0                 ),
+				cutOff(          0                 ),
+				verbose_flag(    verbose_flagl     ),
+				modeNum(         modeNuml          ),
+				filenames(       filenamesl        )
+			{
+				num_points_spp.resize(     num_files );
+				num_kmer_valid_spp.resize( num_files );
+				num_kmer_total_spp.resize( num_files );
+			
+			
+				if ( binomialSample == 0 ) {
+					binomialSample = ceil( float(log(num_files)) / log(2.0) );
+					if ( binomialSample > num_files ) {
+						binomialSample = num_files;
+					}
+				}
+			
+				if ( num_files <= binomialSample ) {
+					binomialSample = num_files - 1;
+				}
+				
+
+				cutOff = (int) (num_files * cutOffL);
+				if ( cutOff < binomialSample ) { cutOff = binomialSample; }
+
+
+				binomialSize   = binomialTree::binomial(num_files, binomialSample);
+				std::cout << 	"PHYLOGENOMICS creator\n"         <<
+								"PHYLOGENOMICS +num kmers tot: "  << num_kmers_total  << "\n"
+								"PHYLOGENOMICS +num kmers val: "  << num_kmers_valid  << "\n"
+								"PHYLOGENOMICS +num species  : "  << num_files        << "\n"
+								"PHYLOGENOMICS +cutOff       : "  << cutOff           << "\n"
+								"PHYLOGENOMICS +sample size  : "  << binomialSample   << "\n"
+								"PHYLOGENOMICS +binomial size: (" << num_files        << ", " << binomialSample << ") = " << binomialSize << "\n"
+								"PHYLOGENOMICS +num files    : "  << filenames.size() << "\n";
+			  
+				for( baseInt sppId = 0; sppId < num_files; ++sppId ) {
+					std::cout << "PHYLOGENOMICS + files       : " << (sppId+1) << " = " << filenames[ sppId ] << "\n";
+				}
+				std::cout << std::endl;
+
+
+				scale.resize(num_files + 1);
+				if        ( modeNum == MODE_BINOM ) {
+					gen_scale_Binomial(scale, binomialSample, num_files);
+				
+				} else if ( modeNum == MODE_FIBBO ) {
+					gen_scale_Fibonacci(scale, num_files);
+				
+				} else {
+					std::cout << "UNKNOWN MODE '" << modeNum << "'" << std::endl;
+					exit(1);
+				}
+		  
+#ifdef DEBUG
+				for ( baseInt p = 0; p < scale.size(); ++p ) {
+					std::cerr << "binscale " << p << " = " << scale[p] << std::endl;
+				}
+#endif
+
+				std::cout << "initializing DB" << std::endl;
+				db = * new binTree( num_files, binomialSample, cutOff );
+	  
+				std::cout << "finished initializing phylogenomics\n" << "\n";
+	  
+				tmpSpps.reserve( num_files );
+			}
+
+			inline void parse( const intVector &tmpSppsS, const baseInt &count ) {
+				++num_kmers_total;
+				if ( count >= binomialSample ) {
+					++num_kmers_valid;
+					
+					tmpTmpSpps.assign( tmpSppsS.begin(), tmpSppsS.begin() + count );
+					for ( baseInt s = 0; s < count; ++s ) {
+						++num_kmer_valid_spp[ tmpTmpSpps[ s ] ];
+						++num_points_spp[     tmpTmpSpps[ s ] ];
+					}
+					
+					/*
+					std::cout << "  tmpSpps    : " << tmpSppsS.size() << "\n";
+					for ( baseInt p = 0; p < count; ++p ) {
+					  std::cout << tmpSppsS[p] << ", ";
+					}
+					std::cout << "\n";
+
+					std::cout << "  tmpTmpSpps : " << tmpTmpSpps.size() << " cout " << count << "\n";
+					for ( baseInt p = 0; p < tmpTmpSpps.size(); ++p ) {
+					  std::cout << tmpTmpSpps[p] << ", ";
+					}
+					std::cout << "\n";
+					*/
+					
+					db.parseAll( tmpTmpSpps, 0, count );
+				}
+
+				for ( baseInt s = 0; s < count; ++s ) {
+					++num_kmer_total_spp[ tmpTmpSpps[ s ] ];
+				}
+			}
+
+			void save( string_t out_file ) {
+				std::cout << "PHYLOGENOMICS saving\n"       <<
+							 "PHYLOGENOMICS +sample size  : "  << binomialSample   << "\n"
+							 "PHYLOGENOMICS +binomial size: (" << num_files        << ", " << binomialSample << ") = " << binomialSize << "\n"
+							 "PHYLOGENOMICS +num species  : "  << num_files        << "\n"
+							 "PHYLOGENOMICS +num kmers tot: "  << num_kmers_total  << "\n"
+							 "PHYLOGENOMICS +num kmers val: "  << num_kmers_valid  << "\n"
+							 "PHYLOGENOMICS +mode num     : "  << modeNum          << "\n"
+							 "PHYLOGENOMICS +num files    : "  << filenames.size() << std::endl;
+		
+				header h = header();
+				h.save( out_file, (*this) );
+			}
+
+			void load( string_t in_file ) {
+				header( in_file, (*this) );
+			};
+			
+			void reportTxt() {
+				/*
+				std::cout << "PHYLOGENOMICS reporting\n"
+						  << "PHYLOGENOMICS +num kmers tot: "  << num_kmers_total << "\n"
+						  << "PHYLOGENOMICS +num kmers val: "  << num_kmers_valid << "\n"
+						  << "PHYLOGENOMICS +num species  : "  << num_files       << "\n"
+						  << "PHYLOGENOMICS +sample size  : "  << binomialSample  << "\n"
+						  << "PHYLOGENOMICS +binomial size: (" << num_files       << ", "
+						  << binomialSample << ") = "   << binomialSize    << std::endl;
+				
+				distanceMatrix outputMatrix(num_files, distanceVector( binomialSize ));
+				 
+				binomialPairVector binList;
+				binList.reserve( binomialSize );
+				 
+				nameValPairVector colNames;
+				colNames.resize( binomialSize );
+				
+				std::cout << "binomialSize " << binomialSize << "\n";
+				 
+				db.getDescendence( binList );
+				
+				baseInt combinationNum = 0;
+				for ( baseInt s = 0; s < binList.size(); ++s )
+				{
+				  std::cout << "s " << s+1 << "/" << binList.size() << "\n";
+				
+				  binomialPair binListVal  = binList[s];
+				  
+				  baseInt         parentsSize = binListVal.parents.size();
+				 
+				  std::cout << " parents size " << parentsSize << "\n";
+				 
+				  baseInt         shared      = binListVal.count;
+				 
+				  std::cout << " shared " << shared << "\n";
+				  
+				  std::string name = vec2name( binListVal.parents );
+				 
+				  std::cout << " name " << name << "\n";
+				  
+				  colNames[ combinationNum ].name = name;
+				  colNames[ combinationNum ].val  = shared ;
+				  
+				  for ( baseInt sppidPos = 0; sppidPos < parentsSize; ++sppidPos )
+				  {
+					baseInt sppId = binListVal.parents[ sppidPos ];
+					std::cout << " spppos " << sppidPos << " sppId " << sppId << " add " << num_points_spp[ sppId ] << "\n";
+					outputMatrix[ sppId ][ combinationNum ].shared = shared;
+					outputMatrix[ sppId ][ combinationNum ].add( num_points_spp[ sppId ] );
+				  }
+				  
+				  ++combinationNum;
+				}
+				 
+				 
+				baseInt maxSize = 0;
+				for(baseInt sppId = 0; sppId < num_files; sppId++)
+				{
+				  const char *spp1Name = filenames[sppId];
+				  baseInt sizeOfName = strlen(spp1Name);
+				  if (sizeOfName > maxSize) {
+					maxSize = sizeOfName;
+				  }
+				}
+				 
+				
+				std::string strLen;
+				itostr(maxSize + 3, strLen);
+				strLen = "%-"+strLen+"s";
+				
+				// export spps counts
+				std::cout << "\n\n";  
+				std::cout << "========= BEGIN SPECIES NAMES =========\n";
+				for(baseInt sppId = 0; sppId < num_files; sppId++)
+				{
+				  const char *spp1Name = filenames[sppId];
+				  printf(strLen.c_str(), spp1Name);
+				  std::cout << " : " << sppId << " : " << num_points_spp[ sppId ] << "\n";
+				}
+				std::cout << "========= END SPECIES NAMES =========\n";
+				
+				 
+				
+				for(baseInt sppId = 0; sppId < num_files; sppId++)
+				{
+				  const char *spp1Name = filenames[sppId];
+				  printf(strLen.c_str(), spp1Name);
+				  
+				  distanceVector outLine = outputMatrix[sppId];
+				  
+				  std::cout << " " << spp1Name << "(" << sppId << "):\n";
+				  
+				  for ( baseInt snpId = 0; snpId < outLine.size(); ++snpId ) {
+					outLine[snpId].print();
+				  }
+				  std::cout << "\n";
+				}
+				
+				
+				// export normal
+				std::cout << "\n\n";  
+				std::cout << "========= BEGIN COUNT =========\n";
+				std::cout << num_files << "\n";
+				
+				for(baseInt sppId = 0; sppId < num_files; sppId++)
+				{
+				  const char *spp1Name = filenames[sppId];
+				  printf(strLen.c_str(), spp1Name);
+				  
+				  distanceVector outLine = outputMatrix[sppId];
+				  
+				  for ( baseInt snpId = 0; snpId < outLine.size(); ++snpId ) {
+					printf ("  %10llu", outLine[snpId].shared);
+				  }
+				  std::cout << "\n";
+				}
+				std::cout << "========= END COUNT =========\n";
+				 
+				 
+				// export jaccad
+				std::cout << "\n\n";
+				std::cout << "========= BEGIN JACCARD =========\n";
+				std::cout << num_files << "\n";
+				for(baseInt sppId = 0; sppId < num_files; sppId++)
+				{
+				  const char *spp1Name = filenames[sppId];
+				  printf(strLen.c_str(), spp1Name);
+				  
+				  distanceVector outLine = outputMatrix[sppId];
+				  
+				  for ( baseInt snpId = 0; snpId < outLine.size(); ++snpId ) {
+					printf ("  %10lf", outLine[snpId].jaccard_similarity);
+				  }
+				  
+				  std::cout << "\n";
+				}
+				std::cout << "========= END JACCARD =========\n";
+				
+				
+				
+				
+				// export russel rao
+				std::cout << "\n\n";
+				std::cout << "========= BEGIN RUSSEL RAO =========\n";
+				std::cout << num_files << "\n";
+				for(baseInt sppId = 0; sppId < num_files; sppId++)
+				{
+				  const char *spp1Name = filenames[sppId];
+				  printf(strLen.c_str(), spp1Name);
+				  
+				  distanceVector outLine = outputMatrix[sppId];
+				  
+				  for ( baseInt snpId = 0; snpId < outLine.size(); ++snpId ) {
+					printf ("  %10lf", outLine[snpId].russel_rao_similarity);
+				  }
+				  std::cout << "\n";
+				}
+				std::cout << "========= END RUSSEL RAO =========\n";
+				
+				
+				
+				// export fowlkes mallows
+				std::cout << "\n\n";
+				std::cout << "========= BEGIN FOWLKES MALLOWS =========\n";
+				std::cout << num_files << "\n";
+				for(baseInt sppId = 0; sppId < num_files; sppId++)
+				{
+				  const char *spp1Name = filenames[sppId];
+				  printf(strLen.c_str(), spp1Name);
+				  
+				  distanceVector outLine = outputMatrix[sppId];
+				  
+				  for ( baseInt snpId = 0; snpId < outLine.size(); ++snpId ) {
+					printf ("  %10lf", outLine[snpId].fowlkes_mallows_similarity);
+				  }
+				  std::cout << "\n";
+				}
+				std::cout << "========= END FOWLKES MALLOWS =========\n";
+				
+				 
+				
+				// export column names
+				std::cout << "\n\n";
+				std::cout << "========= BEGIN COLUMNS NAMES =========\n";
+				std::cout << colNames.size() << "\n";
+				for ( baseInt snpId = 0; snpId < colNames.size(); ++snpId ) {
+				  printf("%10llu: %10llu %s\n", snpId, colNames[snpId].val, colNames[snpId].name.c_str());
+				}
+				std::cout << "========= END COLUMNS NAMES =========\n";
+				
+				#ifdef __MERGE_PHYLO_DEBUG__
+				dump();
+				#endif
+				*/
+			}
+		  
+			void update( phylogenomics &inMode ) {
+				std::cout << "updating " << std::endl;
+				
+				nameValPairVector  colNames;
+				binomialPairVector binList;
+				binList.reserve(binomialSize);
+				
+				std::cout << "updating global counts\n";
+				num_kmers_total += inMode.num_kmers_total;
+				num_kmers_valid += inMode.num_kmers_valid;
+			  
+				std::cout << "updating spp counts\n";
+				for ( baseInt r = 0; r < inMode.num_points_spp.size(); ++r ) {
+					num_points_spp[     r ] += inMode.num_points_spp[    r];
+					num_kmer_valid_spp[ r ] += inMode.num_kmer_valid_spp[r];
+					num_kmer_total_spp[ r ] += inMode.num_kmer_total_spp[r];
+				}
+				
+				binTree &dbIn = inMode.db;
+				std::cout << "updating db\n";
+				db.update( dbIn );
+				std::cout << "updated\n";
+			}
+		  
+			void dump() {
+				std::cout << "\n\n";
+				std::cout << "========= BEGIN DB DUMP =========\n";
+				db.printTree();
+				std::cout << "========= END DB DUMP =========\n";
+			}
+
+			baseInt      get_binomialSample     () const { return binomialSample;     }
+			baseInt      get_binomialSize       () const { return binomialSize;       }
+			baseInt      get_num_files          () const { return num_files;          }
+			baseInt      get_num_kmers_total    () const { return num_kmers_total;    }
+			baseInt      get_num_kmers_valid    () const { return num_kmers_valid;    }
+			string_t     get_modeNum            () const { return modeNum;            }
+			string_vec_t get_filenames          () const { return filenames;          }
+			intVector    get_num_kmer_valid_spp () const { return num_kmer_valid_spp; }
+			intVector    get_num_kmer_total_spp () const { return num_kmer_total_spp; }
+			intVector    get_num_points_spp     () const { return num_points_spp;     }
+			intVector    get_scale              () const { return scale;              }
+			binTree      get_db                 () const { return db;                 }
+			intVector    get_db_links           () const { return db.getLinks();      }
+			baseInt      get_db_link            ( baseInt f ) { return db.get_value_pos(f); }
+
+			void         set_binomialSample     ( baseInt       binomialSamplel    ) { binomialSample     = binomialSamplel;     }
+			void         set_binomialSize       ( baseInt       binomialSizel      ) { binomialSize       = binomialSizel;       }
+			void         set_num_files          ( baseInt       num_filesl         ) { num_files          = num_filesl;          }
+			void         set_num_kmers_total    ( baseInt       num_kmers_totall   ) { num_kmers_total    = num_kmers_totall;    }
+			void         set_num_kmers_valid    ( baseInt       num_kmers_validl   ) { num_kmers_valid    = num_kmers_validl;    }
+			void         set_modeNum            ( string_t     &modeNuml           ) { modeNum            = modeNuml;            }
+			void         set_filenames          ( string_vec_t &filenamesl         ) { filenames          = filenamesl;          }
+			void         set_num_kmer_valid_spp ( intVector    &num_kmer_valid_sppl) { num_kmer_valid_spp = num_kmer_valid_sppl; }
+			void         set_num_kmer_total_spp ( intVector    &num_kmer_total_sppl) { num_kmer_total_spp = num_kmer_total_sppl; }
+			void         set_num_points_spp     ( intVector    &num_points_sppl    ) { num_points_spp     = num_points_sppl;     }
+			void         set_scale              ( intVector    &scalel             ) { scale              = scalel;              }
+			void         set_db                 ( binTree      &dbl                ) { db                 = dbl;                 }
+			void         set_db_links           ( intVector    &linksl             ) { db.setLinks( linksl   );                  }
+			inline void  set_db_links           ( baseInt       pos, baseInt  val  ) { db.set_value_pos( pos, val );             }
+	}
+}

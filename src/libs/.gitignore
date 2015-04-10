@@ -1,0 +1,10 @@
+*.tar.gz
+*.zip
+#*.Po
+#*.Plo
+*.lo
+*.la
+.dirstamp
+*/.deps/*
+*/.libs/*
+jellyfish-2.1.3/bin

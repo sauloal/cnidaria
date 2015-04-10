@@ -1,0 +1,821 @@
+#hdr
+#include "cnidaria.hpp"
+#end
+
+#ifndef KMER_SIZE
+//#define KMER_SIZE 31
+NO KMER SIZE DEFINED
+#endif
+
+#ifdef DEBUG
+
+namespace cnidaria {
+/*
+    void run_test_single( string_vec_t srcfiles, string_t out_file ) {
+        std::cout << out_file << std::endl;
+        std::cout << out_file << " :: reading jf " << out_file.c_str() << std::endl;
+
+        progressBar progressl1("read jf " + out_file, 0, 1000);
+        progressl1.print( 1 );
+
+        baseInt  num_threads     =   2;
+        baseInt  num_pieces      =   1;
+        baseInt  minVal          =   2;
+        baseInt  save_every      =   1;
+        bool     export_complete = false;
+        bool     export_summary  = false;
+        bool     export_matrix   = true;
+        boost::recursive_mutex g_guard_s;
+
+        
+        piece_data_vec_t pieces;
+        
+        for ( baseInt piece_num = 0; piece_num < num_pieces; ++piece_num ) {
+            string_t    name      = (boost::format("%s_%04d_%04d") % out_file % piece_num % num_pieces).str();
+            
+            piece_data d = piece_data( srcfiles, name, num_threads, minVal, save_every, export_complete, export_summary, export_matrix, num_pieces, piece_num, new merge_jfs( srcfiles, name ), &g_guard_s );
+            
+            pieces.push_back( d );
+        }
+        
+        send_pieces( pieces );
+        
+        progressl1.print( 250 );
+
+        //merge_jfs final = merge_jfs( srcfiles );
+        
+        std::cout << out_file << " :: merging results" << std::endl;
+        for ( baseInt p = 1; p < pieces.size(); ++p ) {
+            pieces[0].merger->merge( pieces[p].merger );
+        }
+
+        progressl1.print( 500 );
+
+        std::cout << out_file << " :: exporting" << std::endl;
+
+        pieces[0].merger->set_num_pieces( 1 );
+
+        pieces[0].merger->save_all( out_file );
+        
+        progressl1.print( 1000 );
+
+        std::cout << out_file << " :: read jf test 1" << std::endl;
+    }
+*/
+    
+    
+    
+    
+    void run_test_pieces(       string_vec_t srcfiles, string_t out_file, uint_t num_pieces, uint_t piece_num ) {
+        if ( piece_num == num_pieces+1 ) {
+            run_test_pieces_merge(           out_file, num_pieces );
+        } else {
+            run_test_pieces_split( srcfiles, out_file, num_pieces, piece_num );
+        }
+    }
+
+    void run_test_pieces_merge( string_t out_file, uint_t num_pieces ) {
+        std::cout << out_file << " merge" << std::endl;
+        
+        string_vec_t srcfiles_complete;
+        string_vec_t srcfiles_matrix;
+        string_vec_t srcfiles_matrixj;
+        
+        for ( uint_t piece_num = 0; piece_num < num_pieces; ++piece_num ) {
+            string_t name_complete = (boost::format("%s_%04d_%04d%s") % out_file % piece_num % num_pieces % EXT_COMPLETE).str();
+            std::cout << "adding " << name_complete << " to merging" << std::endl;
+            srcfiles_complete.push_back( name_complete );
+            
+            string_t name_matrix = (boost::format("%s_%04d_%04d%s") % out_file % piece_num % num_pieces % EXT_MATRIX    ).str();
+            std::cout << "adding " << name_matrix << " to merging" << std::endl;
+            srcfiles_matrix.push_back( name_matrix );
+            
+            string_t name_matrixj = (boost::format("%s_%04d_%04d%s") % out_file % piece_num % num_pieces % EXT_JMATRIX  ).str();
+            std::cout << "adding " << name_matrixj << " to merging" << std::endl;
+            srcfiles_matrixj.push_back( name_matrixj );
+        }
+        
+        merge_complete( out_file, srcfiles_complete );
+        //merge_complete_parallel( out_file, srcfiles_complete );
+        merge_matrix(   out_file, srcfiles_matrix   );
+        merge_matrixj(  out_file, srcfiles_matrixj  );
+    }
+    
+    void run_test_pieces_split( string_vec_t srcfiles, string_t out_file, uint_t num_pieces, uint_t piece_num ) {
+        std::cout << out_file << std::endl;
+        std::cout << out_file << " :: reading jf test 2" << std::endl;
+        progressBar progressl1("read jf " + out_file, 0, 1000);
+        progressl1.print( 1 );
+
+        baseInt  num_threads     =   1;
+        baseInt  minVal          =   2;
+        baseInt  save_every      =   1;
+        //baseInt  save_every      =   100000;
+        bool     export_complete =  true;
+        bool     export_summary  = false;
+        bool     export_matrix   =  true;
+        
+        piece_data_vec_t pieces;
+        
+        string_t   name = (boost::format("%s_%04d_%04d") % out_file % piece_num % num_pieces).str();
+        
+        piece_data d    = piece_data( srcfiles, name, num_threads, minVal, save_every, export_complete, export_summary, export_matrix, num_pieces, piece_num );
+        
+        send_piece( d );
+        
+        progressl1.print( 500 );
+
+        std::cout << out_file << " :: exporting" << std::endl;
+
+        d.merger->save_all( name );
+        
+        progressl1.print( 1000 );
+
+        std::cout << out_file << " :: read jf test 2 FINISHED" << std::endl;
+    }
+
+    
+    
+    
+    
+#if KMER_SIZE == 31
+    void test1( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test1";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_lyrata.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_thaliana_TAIR10_genome.fas.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Citrus_sinensis.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Glycine_max.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Malus_domestica.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Nicotiana_benthamiana_Niben.genome.v0.4.4.scaffolds.nrcontigs.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Nicotiana_tabacum_tobacco_genome_sequences_assembly.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Oryza_brachyantha.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Oryza_sativa_build_5.00_IRGSPb5.fa.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Populus_trichocarpa.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/S_lycopersicum_chromosomes.2.40.fa.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Solanum_peruvianum_Speru_denovo.fa.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Solanum_tuberosum_PGSC_DM_v3_superscaffolds.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Spimpinellifolium_genome.contigs.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Vitis_vinifera_Genoscope_12X_2010_02_12_scaffolds.fa.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Zea_mays.fasta.31.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+        //run_test_single( srcfiles, outfile );
+    }
+    
+    void test2( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test2";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_lyrata.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_thaliana_TAIR10_genome.fas.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Citrus_sinensis.fasta.31.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test3( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test3";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sa.CLC-830MB-tryout2.fa.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sa.fa.bam.filtered.bam.31.jf"  );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sa.fa.31.jf"                   );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sh.fa.bam.filtered.bam.31.jf"  );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sh.fa.31.jf"                   );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sl.fa.bam.filtered.bam.31.jf"  );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sl.fa.31.jf"                   );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sp.fa.bam.filtered.bam.31.jf"  );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sp.fa.31.jf"                   );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+    
+    void test4( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test4";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_001_SZAXPI008746-45.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_002_SZAXPI009284-57.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_003_SZAXPI009285-62.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_004_SZAXPI009286-74.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_005_SZAXPI009287-75.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_006_SZAXPI009288-79.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_007_SZAXPI009289-84.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_008_SZAXPI009290-87.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_011_SZAXPI009291-88.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_012_SZAXPI009292-89.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_013_SZAXPI009293-90.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_014_SZAXPI009294-93.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_015_SZAXPI009295-94.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_016_SZAXPI009296-95.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_017_SZAXPI009297-102.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_018_SZAXPI009298-108.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_019_SZAXPI009299-109.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_020_SZAXPI009300-113.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_021_SZAXPI009301-123.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_022_SZAXPI009302-129.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_023_SZAXPI009303-133.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_024_SZAXPI009304-136.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_025_SZAXPI009305-140.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_026_SZAXPI009306-142.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_027_SZAXPI009307-158.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_028_SZAXPI009308-166.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_029_SZAXPI009309-169.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_030_SZAXPI009310-62.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_031_SZAXPI009311-74.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_032_SZAXPI009312-75.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_033_SZAXPI009313-79.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_034_SZAXPI009314-84.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_035_SZAXPI009315-87.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_036_SZAXPI009316-88.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_037_SZAXPI008747-46.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_038_SZAXPI009317-89.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_039_SZAXPI009318-90.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_040_SZAXPI009319-93.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_041_SZAXPI009320-94.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_042_SZAXPI009321-95.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_043_SZAXPI009322-102.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_044_SZAXPI009323-108.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_045_SZAXPI009324-109.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_046_SZAXPI008748-47.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_047_SZAXPI009326-113.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_049_SZAXPI009327-123.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_051_SZAXPI009328-129.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_052_SZAXPI009329-133.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_053_SZAXPI009330-136.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_054_SZAXPI009331-140.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_055_SZAXPI009332-142.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_056_SZAXPI009333-158.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_057_SZAXPI009334-166.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_058_SZAXPI009359-46.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_059_SZAXPI009335-169.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_060_SZAXPI009336-14.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_062_SZAXPI009337-15.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_063_SZAXPI009338-16.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_064_SZAXPI009339-17.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_065_SZAXPI009340-18.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_066_SZAXPI009341-19.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_067_SZAXPI009342-21.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_068_SZAXPI009343-22.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_069_SZAXPI009344-23.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_070_SZAXPI008749-56.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_071_SZAXPI009345-24.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_072_SZAXPI008752-75.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_073_SZAXPI009346-25.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_074_SZAXPI008753-79.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_075_SZAXPI009347-26.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_077_SZAXPI009348-27.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_078_SZAXPI009349-30.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_088_SZAXPI009350-31.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_089_SZAXPI009351-32.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_090_SZAXPI009352-35.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_091_SZAXPI009325-56.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_093_SZAXPI009353-36.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_094_SZAXPI008750-57.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_096_SZAXPI009354-37.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_097_SZAXPI009355-39.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_102_SZAXPI009356-41.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_103_SZAXPI009357-44.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_104_SZAXPI008751-74.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_105_SZAXPI009358-45.cram.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/Spimpinelifolium_CGN14498.bam.filtered.bam.dedup.bam.31.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+    
+    void test5( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test5";
+        
+        {
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test03/test3.cne" );
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test04/test4.cne" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test6( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test6";
+        
+        {
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Antirrhinum_majus_EST_cAMwp.seq.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Bos_mutus_RNA.fa.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Capsicum_annuum_EST_KS01.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Coffea_canephora_var_robusta_EST_cccwc22w.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Hedyotis_centranthoides_EST.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Hedyotis_terminalis_EST.seq.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/ipomoea_batatas_mRNA_2008_08_15.seq.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/nicotiana_benthamiana_mRNA_2008_08_25.seq.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/nicotiana_sylvestris_mRNA_2008_08_25.seq.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/nicotiana_tabacum_mRNA_2008_07_14.seq.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Nicotiana_tabacum_mRNA.fasta.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Petunia_hybrida_EST_cPHA.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_cheesmaniae_EST.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_habrochaites_EST_cLHT.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_habrochaites_EST_LH_Ea.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_lycopersicoides_EST.seq.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/solanum_lycopersicum_mRNA_2008_10_21.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_melongena_EST.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_pennellii_EST_cLPT.seq.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_peruvianum_CSH_transcriptome.fasta.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_peruvianum_EST.seq.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_pimpinellifolium_EST.seq.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/tomato_species_2008_10_21.seq.31.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+    
+    void test7( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test7";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Bos_taurus.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Caenorhabditis_elegans.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Canis_familiaris.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Danio_rerio.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Equus_caballus.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Gallus_gallus.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Gorilla_gorilla.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/H_sapiens.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Macaca_fascicularis.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Macaca_mulatta.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Mus_musculus.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Pan_troglodytes.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Rattus_norvegicus.fasta.31.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test8( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test8";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_fumigatus_uid14003.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_nidulans_FGSC_A4_uid13961.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_niger_CBS_513_88_uid19263.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_oryzae_RIB40_uid28175.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_albicans_uid14005.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_dubliniensis_CD36_uid38659.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_glabrata_CBS138_uid12376.fasta.31.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_glabrata.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Cryptococcus_gattii_WM276.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Cryptococcus_neoformans_var_JEC21_uid10698.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Kluyveromyces_lactis_NRRL_Y-1140_uid12377.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Neurospora_crassa_uid132.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Saccharomyces_cerevisiae_uid128.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Schizosaccharomyces_pombe_uid127.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Yarrowia_lipolytica_CLIB122_uid12414.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Zygosaccharomyces_rouxii_CBS_732_uid39573.fasta.31.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test9( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test9";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Insects/Apis_mellifera.fasta.31.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Insects/Drosophila_melanogaster.fasta.31.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test10( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test10";
+        
+        {
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test01/test1.cne"  );   // 16 plants
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test01/test2.cne"  ); //  3 plants
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test01/test3.cne"  ); //  9 denovo
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test01/test4.cne"  ); // 85 tomatoes
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test05/test5.cne"  );   // test3 (9 denovo) + test4 (85 tomatoes)
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test06/test6.cne"  );   // 22 RNA
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test07/test7.cne"  );   // 14 animals
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test08/test8.cne"  );   // 16 fungi
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test09/test9.cne"  );   //  3 insects
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test11/test11.cne" );   // test8 (16 fungi) + test9 (3 insects)
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test11( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test11";
+        
+        {
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test08/test8.cne" );   // 16 fungi
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_31/test09/test9.cne" );   //  3 insects
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+
+
+
+
+
+
+#elif KMER_SIZE == 21
+    void test1( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test1";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_lyrata.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_thaliana_TAIR10_genome.fas.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Citrus_sinensis.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Glycine_max.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Malus_domestica.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Nicotiana_benthamiana_Niben.genome.v0.4.4.scaffolds.nrcontigs.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Nicotiana_tabacum_tobacco_genome_sequences_assembly.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Oryza_brachyantha.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Oryza_sativa_build_5.00_IRGSPb5.fa.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Populus_trichocarpa.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/S_lycopersicum_chromosomes.2.40.fa.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Solanum_peruvianum_Speru_denovo.fa.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Solanum_tuberosum_PGSC_DM_v3_superscaffolds.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Spimpinellifolium_genome.contigs.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Vitis_vinifera_Genoscope_12X_2010_02_12_scaffolds.fa.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Zea_mays.fasta.21.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+        //run_test_single( srcfiles, outfile );
+    }
+    
+    void test2( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test2";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_lyrata.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_thaliana_TAIR10_genome.fas.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Citrus_sinensis.fasta.21.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test3( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test3";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sa.CLC-830MB-tryout2.fa.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sa.fa.bam.filtered.bam.21.jf"  );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sa.fa.21.jf"                   );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sh.fa.bam.filtered.bam.21.jf"  );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sh.fa.21.jf"                   );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sl.fa.bam.filtered.bam.21.jf"  );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sl.fa.21.jf"                   );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sp.fa.bam.filtered.bam.21.jf"  );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sp.fa.21.jf"                   );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+    
+    void test4( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test4";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_001_SZAXPI008746-45.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_002_SZAXPI009284-57.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_003_SZAXPI009285-62.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_004_SZAXPI009286-74.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_005_SZAXPI009287-75.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_006_SZAXPI009288-79.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_007_SZAXPI009289-84.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_008_SZAXPI009290-87.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_011_SZAXPI009291-88.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_012_SZAXPI009292-89.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_013_SZAXPI009293-90.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_014_SZAXPI009294-93.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_015_SZAXPI009295-94.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_016_SZAXPI009296-95.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_017_SZAXPI009297-102.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_018_SZAXPI009298-108.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_019_SZAXPI009299-109.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_020_SZAXPI009300-113.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_021_SZAXPI009301-123.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_022_SZAXPI009302-129.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_023_SZAXPI009303-133.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_024_SZAXPI009304-136.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_025_SZAXPI009305-140.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_026_SZAXPI009306-142.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_027_SZAXPI009307-158.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_028_SZAXPI009308-166.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_029_SZAXPI009309-169.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_030_SZAXPI009310-62.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_031_SZAXPI009311-74.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_032_SZAXPI009312-75.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_033_SZAXPI009313-79.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_034_SZAXPI009314-84.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_035_SZAXPI009315-87.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_036_SZAXPI009316-88.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_037_SZAXPI008747-46.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_038_SZAXPI009317-89.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_039_SZAXPI009318-90.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_040_SZAXPI009319-93.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_041_SZAXPI009320-94.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_042_SZAXPI009321-95.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_043_SZAXPI009322-102.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_044_SZAXPI009323-108.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_045_SZAXPI009324-109.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_046_SZAXPI008748-47.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_047_SZAXPI009326-113.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_049_SZAXPI009327-123.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_051_SZAXPI009328-129.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_052_SZAXPI009329-133.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_053_SZAXPI009330-136.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_054_SZAXPI009331-140.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_055_SZAXPI009332-142.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_056_SZAXPI009333-158.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_057_SZAXPI009334-166.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_058_SZAXPI009359-46.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_059_SZAXPI009335-169.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_060_SZAXPI009336-14.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_062_SZAXPI009337-15.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_063_SZAXPI009338-16.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_064_SZAXPI009339-17.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_065_SZAXPI009340-18.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_066_SZAXPI009341-19.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_067_SZAXPI009342-21.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_068_SZAXPI009343-22.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_069_SZAXPI009344-23.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_070_SZAXPI008749-56.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_071_SZAXPI009345-24.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_072_SZAXPI008752-75.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_073_SZAXPI009346-25.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_074_SZAXPI008753-79.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_075_SZAXPI009347-26.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_077_SZAXPI009348-27.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_078_SZAXPI009349-30.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_088_SZAXPI009350-31.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_089_SZAXPI009351-32.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_090_SZAXPI009352-35.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_091_SZAXPI009325-56.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_093_SZAXPI009353-36.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_094_SZAXPI008750-57.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_096_SZAXPI009354-37.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_097_SZAXPI009355-39.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_102_SZAXPI009356-41.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_103_SZAXPI009357-44.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_104_SZAXPI008751-74.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_105_SZAXPI009358-45.cram.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/Spimpinelifolium_CGN14498.bam.filtered.bam.dedup.bam.21.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+    
+    void test5( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test5";
+        
+        {
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test03/test3.cne" );
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test04/test4.cne" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test6( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test6";
+        
+        {
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Antirrhinum_majus_EST_cAMwp.seq.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Bos_mutus_RNA.fa.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Capsicum_annuum_EST_KS01.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Coffea_canephora_var_robusta_EST_cccwc22w.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Hedyotis_centranthoides_EST.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Hedyotis_terminalis_EST.seq.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/ipomoea_batatas_mRNA_2008_08_15.seq.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/nicotiana_benthamiana_mRNA_2008_08_25.seq.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/nicotiana_sylvestris_mRNA_2008_08_25.seq.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/nicotiana_tabacum_mRNA_2008_07_14.seq.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Nicotiana_tabacum_mRNA.fasta.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Petunia_hybrida_EST_cPHA.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_cheesmaniae_EST.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_habrochaites_EST_cLHT.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_habrochaites_EST_LH_Ea.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_lycopersicoides_EST.seq.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/solanum_lycopersicum_mRNA_2008_10_21.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_melongena_EST.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_pennellii_EST_cLPT.seq.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_peruvianum_CSH_transcriptome.fasta.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_peruvianum_EST.seq.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_pimpinellifolium_EST.seq.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/tomato_species_2008_10_21.seq.21.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+    
+    void test7( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test7";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Bos_taurus.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Caenorhabditis_elegans.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Canis_familiaris.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Danio_rerio.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Equus_caballus.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Gallus_gallus.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Gorilla_gorilla.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/H_sapiens.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Macaca_fascicularis.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Macaca_mulatta.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Mus_musculus.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Pan_troglodytes.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Rattus_norvegicus.fasta.21.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test8( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test8";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_fumigatus_uid14003.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_nidulans_FGSC_A4_uid13961.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_niger_CBS_513_88_uid19263.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_oryzae_RIB40_uid28175.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_albicans_uid14005.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_dubliniensis_CD36_uid38659.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_glabrata_CBS138_uid12376.fasta.21.jf" );
+            //srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_glabrata.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Cryptococcus_gattii_WM276.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Cryptococcus_neoformans_var_JEC21_uid10698.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Kluyveromyces_lactis_NRRL_Y-1140_uid12377.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Neurospora_crassa_uid132.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Saccharomyces_cerevisiae_uid128.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Schizosaccharomyces_pombe_uid127.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Yarrowia_lipolytica_CLIB122_uid12414.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Zygosaccharomyces_rouxii_CBS_732_uid39573.fasta.21.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test9( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test9";
+        
+        {
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Insects/Apis_mellifera.fasta.21.jf" );
+            srcfiles.push_back( "/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Insects/Drosophila_melanogaster.fasta.21.jf" );
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test10( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test10";
+        
+        {
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test01/test1.cne"  );   // 16 plants
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test01/test2.cne"  ); //  3 plants
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test01/test3.cne"  ); //  9 denovo
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test01/test4.cne"  ); // 85 tomatoes
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test05/test5.cne"  );   // test3 (9 denovo) + test4 (85 tomatoes)
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test06/test6.cne"  );   // 22 RNA
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test07/test7.cne"  );   // 14 animals
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test08/test8.cne"  );   // 16 fungi
+            //srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test09/test9.cne"  );   //  3 insects
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test11/test11.cne" );   // test8 (16 fungi) + test9 (3 insects)
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+    void test11( uint_t num_pieces, uint_t piece_num ) {
+        string_vec_t srcfiles;
+        string_t     outfile = "test11";
+        
+        {
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test08/test8.cne" );   // 16 fungi
+            srcfiles.push_back( "/home/aflit001/nobackup/phylogenomics_tmp_21/test09/test9.cne" );   //  3 insects
+        }
+        
+        run_test_pieces( srcfiles, outfile, num_pieces, piece_num );
+    }
+
+
+
+
+
+
+#else
+NOT A VALID KMER SIZE
+#endif
+
+}
+
+
+int main(int argc, char *argv[]) {
+    //cnidaria::runTest();
+    int test_num   = -1;
+    int num_pieces = -1;
+    int piece_num  = -1;
+    
+    if ( argc != 4 ) {
+        std::cout << "not enought arguments" << std::endl;
+        exit(1);
+    }
+    
+    test_num   = atoi(argv[1]);
+    num_pieces = atoi(argv[2]);
+    piece_num  = atoi(argv[3]);
+    
+    printf("test_num=%d; num_pieces=%d; piece_num=%d\n", test_num, num_pieces, piece_num);
+    
+    if ( test_num == -1 ) {
+        std::cout << "test_num == -1" << std::endl;
+        exit(1);
+    }
+    
+    if ( num_pieces == -1 ) {
+        std::cout << "num_pieces == -1" << std::endl;
+        exit(1);
+    }
+
+    if ( piece_num == -1 ) {
+        std::cout << "piece_num == -1" << std::endl;
+        exit(1);
+    }
+    
+    if ( piece_num > num_pieces+1 ) {
+        std::cout << "frag num " << piece_num << " > num_pieces+1 " << num_pieces+1 << std::endl;
+        exit(1);
+    }
+    
+    
+    
+    
+    
+    if      ( test_num == 1 ) {
+        cnidaria::test1( num_pieces, piece_num );
+    }
+    else if ( test_num == 2 ) {
+        cnidaria::test2( num_pieces, piece_num );
+    }
+    else if ( test_num == 3 ) {
+        cnidaria::test3( num_pieces, piece_num );
+    }
+    else if ( test_num == 4 ) {
+        cnidaria::test4( num_pieces, piece_num );
+    }
+    else if ( test_num == 5 ) {
+        cnidaria::test5( num_pieces, piece_num );
+    }
+    else if ( test_num == 6 ) {
+        cnidaria::test6( num_pieces, piece_num );
+    }
+    else if ( test_num == 7 ) {
+        cnidaria::test7( num_pieces, piece_num );
+    }
+    else if ( test_num == 8 ) {
+        cnidaria::test8( num_pieces, piece_num );
+    }
+    else if ( test_num == 9 ) {
+        cnidaria::test9( num_pieces, piece_num );
+    }
+    else if ( test_num == 10 ) {
+        cnidaria::test10( num_pieces, piece_num );
+    }
+    else if ( test_num == 11 ) {
+        cnidaria::test11( num_pieces, piece_num );
+    }
+}
+
+#endif

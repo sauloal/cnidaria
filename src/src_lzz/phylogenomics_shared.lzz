@@ -1,0 +1,335 @@
+#hdr
+
+
+#include "shared.hpp"
+
+#define MAXBIN 300
+#define STDDEVS 1
+#define MAX_BUFFER_SIZE 20000
+
+namespace phylogenomics {
+  static const string_t MODE_BINOM = "BINOMIAL";
+  static const string_t MODE_FIBBO = "FIBONACCI";
+
+
+  struct histoStats {
+	baseFloat sumFrequencies;
+	baseFloat sumVals;
+	baseFloat sumSquares;
+	baseFloat meanSquares;
+	baseFloat mean;
+	baseFloat variance;
+	baseFloat stddev;
+	baseInt   stddevp;
+	baseInt   minIndex;
+	baseInt   maxIndex;
+	baseInt   auc;
+  };
+  
+  
+  struct statsVariables {
+	baseInt interval;
+	float   midpoint;
+	baseInt frequency;
+	float   sum;
+	float   midpointSqr;
+	float   sumSqr;
+  };
+  
+  
+  struct nameValPair {
+	string_t name;
+	baseInt  val;
+  };
+  
+  typedef std::vector<nameValPair> nameValPairVector;
+}
+
+#end
+
+
+
+namespace phylogenomics {
+  
+  class Writter {
+	private:
+	  std::ofstream* writeFile;
+	  bool           inited;
+	  
+	public:
+	  Writter(): inited(false) {};
+	  ~Writter(){
+		if ( inited ) {
+		  writeFile->close();
+		}
+	  }
+	  
+	  void init(string_t fnl) {
+		if ( !inited ) {
+		  std::cerr << "opening bin file " << fnl << "\n";
+		  writeFile = new std::ofstream(fnl.c_str(), std::ios::out | std::ios::binary );
+		  inited = true;
+		}
+	  }
+  
+	  void init(std::ofstream& writeFilel) {
+		if ( !inited ) {
+		  std::cerr << "attaching writer to ofstream " << "\n";
+		  writeFile = &writeFilel;
+		  inited    = true;
+		}
+	  }
+	  
+	  baseInt Tell() {
+		if ( inited ) {
+		  return writeFile->tellp();
+		} else {
+		  return 0;
+		}
+	  }
+	  
+	  void Flush(){
+		if ( inited ) {
+		  writeFile->flush();
+		}
+	  }
+	  
+	  void Seek(baseInt num) {
+		if ( inited ) {
+		  writeFile->seekp(num);
+		}
+	  }
+	  
+	  void Double(double num){
+		if ( inited ) {
+		  writeFile->write((const char*)&num  , sizeof(double));
+		}
+	  }
+	  
+	  void Int(baseInt num){
+		if ( inited ) {
+		  writeFile->write((const char*)&num  , sizeof(baseInt));
+		}
+	  }
+  
+	  void Raw(const char* text){
+		if ( inited ) {
+		  int strLen = strlen(text);
+		  writeFile->write((const char*)text, strLen);
+		}
+	  }
+	  
+	  void Str(const char* text, baseInt end){
+		if ( inited ) {
+		  baseInt strLen = strlen(text);
+		  Int(strLen );
+		  //Raw((const char*)text);
+		  writeFile->write((const char*)text, strLen);
+		  //std::cerr << text << " " << strLen << " > " << end << "\n";
+		  for (baseInt j = strLen; j < end; ++j) { writeFile->put('\0'); }
+		}
+	  }
+  };
+  
+  
+  
+  class Reader {
+	private:
+	  std::ifstream* readFile;
+	  bool           inited;
+	  
+	public:
+	  Reader(): inited(false) {};
+	  ~Reader(){
+		if ( inited ) {
+		  readFile->close();
+		}
+	  }
+	  
+	  void init(string_t fnl) {
+		if ( !inited ) {
+		  std::cerr << "opening bin file " << fnl << "\n";
+		  readFile = new std::ifstream(fnl.c_str(), std::ios::in | std::ios::binary );
+		  inited   = true;
+		}
+	  }
+  
+	  void init(std::ifstream& readFilel) {
+		if ( !inited ) {
+		  std::cerr << "attaching reader to ifstream " << "\n";
+		  readFile = &readFilel;
+		  inited   = true;
+		}
+	  }
+	  
+	  baseInt Tell() {
+		if ( inited ) {
+		  return readFile->tellg();
+		} else {
+		  return 0;
+		}
+	  }
+	  
+	  //void Flush(){
+	  //  if ( inited ) {
+	  //	readFile->flush();
+	  //  }
+	  //}
+	  
+	  void Seek(baseInt num) {
+		if ( inited ) {
+		  readFile->seekg(num);
+		}
+	  }
+	  
+	  void Double(double &d){
+		if ( inited ) {
+		  readFile->read((char*)&d, sizeof(double));
+		}
+	  }
+	  
+	  void Int(baseInt &i){
+		if ( inited ) {
+		  readFile->read((char*)&i, sizeof(baseInt));
+		}
+	  }
+  
+	  void Raw(char* text){
+		if ( inited ) {
+		  baseInt strLen = strlen(text);
+		  readFile->read((char*)text, strLen);
+		}
+	  }
+	  
+	  void Str(char* text, baseInt end){
+		if ( inited ) {
+		  baseInt strLen;// = strlen(text);
+		  Int(strLen );
+		  //Raw((const char*)text);
+		  readFile->read((char*)text, strLen);
+		  //std::cerr << text << " " << strLen << " > " << end << "\n";
+		  baseInt newPos = (baseInt)readFile->tellg() + (end - strLen);
+		  for (baseInt j = strLen; j < end; ++j) { readFile->seekg( newPos ); } //untested
+		}
+	  }
+  };
+  
+  
+  
+  string_t& itostr(baseInt val, string_t& s)
+  {
+	//http://ideone.com/0uhhX
+	  if(val==0)
+	  {
+		  s="0";
+		  return s;
+	  }
+   
+	  int size;
+	  if(val>=10000)
+	  {
+		  if(val>=10000000)
+		  {
+			  if(val>=1000000000)
+				  size=10;
+			  else if(val>=100000000)
+				  size=9;
+			  else 
+				  size=8;
+		  }
+		  else
+		  {
+			  if(val>=1000000)
+				  size=7;
+			  else if(val>=100000)
+				  size=6;
+			  else
+				  size=5;
+		  }
+	  }
+	  else 
+	  {
+		  if(val>=100)
+		  {
+			  if(val>=1000)
+				  size=4;
+			  else
+				  size=3;
+		  }
+		  else
+		  {
+			  if(val>=10)
+				  size=2;
+			  else
+				  size=1;
+		  }
+	  }
+   
+	  s.resize(size);
+	  char* c = &s[0];
+	  char* d = c+size-1;
+	  while(val>0)
+	  {
+		  *d--='0' + (val % 10);
+		  val /= 10;
+	  }
+	  return s;
+  }
+  
+  
+  
+  // global functions
+  histoStats calcHistoStats(intVector &histoData)
+  {
+	histoStats stats = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0,0, 0,0};
+	// TODO: MEDIAN position of the half the total
+	// std::vector<std::vector<statsVariables> > variables = (MAXBIN, std::vector<statsVariables>(1));
+	for(baseInt s1 = 0; s1 < MAXBIN - 1; s1++)
+	{
+	  statsVariables localVar;
+	  localVar.interval     = s1;
+	  localVar.midpoint     = (float)s1;
+	  localVar.frequency    = histoData[s1];
+	  localVar.sum          = localVar.midpoint * localVar.frequency;
+	  localVar.midpointSqr  = pow(localVar.midpoint, 2);
+	  localVar.sumSqr       = localVar.midpointSqr * localVar.frequency;
+	  stats.sumFrequencies += localVar.frequency;
+	  stats.sumVals        += localVar.sum;
+	  stats.sumSquares     += localVar.sumSqr;
+	}
+	
+	stats.mean        = stats.sumVals     / stats.sumFrequencies;
+	stats.meanSquares = stats.sumSquares  / stats.sumFrequencies;
+	stats.variance    = stats.meanSquares - pow(stats.mean, 2);
+	stats.stddev      = sqrt(stats.variance);
+	stats.stddevp     = (baseInt)(((baseFloat)stats.stddev / stats.mean) * 100);
+	stats.minIndex    = stats.mean - (STDDEVS * stats.stddev);
+	stats.maxIndex    = stats.mean + (STDDEVS * stats.stddev);
+	if ( stats.stddev > stats.mean ) {
+	  stats.minIndex = 0;
+	}
+	if ( stats.maxIndex > MAXBIN ) {
+	  stats.maxIndex = MAXBIN;
+	}
+  
+  
+	for (baseInt s1 = stats.minIndex; s1 <= stats.maxIndex; s1++ ) {
+	  stats.auc += histoData[s1];
+	}
+	
+	return stats;
+  }
+  
+  
+  inline void SleepMilliseconds(int n) {
+	const timespec time = {
+	  0,                  // 0 seconds.
+	  n * 1000L * 1000L,  // And n ms.
+	};
+	nanosleep(&time, NULL);
+  }
+  
+  inline void SleepSeconds(int n) {
+	SleepMilliseconds(n * 1000);
+  }
+}

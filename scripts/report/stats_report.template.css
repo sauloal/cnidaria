@@ -1,0 +1,22 @@
+div.l0       { margin-left:   0px; }
+div.l1       { margin-left:  50px; }
+div.l2       { margin-left: 100px; }
+/*
+div.band0    { background-color: #bbbbbb; }
+div.band1    { background-color: #dddddd; }
+*/
+div.lbl1     { font-size: 250%; }
+div.lbl2     { font-size: 150%; margin-left:  0px; }
+div.filename { position: absolute; top:    30px; left:  0px; z-index: -1; width: 100%; visibility: hidden }
+div#footer   { position: fixed;    bottom:  0px; right: 0px; z-index: -1; }
+div#header   { position: absolute; top:     0px; left:  0px; z-index: -1; }
+
+td.td_cell   { white-space:nowrap; }
+td.td_number { text-align: right; white-space:nowrap; }
+tr.band      { background-color: lightgrey; }
+
+a.lnk        { font-weight: 200; text-decoration: underline; }
+td.treeblock { vertical-align: top; }
+
+svg.up       { transform: rotate(180deg); -webkit-transform: rotate(180deg);  -ms-transform: rotate(180deg); -o-transform: rotate(180deg); -moz-transform: rotate(180deg);  }
+svg.down     { }

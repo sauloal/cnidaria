@@ -1,0 +1,30 @@
+#intall system wide libraries
+apt-get update
+apt-get install -y libboost-all-dev swig libc6-i386 lib32stdc++6
+apt-get install -y python python-setuptools python-numpy python-pandas python-matplotlib python-cogent python-imaging python-qt4 python-pip python-lxml
+#python-mpi4py
+
+#install python libraries
+easy_install --user ete2
+easy_install --user hcluster
+
+
+#compile
+cd src
+
+#compile jellyfish
+cd libs/jellyfish-2.1.3
+make clean
+./configure
+make
+cd ../..
+
+#compile cnidaria
+make clean
+make all
+
+
+#check cnidaria
+cd ../scripts
+
+./cnidaria.py -h

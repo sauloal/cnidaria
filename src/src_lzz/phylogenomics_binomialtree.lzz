@@ -1,0 +1,919 @@
+#hdr
+
+#include "phylogenomics_shared.hpp"
+
+//#include <omp.h>
+#include <boost/unordered_map.hpp>
+#include <boost/functional/hash.hpp>
+#include <boost/thread.hpp>
+
+#end
+
+
+
+namespace phylogenomics {
+  namespace binomialTree {
+
+    boost::mutex mtx;
+
+	
+	struct binomialPair {
+	  baseInt   count;
+	  intVector parents;
+	};
+	
+	typedef std::vector<binomialPair> binomialPairVector;
+	
+
+
+	baseInt      factorial(            const baseInt n) { if (n > 1) { return n * factorial(n - 1); } else { return n; } }
+
+	template < typename SEQUENCE > struct seq_hash
+	{
+		std::size_t operator() ( const SEQUENCE& seq ) const
+		{
+			std::size_t hash = 0 ;
+			boost::hash_range( hash, seq.begin(), seq.end() ) ;
+			return hash ;
+		}
+	};
+	
+	//template < typename SEQUENCE, typename T >
+	//using sequence_to_data_map = std::unordered_map< SEQUENCE, T, seq_hash<SEQUENCE> > ;
+
+
+	class binomialTree {
+	  typedef unsigned int uint_t;
+
+	  private:
+		baseInt     numOptions;
+		baseInt     maxLevel;
+		baseInt     cutOff;
+		baseInt     binomialSize;
+
+		intVector   links;
+		intVector   binomialTmpVec;
+		bivectorInt scale;
+		bool_vec_t  chooser;
+		static boost::unordered_map< std::vector<baseInt>, baseInt , seq_hash<std::vector<baseInt> > > hash_table;
+	
+	  public:
+		baseInt            name;
+		binomialTree():
+		  numOptions(   0    ),
+		  maxLevel(     0    ),
+		  cutOff(       0    ),
+		  binomialSize( 0    ),
+		  name(         0    )
+		{
+		  #ifdef __MERGE_PHYLO_DEBUG__
+		  std::cerr << "initializing tree empty" << "\n";
+		  #endif
+		};
+		
+/*
+		binomialTree( const baseInt &numOptionsL, const baseInt &maxLevelL ):
+		  numOptions(   numOptionsL ),
+		  maxLevel(     maxLevelL   ),
+		  cutOff(       numOptions  ),
+		  binomialSize( 0           ),
+		  name(         0           )
+		{
+		  init();
+		}
+*/
+		
+		binomialTree( const baseInt &numOptionsL, const baseInt &maxLevelL, const double &cutOffL=0.7 ):
+		  numOptions(   numOptionsL ),
+		  maxLevel(     maxLevelL   ),
+		  cutOff(       0           ),
+		  binomialSize( 0           ),
+		  name(         0           )
+		{
+		  cutOff = (int) (numOptions * cutOffL);
+		  if ( cutOff < maxLevel ) { cutOff = maxLevel; }
+		  init();
+		}
+		
+		binomialTree( const baseInt &numOptionsL, const baseInt &maxLevelL, const baseInt &cutOffL ):
+		  numOptions(   numOptionsL ),
+		  maxLevel(     maxLevelL   ),
+		  cutOff(       cutOffL     ),
+		  binomialSize( 0           ),
+		  name(         0           )
+		{
+		  init();
+		}
+		  
+		void           init() {
+			std::cout << "binomial tree :: Options: " << numOptions << " maxLevel: " << maxLevel << " cutOff " << cutOff << std::endl;
+  
+			#ifdef __MERGE_PHYLO_DEBUG__
+			std::cerr << "initializing tree blank. max " << maxLevel << " num options " << numOptions << "\n";
+			#endif
+			
+			//basePos      = 0;
+			binomialSize = binomial(numOptions, maxLevel);
+			
+			//http://en.wikipedia.org/wiki/Combinatorial_number_system
+		  
+			scale.resize(maxLevel+1);
+			for (baseInt nsize = 0; nsize < maxLevel + 1; ++nsize)
+			{
+			  //baseInt relPos = maxLevel - (maxLevel - nsize); // reverse
+			  baseInt relPos = maxLevel - nsize;
+			  //std::cerr << "nsize " << nsize << "[" << relPos << "/" << scale.size() << "]\n";
+			  scale[relPos].resize( numOptions+2 );
+			  
+			  for ( baseInt n = 0; n < numOptions+2; ++n )
+			  {
+				//std::cerr << " n " << n << "/" << scale[ relPos ].size() << " = ";
+				baseInt val = binomial(n, nsize);
+				
+				//std::cerr << val << "\n";
+				scale[ relPos ][ n ] = val;
+			  }
+			}
+		  
+			std::cout << "initializing binomial tree links\n";
+			std::cout << "  links size=" << binomialSize << "\n";  
+			
+			std::cout << "initializing binomial tree links - reserving\n";
+			links.reserve( binomialSize );
+			std::cout << "initializing binomial tree links - resizing\n";
+			links.resize(  binomialSize );
+			
+			std::cout << "binomial tree links initialized\n";
+		  
+			binomialTmpVec.resize(maxLevel);
+		}
+		
+		inline baseInt get_value_pos( baseInt pos ) {  return links[pos]; };
+  
+		inline void    addToName( const intVector &nameLookup, const baseInt &val ) {
+		  baseInt currPos = getPos( nameLookup );
+		
+		  links[currPos] += val;
+		}
+	  
+		inline baseInt getPos( const intVector &nameLookup ) {
+		  baseInt intRes = 0;
+		
+		  for ( baseInt pos = 0; pos < maxLevel; ++pos ) {
+			baseInt val   = nameLookup[pos];
+			baseInt bval  = scale[pos][val];
+			intRes       += bval;
+		  }
+		
+  
+		  #ifdef __MERGE_PHYLO_DEBUG__
+		  std::cerr << "desired ";
+		  for ( baseInt p = 0; p < nameLookup.size(); ++p ) {
+			std::cerr << " " << nameLookup[p];
+		  }
+		  std::cerr << " => pos " << intRes << " back: ";
+		  
+  
+		  intVector lookBack = getName(intRes);
+		  
+		  for ( baseInt p = 0; p < lookBack.size(); ++p ) {
+			std::cerr << " " << lookBack[p];
+		  }
+		  std::cerr << "\n";
+		  #endif
+  
+		  return intRes;
+		}
+		
+		intVector      getName( baseInt desiredNum ) {
+		  intVector nameLookup;
+		  nameLookup.resize(maxLevel);
+		  
+		  //baseInt desiredNumOrig = desiredNum;
+		  
+		  for (   baseInt pos  = 0; pos  < maxLevel         ; ++pos  ) {
+		  //for (   baseInt pos  = maxLevel; pos  != 0         ; --pos  ) {
+			//print "%d => %d :: %s" % (pos, desiredNum, str(binKeys[pos]))
+			
+			for ( baseInt bpos = 0; bpos < scale[pos].size(); ++bpos ) {
+			  baseInt bval = scale[pos][bpos];
+			  //print "%d => %d :: %s bpos %d bval %d" % (pos, desiredNum, str(binKeys[pos]), bpos, bval),
+			  
+			  if ( bval > desiredNum ){
+				if ( bpos == 0 ) {
+				  nameLookup[pos] = 0;
+				  break;
+				}
+				
+				baseInt bprev    = scale[pos][bpos - 1];
+				nameLookup[pos]  = bpos - 1;
+				desiredNum      -= bprev;
+				//print "* bprev %d bposprev %d rem desired %d" % (bprev, bpos-1, desiredNum)
+				break;
+			  } else {
+				//print
+				continue;
+			  }
+			}
+		  }
+		  
+		  /*
+		  std::cerr << "desired " << desiredNumOrig << " => ";
+		  for ( baseInt p = 0; p < nameLookup.size(); ++p ) {
+		  std::cerr << " " << nameLookup[p];
+		  }
+		  std::cerr << " back " << getPos(nameLookup, maxLevel) << "\n";
+		  
+		  
+		  #ifdef __MERGE_PHYLO_DEBUG__
+		  baseInt name = links[ pos ].name;
+		  std::cerr << "  get name: pos: " << pos << " name: " << name << "\n";
+		  #endif
+		  
+		  
+		  for ( baseInt p = 0; p < maxLevel; ++p ) {
+		  baseInt exp   = ( maxLevel - p - 1);
+		  baseInt N     = pow( (numOptions - p), exp );
+		  baseInt lVal  = (pos - 1)/ N;
+		  nameLookup[p] = lVal;
+		
+			#ifdef __MERGE_PHYLO_DEBUG__
+			std::cerr << "    pos: " << pos << " p: " << p << " N: " << N << " exp: " << exp << " lVal: " << lVal << "\n";
+			#endif
+		  pos          -= lVal * N;
+		  }
+		
+		  #ifdef __MERGE_PHYLO_DEBUG__
+		  for ( baseInt p = 0; p < nameLookup.size(); ++p ) {
+			std::cerr << nameLookup[p] << ", ";
+		  }
+		  std::cerr << "\n";
+		  #endif
+		  */
+		
+		  return nameLookup;
+		}
+		
+		inline void    parse( const intVector &nameLookup, const baseInt val ) {
+		  #ifdef __MERGE_PHYLO_DEBUG__
+		  std::cerr << "processing ";
+		  for ( baseInt p = 0; p < nameLookup.size(); p++ )
+		  {
+			std::cerr << " " << nameLookup[p];
+		  }
+		  std::cerr << "\n"; 
+		
+		  std::cerr << "parse name: " << name << " lvl: " << currLevel << " max: " << maxLevel << "(" << val << ")\n";
+		  #endif
+		  
+		  addToName(nameLookup, val);
+		  
+		  #ifdef __MERGE_PHYLO_DEBUG__
+		  std::cerr << "    top level. name: " << name << " lvl: " << currLevel << " returning value: " << value << " (" << val << ")\n\n";
+		  printAscendence();
+		  #endif
+		}
+		
+		inline void    parseAll( const intVector &nameLookup, const baseInt val ) {
+		  const baseInt vecSize = nameLookup.size();
+		  
+		  if (( vecSize <= cutOff ) && (vecSize >= maxLevel)) {
+			#ifdef __MERGE_PHYLO_DEBUG__
+			std::cerr << "  lookup size: " << vecSize << "\n";
+			for ( baseInt p = 0; p < vecSize; ++p ) {
+			  std::cerr << nameLookup[p] << ", ";
+			}
+			#endif
+			
+			addList( vecSize, 0, maxLevel, maxLevel, val, nameLookup );
+		  }
+		}
+		
+		inline void    parseAll( const intVector &nameLookup, const baseInt &val, const baseInt &vecSize ) {
+		  if (( vecSize <= cutOff ) && ( vecSize >= maxLevel )) {
+			#ifdef __MERGE_PHYLO_DEBUG__
+			std::cout << "  lookup size: " << vecSize << "\n";
+			for ( baseInt p = 0; p < vecSize; ++p ) {
+			  std::cout << nameLookup[p] << ", ";
+			}
+			std::cout << "\n";
+			#endif
+			
+			//addList( vecSize, 0, maxLevel, maxLevel, val, nameLookup );
+  
+			mtx.lock();
+			++hash_table[ nameLookup ];
+			baseInt s = hash_table.size();
+			if ( (s % 100000) == 0 ) {
+			  std::cout << "hash_table.size() " << s << std::endl;
+			}
+			mtx.unlock();
+			
+			/*
+			std::cout << "NEW" << "\n";
+			for ( auto& it1: hash_table ) {
+			std::cout << "k ";
+			for ( auto& it2: it1.first  ) {
+			  std::cout << it2 << " ";
+			}
+			  std::cout << "v " << it1.second << "\n";
+			}
+			std::cout << std::endl;
+			*/
+		  }
+		}
+		
+		inline void    addListO( const baseInt &vecSize, const baseInt &offset, const baseInt &remainingSampleSize, const baseInt &sampleSize, const baseInt &val, const intVector &elements ) {
+		  //from: http://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
+		
+		  #ifdef __MERGE_PHYLO_DEBUG__
+		  std::cerr << "    add list. offset: " << offset << " remaining sample size: " << remainingSampleSize << " sample size: " << sampleSize << " val: " << val << "\n";
+		  #endif
+		  
+		  if ( remainingSampleSize == 0 ) {
+			addToName(binomialTmpVec, val);
+		
+		  } else {
+			baseInt maxSize = vecSize - remainingSampleSize + 1;
+			#ifdef __MERGE_PHYLO_DEBUG__
+			std::cerr << "      max size: " << maxSize << "\n";
+			#endif
+		
+			for ( baseInt o = offset; o < maxSize; ++o ) {
+			  binomialTmpVec[ sampleSize - remainingSampleSize ] = elements[ o ];
+			  addList(vecSize, o+1, remainingSampleSize-1, sampleSize, val, elements);
+			}
+		  }
+		}
+		
+		inline void    addList( const baseInt &vecSize, const baseInt &offset, const baseInt &remainingSampleSize, const baseInt &sampleSize, const baseInt &val, const intVector &elements ) {
+		  /*
+		  for (uint_t i = 0; i < vecSize; ++i) {
+			std::cout << elements[i] << " ";
+		  }
+		  std::cout << std::endl;
+		  */
+		  
+		  chooser.clear();
+		  chooser.resize(vecSize);
+		  std::fill(chooser.begin() + vecSize - sampleSize, chooser.end(), true);
+		  /*
+		  for (uint_t i = 0; i < vecSize; ++i) {
+			  v[i] = (i >= (vecSize - sampleSize));
+		  }
+		  */
+	  
+		  //http://en.wikipedia.org/wiki/OpenMP
+  
+		  //int th_id, nthreads;
+		  //#pragma omp parallel private(th_id) shared(nthreads)
+		  {
+		  baseInt c       = 0;
+		  baseInt j       = 0;
+		  baseInt eval    = 0;
+		  baseInt bval    = 0;
+		  baseInt currPos = 0;
+		  do {
+			j       = 0;
+			/*
+			for (uint_t i = 0; i < vecSize; ++i) {
+			  if ( chooser[i] ) {
+				//std::cout << elements[i+1] << " ";
+				binomialTmpVec[ j++ ] = elements[ i + 1 ];
+			  }
+			}
+			addToName(binomialTmpVec, val);
+			*/
+			currPos = 0;
+			for (uint_t i = 0; i < vecSize; ++i) {
+			  if ( chooser[i] ) {
+				//std::cout << elements[i+1] << " ";
+				eval     = elements[ i+1 ];
+				bval     = scale[ j++ ][ eval ];
+				currPos += bval;
+			  }
+			}
+			//std::cout << "\n";
+			//#pragma omp critical
+			{
+			links[ currPos ] += val;
+			}
+			//#pragma omp barrier
+			++c;
+		  } while (std::next_permutation(chooser.begin(), chooser.end()));
+		  }
+		  //exit(1);
+		  //std::cout << c << "\n";
+		}
+		
+		void           printTree( ) {
+		  std::cerr << "print tree disabled\n";
+		  /*
+		  binomialTree *child;
+		  std::cout << "printing trees" << "\n";
+		  for ( baseInt s = 0 ; s < binomialSize; ++s ){
+		  //std::cout << "child pos " << s << " level " << currLevel << " name " << name << "\n";
+		  if ( links[s].inited && links[s].currLevel == maxLevel ) {
+			intVector name = getName(s);
+			std::cout << s;
+			for ( baseInt p = 0; p < maxLevel; ++p ) {
+			  std::cout << name[p] << '.';
+			}
+			std::cout << "\n";
+		  }
+		  }
+		  */
+		}
+		
+		void           printAscendence( baseInt pos ) {
+		  intVector name = getName(pos);
+		
+		  for ( baseInt s = 0; s < maxLevel; ++s ) {
+			std::cerr << name[s] << ", "; 
+		  }
+		
+		  std::cerr << "\n\n";
+		  /*
+		  if ( links[pos].inited ) {
+		  intVector name = getName(pos);
+		
+		  std::cerr << "PARENTs (" << links[pos].currLevel << "): ";
+		  
+		  for ( baseInt s = 0; s < links[pos].currLevel; ++s ){
+			std::cerr << name[s] << ", "; 
+		  }
+		  
+		  std::cerr << "\n\n";
+		  } else {
+		  std::cerr << "PARENTs not inited\n\n";
+		  }
+			*/
+		}
+		
+		void           getDescendence( binomialPairVector &binList ) {
+		  /*
+		  std::cerr << "getDescendence disabled\n";
+		  #ifdef __MERGE_PHYLO_DEBUG__
+		  std::cerr << "getting descendence. name: " << name << " lvl: " << currLevel;
+		  if ( parent != 0 ) {
+			std::cerr << " parent name: " << parent->name;
+		  } else {
+			std::cerr << " parent name: NONE";
+		  }
+		  std::cerr << " children: (" << links.size() << "): ";
+		  for ( baseInt s = 0; s < links.size(); ++s ) {
+			std::cerr << links[s]->name << ", ";
+		  }
+		  std::cerr << "\n";
+		  #endif
+		  */
+		
+		  for ( baseInt s = 0 ; s < binomialSize; ++s ){
+			//std::cout << "child pos " << s << " level " << currLevel << " name " << name << "\n";
+			intVector   parents = getName(s);
+			baseInt      value   = links[s];
+			binomialPair pair    = { value, parents };
+			binList.push_back( pair );
+		  }
+		}
+		
+		void           update(          binomialTree& in_tree ) {
+		  for ( baseInt s = 0; s < binomialSize; ++s )
+		  {
+			set_value_pos( s, in_tree.get_value_pos(s) );
+		  }
+		}
+		
+		inline void    append_value_pos( baseInt s, baseInt shared ) {
+		  links[s] += shared;
+		}
+		
+		inline void    set_value_pos( baseInt currPos, baseInt shared ) {
+		  links[ currPos ] = shared;
+		}
+		
+		inline void    add_value_pos( baseInt &currPos, baseInt &shared ) {
+		  links[ currPos ] = shared;
+		}
+	  
+		intVector      getLinks () const             { return links;   }
+		
+		void           setLinks ( intVector linksl ) { links = linksl; }
+		/*
+		void setName( baseInt desiredNum, intVector nameLookup ) {
+		  intVector nameLookup;
+		  nameLookup.resize(maxLevel);
+		  
+		  for (   baseInt pos  = 0; pos  < maxLevel         ; ++pos  ) {
+			for ( baseInt bpos = 0; bpos < scale[pos].size(); ++bpos ) {
+			  
+			  scale[pos][bpos] = nameLookup[pos];
+			}
+		  }
+		}
+	  
+		void setValue(baseInt desiredNum, baseInt shared, intVector nameLookup) {
+		  set_value_pos( desiredNum, shared     );
+		  setName(       desiredNum, nameLookup );
+		}
+		*/
+	}
+	
+
+
+
+
+	  
+	  
+
+////http://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
+//int n=5, k=3;
+//
+//  // vector<vector<int> > combinations;
+// vector<int> selected;
+// vector<int> selector(n);
+// fill(selector.begin(), selector.begin() + k, 1);
+// do {
+//     for (int i = 0; i < n; i++) {
+//      if (selector[i]) {
+//            selected.push_back(i);
+//      }
+//     }
+//     //     combinations.push_back(selected);
+//         do_sth(selected);
+//     copy(selected.begin(), selected.end(), ostream_iterator<int>(cout, " "));
+//     cout << endl;
+//     selected.clear();
+// }
+// while (prev_permutation(selector.begin(), selector.end()));
+
+
+////http://ideone.com/tfAGp
+//#include <iostream>
+//#include <algorithm>
+//#include <vector>
+//
+//int main() {
+//    int n, r;
+//    std::cin >> n;
+//    std::cin >> r;
+//
+//    std::vector<bool> v(n);
+//    for (int i = 0; i < n; ++i) {
+//        v[i] = (i >= (n - r));
+//    }
+//
+//    do {
+//        for (int i = 0; i < n; ++i) {
+//            if (v[i]) {
+//                std::cout << (i+1) << " ";
+//            }
+//        }
+//        std::cout << "\n";
+//    } while (std::next_permutation(v.begin(), v.end()));
+//}
+
+
+
+////http://stackoverflow.com/questions/9430568/generating-combinations-in-c
+//int main() {
+//    int n, r;
+//    std::cin >> n;
+//    std::cin >> r;
+//
+//    std::vector<bool> v(n);
+//    std::fill(v.begin() + n - r, v.end(), true);
+//
+//    do {
+//        for (int i = 0; i < n; ++i) {
+//            if (v[i]) {
+//                std::cout << (i+1) << " ";
+//            }
+//        }
+//        std::cout << "\n";
+//    } while (std::next_permutation(v.begin(), v.end()));
+//    return 0;
+//}
+//
+//
+//
+//int main() {
+//   int n, r;
+//   std::cin >> n;
+//   std::cin >> r;
+//
+//   std::vector<bool> v(n);
+//   std::fill(v.begin() + r, v.end(), true);
+//
+//   do {
+//       for (int i = 0; i < n; ++i) {
+//           if (!v[i]) {
+//               std::cout << (i+1) << " ";
+//           }
+//       }
+//       std::cout << "\n";
+//   } while (std::next_permutation(v.begin(), v.end()));
+//   return 0;
+//}
+	  
+	  
+	  
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	baseInt        binomialCurrPos = 0;
+	intVector      binomialTmp;
+	//static baseInt charl;
+	
+	
+	std::string vec2name(const intVector numbers) {
+	  std::string dstStr = "";
+	  char        bufferl[MAX_BUFFER_SIZE] = "";
+	
+	  for ( baseInt s = 0; s < numbers.size(); ++s ) {
+		//std::cerr << " vec2name :: s " << s << " num " << numbers[s] << " str '" << dstStr << "'\n";
+		itostr(numbers[s], dstStr);
+		//std::cerr << " vec2name :: dst str '" << dstStr << "'\n";
+	
+		strcat(bufferl, dstStr.c_str());
+		//std::cerr << " vec2name :: buffer 1 '" << bufferl << "'\n";
+	
+		strcat(bufferl, ".");
+		//std::cerr << " vec2name :: buffer 2 '" << bufferl << "'\n";
+	  }
+	  
+	  bufferl[strlen(bufferl) - 1] = '\0';
+	  dstStr = bufferl;
+	  bufferl[0] = '\0';
+	  //std::cerr << " vec2name :: out str " << dstStr << "\n\n";
+	  return dstStr;
+	}
+	
+	
+	
+	void binomial_pretty_print(const bivectorInt &v) {
+	  baseInt l  = v.size();
+	
+	  for (baseInt i=0; i < l; ++i) {
+		binomial_pretty_print(i+1, v[i]);
+	  }
+	}
+	
+	
+	void binomial_pretty_print(const baseInt count, const intVector &v) {
+	  std::cout << "combination no " << count << ": [ ";
+	  for (baseInt i = 0; i < v.size(); ++i) { std::cout << v[i] << " "; }
+	  std::cout << "] " << std::endl;
+	}
+	
+	
+	void binomial_go( const baseInt sampleSize, const intVector &elements, bivectorInt &combinations ) {
+	  binomialCurrPos         = 0;
+	  baseInt binomialTmpSize = sampleSize;
+	  baseInt binomialSize    = binomial(elements.size(), sampleSize);
+	
+	  binomialTmp.resize(  sampleSize   );
+	  combinations.resize( binomialSize );
+	  binomial_go(        0, sampleSize, binomialTmpSize, elements, combinations);
+	}
+	
+	
+	void binomial_go( const baseInt offset, const baseInt sampleSize, const baseInt binomialTmpSize, const intVector &elements, bivectorInt &combinations ) {
+	  //from: http://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
+	
+	  if ( sampleSize == 0 ) {
+		combinations[binomialCurrPos] = binomialTmp;
+		++binomialCurrPos;
+	  
+	  } else {
+		baseInt maxSize = elements.size() - sampleSize;
+		for ( baseInt o = offset; o <= maxSize; ++o ) {
+		  binomialTmp[binomialTmpSize - sampleSize] = elements[o];
+		  binomial_go(o+1, sampleSize-1, binomialTmpSize, elements, combinations);
+		}
+	  }
+	}
+	
+	
+	
+	
+	
+	
+	
+	baseInt binomial(const baseInt offset, const baseInt sampleSize) {
+	  if ( offset == 0 || sampleSize == 0 ) {
+		return 0;
+	  }
+	  
+	  //from: http://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
+	  //std::cout << "offset " << offset << " sample " << sampleSize << std::endl;
+	  //N  K C
+	  //6  3       20 FACT(A2)/(FACT(B2)*(FACT(A2-B2)))
+	  //97 5 64446024 64446024 64446024 64446024
+	  //	 FACT(A17)/(FACT(B17)*(FACT(A17-B17)))
+	  //			  93*94*95*96*97 / FACT(B17)
+	  //					  (93/5)*(94/4)*(95/3)*(96/2)*(97/1)
+	  //								(97/1)*(96/2)*(95/3)*(94/4)*(93/5)
+	
+	  
+	  baseInt res = 1;
+	  baseInt ss  = sampleSize;
+	//  double res = 1.0;
+	//  while ( sampleSize > 0 ) {
+	//    std::cout << "offset " << offset << " sample size " << sampleSize << " res " << res << " multiplier " <<  (offset - sampleSize + 1) << " div " << ((offset - sampleSize + 1) / sampleSize) << std::endl;
+	//    res = res * ((offset - sampleSize + 1) / (sampleSize*1.0));
+	//    //std::cout << "N " << n << " S " << s << " res " << res << std::endl << std::endl;
+	//	--sampleSize;
+	//  }
+	
+	  while ( ss > 0 ) {
+		res = res * (offset - ss + 1);
+		//std::cout << "N " << n << " S " << s << " res " << res << std::endl << std::endl;
+		--ss;
+	  }
+	  
+	  
+	  baseInt fk  = factorial(sampleSize);
+	  //std::cerr << " offset " << offset << " sample size " << sampleSize << " resb4 " << res << " fk " << fk;
+	  res = res / fk;
+	  //std::cerr << " res final " << res << std::endl;
+	
+	  //baseInt fn  = factorial(n);
+	  //baseInt fnk = factorial(n-k);
+	  //baseInt fk  = factorial(sampleSize);
+	  //baseInt num = res / fk;
+	  //baseInt num2 = fn / (fk * fnk);
+	  //std::cout << "res " << res << " fk " << fk << " num " << num << std::endl;
+	  //std::cout << "fn " << fn << " fnk " << fnk << " fk " << fk << " num2 " << num2 << std::endl;
+	  
+	  return res;
+	}
+  }
+}
+  
+  
+  
+  
+  
+  //	2	1	0							81	27	9	3	1						
+  //1	0	1	2		0	1	2	3	4	0	0	0	0	0	0					
+  //2	0	1	3		0	1	2	3	5	0	0	0	0	1	1					
+  //3	0	1	4		0	1	2	3	6	0	0	0	0	2	2					
+  //4	0	1	5		0	1	2	4	5	0	0	0	1	1	4					
+  //5	0	2	3		0	1	2	4	6	0	0	0	1	2	5					
+  //6	0	2	4		0	1	2	5	6	0	0	0	2	2	8					
+  //7	0	2	5		0	1	3	4	5	0	0	1	1	1	13					
+  //8	0	3	4		0	1	3	4	6	0	0	1	1	2	14					
+  //9	0	3	5		0	1	3	5	6	0	0	1	2	2	17					
+  //10	0	4	5		0	1	4	5	6	0	0	2	2	2	26					
+  //11	1	2	3		0	2	3	4	5	0	1	1	1	1	40					
+  //12	1	2	4		0	2	3	4	6	0	1	1	1	2	41					
+  //13	1	2	5		0	2	3	5	6	0	1	1	2	2	44					
+  //14	1	3	4		0	2	4	5	6	0	1	2	2	2	53					
+  //15	1	3	5		0	3	4	5	6	0	2	2	2	2	80					
+  //16	1	4	5		1	2	3	4	5	1	1	1	1	1	121					
+  //17	2	3	4		1	2	3	4	6	1	1	1	1	2	122					
+  //18	2	3	5		1	2	3	5	6	1	1	1	2	2	125					
+  //19	2	4	5		1	2	4	5	6	1	1	2	2	2	134					
+  //20	3	4	5		1	3	4	5	6	1	2	2	2	2	161					
+  //21	4	4	4		2	3	4	5	6	2	2	2	2	2	242					
+  //	4																			
+  //					3	3	3	3	3	7-5+1					93					
+  //					0,1,2	1,2,3	2,3,4	3,4,5	4,5,6						1	93	8649	804357	74805201	374,026,005
+  
+  
+  
+  //T3
+  //MODE 5 reporting
+  //MODE 5 +num kmers    : 870325233
+  //MODE 5 +num val kmers: 86261335
+  //MODE 5 +num species  : 4
+  //MODE 5 +sample size  : 3
+  //MODE 5 +binomial size: (4, 3) = 4
+  //binomialSize 4
+  //
+  //real	5m28.906s
+  //user	11m18.306s
+  //sys	0m29.298s
+  //
+  //
+  //
+  //T1
+  //MODE 5 reporting
+  //MODE 5 +num kmers    : 888269592
+  //MODE 5 +num val kmers: 86592117
+  //MODE 5 +num species  : 4
+  //MODE 5 +sample size  : 3
+  //MODE 5 +binomial size: (4, 3) = 4
+  //binomialSize 4
+  //
+  //
+  //real	4m52.321s
+  //user	4m36.737s
+  //sys	0m13.933s
+  //
+  //
+  //========= BEGIN SPECIES NAMES =========
+  //out/102_TGRC_TR00026.jf                    : 0 : 2387253995
+  //out/103_TGRC_TR00027.jf                    : 1 : 2884177275
+  //out/104_S_galapagense_LA1044_TR00029.jf    : 2 : 2131850385
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf      : 3 : 1671186440
+  //========= END SPECIES NAMES =========
+  //========= BEGIN SPECIES NAMES =========
+  //out/102_TGRC_TR00026.jf                    : 0 : 2391969230
+  //out/103_TGRC_TR00027.jf                    : 1 : 2891078540
+  //out/104_S_galapagense_LA1044_TR00029.jf    : 2 : 2135611975
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf      : 3 : 1673512540
+  //========= END SPECIES NAMES =========
+  //
+  //
+  //========= BEGIN COUNT =========
+  //4
+  //out/102_TGRC_TR00026.jf                     1352098755   892973305   139686995           0
+  //out/103_TGRC_TR00027.jf                     1352098755   892973305           0   637599025
+  //out/104_S_galapagense_LA1044_TR00029.jf     1352098755           0   139686995   637599025
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf                0   892973305   139686995   637599025
+  //========= END COUNT =========
+  //========= BEGIN COUNT =========
+  //4
+  //out/102_TGRC_TR00026.jf                     1357211555   895112120   139645555           0
+  //out/103_TGRC_TR00027.jf                     1357211555   895112120           0   638754865
+  //out/104_S_galapagense_LA1044_TR00029.jf     1357211555           0   139645555   638754865
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf                0   895112120   139645555   638754865
+  //========= END COUNT =========
+  //
+  //
+  //========= BEGIN JACCARD =========
+  //4
+  //out/102_TGRC_TR00026.jf                       0.566382    0.374059    0.058514    0.000000
+  //out/103_TGRC_TR00027.jf                       0.468799    0.309611    0.000000    0.221068
+  //out/104_S_galapagense_LA1044_TR00029.jf       0.634237    0.000000    0.065524    0.299082
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf         0.000000    0.534335    0.083586    0.381525
+  //========= END JACCARD =========
+  //========= BEGIN JACCARD =========
+  //4
+  //out/102_TGRC_TR00026.jf                       0.567403    0.374216    0.058381    0.000000
+  //out/103_TGRC_TR00027.jf                       0.469448    0.309612    0.000000    0.220940
+  //out/104_S_galapagense_LA1044_TR00029.jf       0.635514    0.000000    0.065389    0.299097
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf         0.000000    0.534870    0.083445    0.381685
+  //========= END JACCARD =========
+  //
+  //
+  //========= BEGIN RUSSEL RAO =========
+  //4
+  //out/102_TGRC_TR00026.jf                       0.566382    0.374059    0.058514    0.000000
+  //out/103_TGRC_TR00027.jf                       0.468799    0.309611    0.000000    0.221068
+  //out/104_S_galapagense_LA1044_TR00029.jf       0.634237    0.000000    0.065524    0.299082
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf         0.000000    0.534335    0.083586    0.381525
+  //========= END RUSSEL RAO =========
+  //========= BEGIN RUSSEL RAO =========
+  //4
+  //out/102_TGRC_TR00026.jf                       0.567403    0.374216    0.058381    0.000000
+  //out/103_TGRC_TR00027.jf                       0.469448    0.309612    0.000000    0.220940
+  //out/104_S_galapagense_LA1044_TR00029.jf       0.635514    0.000000    0.065389    0.299097
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf         0.000000    0.534870    0.083445    0.381685
+  //========= END RUSSEL RAO =========
+  //
+  //
+  //========= BEGIN FOWLKES MALLOWS =========
+  //4
+  //out/102_TGRC_TR00026.jf                       0.752584    0.611603    0.241896    0.000000
+  //out/103_TGRC_TR00027.jf                       0.684689    0.556427    0.000000    0.470179
+  //out/104_S_galapagense_LA1044_TR00029.jf       0.796390    0.000000    0.255976    0.546884
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf         0.000000    0.730982    0.289112    0.617677
+  //========= END FOWLKES MALLOWS =========
+  //========= BEGIN FOWLKES MALLOWS =========
+  //4
+  //out/102_TGRC_TR00026.jf                       0.753262    0.611732    0.241622    0.000000
+  //out/103_TGRC_TR00027.jf                       0.685163    0.556428    0.000000    0.470043
+  //out/104_S_galapagense_LA1044_TR00029.jf       0.797191    0.000000    0.255713    0.546897
+  //out/105_LA1479_Cherry_TGRC_TR00028.jf         0.000000    0.731348    0.288868    0.617807
+  //========= END FOWLKES MALLOWS =========
+  //
+  //
+  //========= BEGIN COLUMNS NAMES =========
+  //4
+  //         0: 1352098755 2.1.0
+  //         1:  892973305 3.1.0
+  //         2:  139686995 3.2.0
+  //         3:  637599025 3.2.1
+  //========= END COLUMNS NAMES =========
+  //========= BEGIN COLUMNS NAMES =========
+  //4
+  //         0: 1357211555 2.1.0
+  //         1:  895112120 3.1.0
+  //         2:  139645555 3.2.0
+  //         3:  638754865 3.2.1
+  //========= END COLUMNS NAMES =========
+  //Main program exiting.
+  //deleting binomial tree
+  
+  
+

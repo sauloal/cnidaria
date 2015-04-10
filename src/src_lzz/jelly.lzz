@@ -1,0 +1,625 @@
+#hdr
+
+#include <string>
+#include <string.h>
+
+#include <include/jellyfish/mapped_file.hpp>
+#include <jellyfish/jellyfish.hpp>
+
+#include "shared.hpp"
+#include "header_r.hpp"
+
+namespace jelly {
+    const static std::string JELLYFISH_T = "jellyfish";
+    const static std::string CNIDARIA_T  = "cnidaria";
+    //typedef long long unsigned int             baseInt;
+    //typedef unsigned int                       uint_t;
+    //typedef std::string                        string_t;
+    typedef binary_reader                      j_binary_reader_t;
+    typedef jellyfish::file_header             j_file_header_t;
+    typedef jellyfish::mapped_file             j_mapped_file_t;
+    typedef jellyfish::RectangularBinaryMatrix j_rbm_matrix_t;
+    typedef std::auto_ptr<j_rbm_matrix_t>      j_rbm_matrix_ptr_t;
+    typedef jellyfish::mer_dna                 j_mer_dna_t;
+    typedef j_mer_dna_t                        Key;
+}
+
+typedef jelly::j_mer_dna_t                                 j_mer_dna_t;
+
+#end
+
+
+
+#src
+
+#include <algorithm>
+#include <cerrno>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <stdint.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <typeinfo>
+#include <unistd.h>
+#include <vector>
+#include <boost/filesystem.hpp>
+
+#end
+
+namespace jelly {
+    typedef cnidaria::cnidaria_header_r  cnidaria_header;
+    typedef cnidaria::header_data        header_data;
+    typedef cnidaria::hash_table_b_t     hash_table_b_t;
+    typedef cnidaria::j_matrix_s         j_matrix_s;
+    typedef cnidaria::j_matrix_s_vec_t   j_matrix_s_vec_t;
+    
+    
+    class HeaderFileHolder {
+        public:
+            std::ifstream       *in;
+            string_t             file_arg;
+            struct stat          st;
+
+            HeaderFileHolder(                     ): in( NULL ), file_arg( ""         ) {}
+            HeaderFileHolder( string_t file_arg_l ): in( NULL ), file_arg( file_arg_l ) { init(); }
+
+            void init( ) {
+                in         = new std::ifstream();
+
+                try {
+                    in->open(file_arg, std::ios::in|std::ios::binary);
+                } catch( std::ios_base::failure& e) {
+                    std::cerr << "Failed to open header of file '" << file_arg << "' Error: " << e.what() << std::endl;
+                    exit(1);
+                }
+
+                
+                if(!in->good()) {
+                    std::cerr << "Failed to open header of file '" << file_arg << "' Error: " << std::strerror(errno) << "\n"
+                              << "Failed to open header of file '" << file_arg << "' good : " << in->good()           << "\n"
+                              << "Failed to open header of file '" << file_arg << "' eof  : " << in->eof()            << "\n"
+                              << "Failed to open header of file '" << file_arg << "' fail : " << in->fail()           << "\n"
+                              << "Failed to open header of file '" << file_arg << "' bad  : " << in->bad()            << "\n"
+                              << "Failed to open header of file '" << file_arg << "'"                                 << std::endl;;
+                    exit(1);
+#ifdef DEBUG
+                } else {
+                    std::cout << "  success in opening file header of " << file_arg << std::endl;
+#endif
+                }
+                
+
+                if(stat(file_arg.c_str(), &st) < 0) {
+                    std::cerr << "Can't stat file '" << file_arg << "'" << std::endl;
+                    exit(1);
+                    #ifdef DEBUG
+                        } else {
+                            std::cout << "  success in file stats of " << file_arg << std::endl;
+                    #endif
+                }
+            }
+    }
+
+    
+    
+    
+
+    class jelly_iterator: public HeaderFileHolder {
+        private:
+            //baseInt              mask;
+            //baseInt              key_len;
+            //baseInt              key_len_b;
+            //baseInt              kmer_size;
+            //size_t               record_len;
+            baseInt              last_id;
+            baseInt              last_file_coord;
+            //baseInt              counter_len;
+            baseInt              final_hash;
+            baseInt              last_hash;
+            //baseInt              num_files;
+            bool                 is_cnidaria;
+            bool                 is_iteratable;
+            bool                 is_valid;
+
+            std::string          key;
+            baseInt              hash;
+            baseInt              prev_hash;
+            CNIDARIA_VAL_TYPE    val;
+            JELLYFISH_VAL_TYPE   tmp_val;
+            std::vector<unsigned char> bytes1;
+            Key                  mer;
+            
+            j_rbm_matrix_ptr_t   jmatrix;
+            
+            header_data          hda;
+            string_vec_t         infiles;
+            string_vec_t         srcfiles;
+            tri_baseint_vec_t    matrix;
+            hash_table_b_t       hash_table;
+            baseint_vec_t        num_kmer_total_spp;
+            baseint_vec_t        num_kmer_valid_spp;
+            j_matrix_s_vec_t     j_matrices_s;
+            
+        public:
+            jelly_iterator()                             : HeaderFileHolder("")         , last_id(0), last_file_coord(0), final_hash(0), last_hash(0), is_cnidaria(false), is_iteratable(false), is_valid(true), key(""), hash(0), prev_hash(0), val(CNIDARIA_VAL_TYPE()), tmp_val(0) {};
+
+            jelly_iterator( const string_t& infile_name ): HeaderFileHolder(infile_name), last_id(0), last_file_coord(0), final_hash(0), last_hash(0), is_cnidaria(false), is_iteratable(false), is_valid(true), key(""), hash(0), prev_hash(0), val(CNIDARIA_VAL_TYPE()), tmp_val(0) {
+                #ifdef DEBUG
+                std::cout << "  opening header" << std::endl;
+                #endif
+
+                hda                    =  header_data();
+                
+                hda.infiles            = &infiles;  // files inside databases
+                hda.srcfiles           = &srcfiles; // databases
+                hda.matrix             = &matrix;
+                hda.hash_table         = &hash_table;
+                hda.num_kmer_total_spp = &num_kmer_total_spp;
+                hda.num_kmer_valid_spp = &num_kmer_valid_spp;
+                hda.j_matrices         = &j_matrices_s;
+                
+                is_cnidaria            = cnidaria::is_cnidaria(     file_arg );
+                string_t filetype      = cnidaria::get_file_format( file_arg );
+                
+                if ( ( filetype == cnidaria::FMT_SUMMARY ) || ( filetype == cnidaria::FMT_COMPLETE ) || ( filetype == cnidaria::FMT_JELLYFISH ) ) {
+                    is_iteratable = true;
+                }
+                
+                if ( is_cnidaria ) {
+                    std::cout << " loading header of " << filetype << std::endl;
+                    
+                    cnidaria_header hd = cnidaria_header();
+                    
+                    std::cout << " sending infile " << in << " tell " << in->tellg() << std::endl;
+
+                    hd.load( hda, file_arg, (*in) );
+                    
+                    std::cout << " creating matrix " << in << " tell " << in->tellg() << std::endl;
+                    
+                    gen_j_matrix();
+
+                    std::cout << " matrix created" << std::endl;
+
+                    baseInt  _length       =   st.st_size;
+                    std::cout << " file size       " << _length << std::endl;
+                    
+                    //std::cout << " good      " << in->good() << std::endl;
+                    
+                    baseInt  tellg         =   in->tellg();
+                    std::cout << " tellg           " << tellg   << std::endl;
+                    
+                    baseInt  size          =   _length - tellg;
+                    std::cout << " size            " << size    << std::endl;
+                    
+                    
+                    if      ( filetype == cnidaria::FMT_SUMMARY ) {
+                        last_file_coord    =   _length;
+                        last_id            = ( size / get_block_bytes() ) - 1;
+                    }
+                    else if ( filetype == cnidaria::FMT_COMPLETE ) {
+                        last_file_coord    =  hd.get_json_pos();
+                        size               =  last_file_coord - in->tellg();
+                        last_id            = ( size / get_block_bytes() ) - 1;
+                    }
+
+                } else {
+                    jf_to_cnidaria();
+
+                    baseInt  _length       =   st.st_size;
+                    std::cout << " file size       " << _length << std::endl;
+                    baseInt  tellg         =   in->tellg();
+                    std::cout << " tellg           " << tellg   << std::endl;
+                    baseInt  size          =   _length - get_j_offset();
+                    std::cout << " size            " << size    << std::endl;
+                    last_file_coord        =   _length;
+                    std::cout << " last_file_coord " << last_file_coord << std::endl;
+                    last_id                = ( size / get_block_bytes() ) - 1;
+                    std::cout << " last_id         " << last_id         << std::endl;
+                }
+
+                #ifdef DEBUG
+                std::cout << "  opened  header" << std::endl;
+                #endif
+
+                Key::k( get_kmer_size() );
+
+                
+                #ifdef DEBUG
+                std::cout << "  resizing val to " << hda.num_infiles << " data bytes " << hda.data_bytes << std::endl;
+                #endif
+
+                val.resize( hda.num_infiles );
+
+                if ( hda.data_bytes != val.num_blocks() ) {
+                    std::cout << "hda.data_bytes (" << hda.data_bytes << ") != (" << val.num_blocks() << ")" << std::endl;
+                    exit(1);
+                }
+
+                bytes1.clear();
+                bytes1.resize( hda.data_bytes );
+                
+                is_valid = next(true);
+                
+                gen_last_hash();
+                std::cout << " last_hash       " << last_hash       << std::endl;
+
+                hda.print();
+
+                #ifdef DEBUG
+                std::cout   << " offset     : " << hda.j_offset      << "\n"
+                            << " key len    : " << get_kmer_bytes()  << "\n"
+                            << " key len b  : " << get_kmer_bits()   << "\n"
+                            << " kmer size  : " << get_kmer_size()   << "\n"
+                            << " counter len: " << get_data_bytes()  << "\n"
+                            << " header size: " << get_j_size()      << "\n"
+                            << " record len : " << get_block_bytes() << "\n"
+                            << " last id    : " << last_id           << "\n"
+                            << " last hash  : " << last_hash         <<
+                            std::endl;
+                #endif
+            }
+            
+            string_t             gen_key()                                     { return  mer.to_str();                         }
+            baseInt              gen_hash()                                    { return  key_to_hash( mer );                   }
+            baseInt              key_to_hash( const Key &key )                 { return  (*jmatrix).times( key ) & get_mask(); }
+            CNIDARIA_VAL_TYPE    get_val()                                     { return  val;                                  }
+            CNIDARIA_VAL_TYPE   *get_val_ptr()                                 { return &val;                                  }
+            Key                  get_mer()                                     { return  mer;                                  }
+            Key                 *get_mer_ptr()                                 { return &mer;                                  }
+            string_t             get_key()                                     { return  key;                                  }
+            string_t            *get_key_ptr()                                 { return &key;                                  }
+            void                 get_mer(     Key      &m )                    { m =     mer;                                  }
+            void                 get_key(     string_t &k )                    { k =     key;                                  }
+            void                 get_mer_ptr( Key      *m )                    { m =    &mer;                                  }
+            void                 get_key_ptr( string_t *k )                    { k =    &key;                                  }
+            baseInt              get_hash()                                    { return  hash;                                 }
+            bool                 get_is_iteratable()                           { return  is_iteratable;                        }
+            bool                 get_is_cnidaria()                             { return  is_cnidaria;                          }
+            bool                 get_is_valid()                                { return  is_valid;                             }
+            
+            baseInt              get_last_hash()                               { return  last_hash;                            }
+            baseInt              get_last_id()                                 { return  last_id;                              }
+            j_matrix_s_vec_t     get_j_matrices()                              { return *hda.j_matrices;                       }
+            baseInt              get_j_size()                                  { return  hda.j_size;                           }
+            baseInt              get_j_offset()                                { return  hda.j_offset;                         }
+            baseInt              get_kmer_size()                               { return  hda.kmer_size;                        }
+            baseInt              get_kmer_bits()                               { return  hda.kmer_bytes * 8;                   }
+            baseInt              get_kmer_bytes()                              { return  hda.kmer_bytes;                       }
+            baseInt              get_data_bytes()                              { return  hda.data_bytes;                       }
+            baseInt              get_block_bytes()                             { return  hda.block_bytes;                      }
+            baseInt              get_final_hash()                              { return  hda.j_size - 1;                       }
+            baseInt              get_mask()                                    { return  hda.j_size - 1;                       }
+            baseInt              get_num_infiles()                             { return  hda.num_infiles;                      }
+            baseInt              get_num_srcfiles()                            { return  hda.num_srcfiles;                     }
+            string_vec_t         get_infiles()                                 { string_vec_t t = (*hda.infiles ); return t;   }
+            string_vec_t         get_srcfiles()                                { string_vec_t t = (*hda.srcfiles); return t;   }
+            
+
+            void dump() {
+                baseInt previous_hash = 0;
+                baseInt current_hash  = 0;
+                //for ( baseInt i = 0; i < get_last_id(); ++i ) {
+                baseInt i = 0;
+                while( next() ) {
+                    current_hash = get_hash();
+                    std::cout << (i+1) << "/" << get_last_id() << ": ";
+                    print();
+                    if ( current_hash < previous_hash ) {
+                        std::cout << "ERROR IN HASH ORDER" << std::endl;
+                        exit(1);
+                    } else {
+                        previous_hash = current_hash;
+                    }
+                    ++i;
+                }
+                //}
+            }
+            
+            void gen_last_hash() {
+                if ( ! is_valid      ) { return; }
+                if ( ! is_iteratable ) { return; }
+                bool ivo = is_valid;
+                
+                baseInt   record_len = get_block_bytes();
+                //std::cout << "gen_last_hash() :: record_len " << record_len  << std::endl;
+                baseInt   origCoord  = in->tellg();
+                //std::cout << "gen_last_hash() :: origCoord  " << origCoord   << std::endl;
+                baseInt   maxCoord   = last_file_coord - record_len;
+                //std::cout << "gen_last_hash() :: maxCoord   " << maxCoord    << std::endl;
+                          last_hash  = goto_coord( maxCoord );
+                //std::cout << "gen_last_hash() :: last_hash  " << last_hash   << std::endl;
+                goto_coord( origCoord - record_len );
+                //std::cout << "gen_last_hash() :: begin      " << in->tellg() << std::endl;
+                
+                is_valid = ivo;
+            }
+            
+            void print() {
+                std::cout << get_mer() << " = " << get_hash() << " (" << in->tellg() << ")" << std::endl;
+
+            }
+            
+            void jf_to_cnidaria() {
+                // JF 000001831{"alignment":8,"canonical":true,"cmdline":["count","-m","31","-s","4G","--disk","--counter-len=1","--out-counter-len=1","--canonical","-o","./external/Plants/Citrus_sinensis.fasta.jf.tmp","./external/Plants/Citrus_sinensis.fasta"],"counter_len":1,"exe_path":"/home/aflit001/dev/phylogenomics2/src/jellyfish-2.1.3/bin/.libs/lt-jellyfish","format":"binary/sorted","hostname":"assembly","key_len":62,"matrix1":{"c":62,"columns":[4076151366,297922355,2914987773,1818276056,4017113960,2118333886,2094414662,3625528161,3807947705,2685417241,98337175,586248813,304866863,320283336,2085687437,2737323550,1682198534,14470344,3680619208,3387378510,521006856,3115898899,3274465436,1792745620,1576536284,497514056,3324881709,2508193203,2641968839,1060242988,2858229006,2849844372,316378574,1333114021,1961417996,2395851207,1962944624,2689121648,1388987426,2462523547,4149828736,2987464858,228747779,450037028,3005459856,2065429812,3188768267,1309924960,3943691981,3862170144,3470692432,1330586970,1587201293,961333575,2834678692,2952312046,4226838616,3262593030,3335110749,2180498335,3545008600,3886083536],"r":32},"max_reprobe":126,"pwd":"/mnt/scratch/aflit001/nobackup/phylogenomics_raw","reprobes":[1,1,3,6,10,15,21,28,36,45,55,66,78,91,105,120,136,153,171,190,210,231,253,276,300,325,351,378,406,435,465,496,528,561,595,630,666,703,741,780,820,861,903,946,990,1035,1081,1128,1176,1225,1275,1326,1378,1431,1485,1540,1596,1653,1711,1770,1830,1891,1953,2016,2080,2145,2211,2278,2346,2415,2485,2556,2628,2701,2775,2850,2926,3003,3081,3160,3240,3321,3403,3486,3570,3655,3741,3828,3916,4005,4095,4186,4278,4371,4465,4560,4656,4753,4851,4950,5050,5151,5253,5356,5460,5565,5671,5778,5886,5995,6105,6216,6328,6441,6555,6670,6786,6903,7021,7140,7260,7381,7503,7626,7750,7875,8001],"size":4294967296,"time":"Tue Sep 16 17:16:28 2014","val_len":1}
+                // CN {"num_infiles":3,"num_srcfiles":3,"num_combinations":0,"complete_registers":95958617,"min_val":2,"max_val":3,"save_every":1,"num_pieces":5,"piece_num":0,"kmer_size":31,"kmer_bytes":8,"data_bytes":1,"block_bytes":9,"version":7,"filetype":"cnidaria/json_matrix","in_filenames":["/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_lyrata.fasta.jf","/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_thaliana_TAIR10_genome.fas.jf","/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Citrus_sinensis.fasta.jf"],"src_filenames":["/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_lyrata.fasta.jf","/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_thaliana_TAIR10_genome.fas.jf","/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Citrus_sinensis.fasta.jf"],"num_kmer_total_spp":[28695267,22380330,46910894],"num_kmer_valid_spp":[2025466,2024829,16477],"matrix":[[[0,0,0],[0,2011398,5511],[0,3046,5511]],[[0,2011398,5511],[0,0,0],[0,2409,5511]],[[0,3046,5511],[0,2409,5511],[0,0,0]]]}
+                
+                j_file_header_t jf     =   j_file_header_t((*in));
+                
+                baseInt  offset        =   jf.offset();
+                baseInt  counter_len   =   jf.counter_len();
+                baseInt  key_len_bits  =   jf.key_len();
+                baseInt  jSize         =   jf.size();
+                
+                baseInt  key_len_bytes = ( key_len_bits         / 8          ) + ( key_len_bits % 8 != 0 );
+                baseInt  record_len    =   counter_len          + key_len_bytes;
+                baseInt  kmer_size     =   key_len_bits         / 2;
+                
+                jmatrix.reset( new j_rbm_matrix_t( jf.matrix() ) );
+                baseInt       r        =  (*jmatrix).r();
+                baseInt       c        =  (*jmatrix).c();
+                baseint_vec_t m;
+
+                for(unsigned int i = 0; i < c; ++i) {
+                    m.push_back( (*jmatrix)[i] );
+                }
+                
+                hda.j_matrices->push_back( j_matrix_s( r, c, m ) );
+                hda.infiles   ->push_back( file_arg              ); // files inside databases
+                hda.srcfiles  ->push_back( file_arg              ); // databases
+                hda.num_infiles  = 1;
+                hda.num_srcfiles = 1;
+                hda.kmer_size    = kmer_size;
+                hda.kmer_bytes   = key_len_bytes;
+                hda.data_bytes   = counter_len;
+                hda.block_bytes  = record_len;
+                hda.j_offset     = offset;
+                hda.j_size       = jSize;
+                hda.filetype     = cnidaria::FMT_JELLYFISH;
+
+                hda.num_kmer_total_spp->push_back(0);
+                hda.num_kmer_valid_spp->push_back(0);
+            }
+            
+            void gen_j_matrix() {
+                std::cout << "regenerating binary matrix with " << (*hda.j_matrices).size() << " matrices" << std::endl;
+                
+                if ( (*hda.j_matrices).size() != 1 ) {
+                    std::cout << "wrong number of matrices" << std::endl;
+                    exit(1);
+                }
+                
+                j_matrix_s matrix1 = (*hda.j_matrices)[0];
+                
+                #ifdef DEBUG
+                std::cout << "regenerating binary matrix from R: " << matrix1.r << " C: " << matrix1.c << " S: " << matrix1.columns.size() << std::endl;
+                /*
+                for ( baseInt f = 0; f < matrix1.columns.size(); ++f ) {
+                    std::cout << " f: " << f << ": " << matrix1.columns[f] << std::endl;
+                }
+                */
+                #endif
+                
+                jmatrix.reset( new j_rbm_matrix_t( matrix1.columns.data(), matrix1.r, matrix1.c ) );
+
+                std::cout << "regenerated  binary matrix from R: " << jmatrix->r() << " C: " << jmatrix->c() << std::endl;
+            }
+            
+            bool                 next( bool binaring = false )        {
+                if ( ! is_valid                       ) { return false; }
+                if ( ! is_iteratable                  ) { return false; }
+                if ( ! in->good()                     ) { return false; }
+                if (   in->tellg() >= last_file_coord ) { return false; }
+                //CNIDARIA_VAL_TYPE
+                //std::cout << "next()          :: begin      " << in->tellg() << std::endl;
+
+                mer.template read<1>((*in));
+                val.reset();
+                //std::cout << "next()          :: mer        " << mer.to_str()     << std::endl;
+                //std::cout << "next()          :: mer bytes  " << get_kmer_bytes() << std::endl;
+                //std::cout << "next()          :: mer size   " << get_kmer_size()  << std::endl;
+                //std::cout << "next()          :: pos        " << in->tellg()      << std::endl;
+                //std::cout << "next()          :: bytes      " << hda.data_bytes   << std::endl;
+                
+                if ( is_cnidaria ) {
+                    in->read( reinterpret_cast<char *>(&bytes1[0]), hda.data_bytes );
+                    boost::from_block_range( bytes1.begin(), bytes1.end(), val );
+                    
+                } else {
+                    tmp_val = 0;
+                    in->read((char*)&tmp_val, hda.data_bytes);
+                    val[0] = true;
+                    
+                }
+
+                key    = gen_key();
+                //std::cout << "next()          :: key         " << key         << std::endl;
+                hash   = gen_hash();
+                //std::cout << "next()          :: hash        " << hash        << std::endl;
+
+                //if (( in->tellg() > 2924143548 ) && ( file_arg == "/home/aflit001/nobackup/phylogenomics_raw/tmp/test08/test8.cne" )) {
+                //    std::cout << file_arg << " :: tellg " << in->tellg() << " previous hash " << prev_hash << " hash " << hash << " status " << in->good() << " last_file_coord " << last_file_coord << std::endl;
+                //}
+                
+
+                
+                if ( ! binaring ) {
+                    if ( prev_hash == 0 ) {
+                        prev_hash = hash;
+                        
+                    } else {
+                        if ( prev_hash > hash ) {
+                            std::cout << file_arg << " :: previous hash " << prev_hash << " GRATER THAN current hash " << hash << std::endl;
+                            
+                            /*
+                            for ( baseInt g = 0; g < 100; ++g ) {
+                                next();
+                            }
+                            */
+                            
+                            exit(1);
+                            
+                        } else {
+                            prev_hash = hash;
+                            
+                        }
+                    }
+                
+                    if ( hash > 0 && last_hash > 0 && hash >= last_hash ) { return false; }
+
+                }
+                
+                return in->good();
+            }
+            
+            baseInt              goto_coord( baseInt  coord )                 {
+                if ( ! is_iteratable ) { return 0; }
+                //std::cout << "goto_coord()    :: coord      " << coord       << std::endl;
+                
+                in->seekg(coord, in->beg);
+                
+                //std::cout << "goto_coord()    :: next" << std::endl;
+                is_valid = next(true);
+                
+                //std::cout << "goto_coord()    :: hash" << std::endl;
+                return get_hash();
+            }
+
+            void                 seekHash(   baseInt  req_hash )              {
+                if ( ! is_valid      ) { return; }
+                if ( ! is_iteratable ) { return; }
+                
+                if ( ( req_hash > 0 ) && ( get_hash() < req_hash ) ) {
+                    baseInt record_len = get_block_bytes();
+                    
+                    std::cout << "BINARYING" << std::endl;
+                    
+                    baseInt   origCoord  = in->tellg();
+                    //in->seekg (0, in->end);
+                    //
+                    //baseInt   maxCoord   = in->tellg();
+                    //in->seekg (origCoord, in->beg);
+                    baseInt   maxCoord   = last_file_coord - record_len;
+
+                    baseInt   leftId     = 0;
+                    baseInt   rightId    = last_id;
+                    baseInt   midId      = rightId / 2;
+                    baseInt   endId      = 0;
+                    
+                    baseInt   leftCoord  = origCoord + ( leftId  * record_len );
+                    baseInt   midCoord   = origCoord + ( midId   * record_len );
+                    //baseInt   rightCoord = origCoord + ( rightId * record_len ) - record_len;
+                    baseInt   rightCoord = maxCoord;
+                    baseInt   endCoord   = 0;
+                    
+                    baseInt   leftPos    = goto_coord( leftCoord  );
+                    baseInt   midPos     = goto_coord( midCoord   );
+                    baseInt   rightPos   = goto_coord( rightCoord );
+                    baseInt   endPos     = 0;
+                    //
+                    std::fprintf( stdout, "INITIAL origCoord %'15llu minPos     %'15llu maxCoord %'15llu record_len %'15llu last_id %'15llu last_coord %'15llu\n", origCoord, req_hash, maxCoord, record_len, last_id, rightCoord );
+                    std::fprintf( stdout, "INITIAL leftId    %'15llu leftCoord  %'15llu leftPos  %'15llu\n", leftId , leftCoord , leftPos  );
+                    std::fprintf( stdout, "INITIAL midId     %'15llu midCoord   %'15llu midPos   %'15llu\n", midId  , midCoord  , midPos   );
+                    std::fprintf( stdout, "INITIAL rightId   %'15llu rightCoord %'15llu rightPos %'15llu\n", rightId, rightCoord, rightPos );
+                    //
+                    std::cout << std::endl;
+
+                    if ( req_hash > rightPos ) { // required hash bigger than last hash
+                        std::fprintf( stdout, "REQUIRED HASH %'15llu GREATER THAN MAXIMUM HASH %'15llu\n\n", req_hash, rightPos );
+                        endCoord = rightCoord + (2*record_len);
+                        endPos   = rightPos   + 1;
+                        endId    = rightId    + 1;
+                        is_valid = false;
+                        
+                    } else {
+                        while ( true ) {
+                            if      (( leftPos == midPos   ) || ( leftPos == rightPos   ) || ( rightPos == midPos    ) ){
+                                if      ( leftPos >= req_hash ) {
+                                  //std::cout << "COMPRESSED : LEFT" << std::endl;
+                                  endId    = leftId;
+                                  endCoord = leftCoord;
+                                  endPos   = leftPos;
+                                }
+                                else if ( rightPos >= req_hash ){
+                                  //std::cout << "COMPRESSED : RIGHT" << std::endl;
+                                  endId    = rightId;
+                                  endCoord = rightCoord;
+                                  endPos   = rightPos;
+                                }
+                                break;
+                              
+                            }
+                            else if ( req_hash == leftPos  ) {
+                                endId    = leftId;
+                                endCoord = leftCoord;
+                                endPos   = leftPos;
+                                //std::cout << "FOUND AT LEFT" << std::endl;
+                                break;
+                              
+                            }
+                            else if ( req_hash == midPos   ) {
+                                endId    = midId;
+                                endCoord = midCoord;
+                                endPos   = midPos;
+                                //std::cout << "FOUND AT MID" << std::endl;
+                                break;
+                              
+                            }
+                            else if ( req_hash == rightPos ) {
+                                endId    = rightId;
+                                endCoord = rightCoord;
+                                endPos   = rightPos;
+                                //std::cout << "FOUND AT RIGHT" << std::endl;
+                                break;
+                              
+                            }
+                            else if ( req_hash <  midPos   ) { // between left and mid
+                                rightId    = midId;
+                                rightCoord = midCoord;
+                                rightPos   = midPos;
+                                
+                                midId      = leftId    + ((rightId - leftId) / 2);
+                                midCoord   = origCoord + ( midId   * record_len  );
+                                midPos     = goto_coord( midCoord   );
+    
+                            } else { // between mid and right
+                                leftId     = midId;
+                                leftCoord  = midCoord;
+                                leftPos    = midPos;
+                                
+                                midId      = leftId    + ((rightId - leftId) / 2);
+                                midCoord   = origCoord + ( midId   * record_len  );
+                                midPos     = goto_coord( midCoord   );
+                                
+                            }
+                        }
+                    }
+                    
+                    goto_coord( endCoord );
+                    //next();
+                    //curr();
+                    //
+                    std::cout << " sizeof baseInt  " << sizeof(baseInt )               << std::endl;
+                    std::cout << " sizeof llu      " << sizeof(long long unsigned int) << std::endl;
+                    
+                    baseInt  currCoord = (baseInt)in->tellg()     - record_len;
+                    baseInt  currId    = ((currCoord - origCoord) / record_len);
+
+                    std::fprintf( stdout, "FOUND minPos %'15llu\n", req_hash );
+                    std::fprintf( stdout, "FINAL   leftId  %'40llu leftCoord  %'15llu leftPos  %'15llu\n", leftId , leftCoord , leftPos           );
+                    std::fprintf( stdout, "FINAL   midId   %'40llu midCoord   %'15llu midPos   %'15llu\n", midId  , midCoord  , midPos            );
+                    std::fprintf( stdout, "FINAL   rightId %'40llu rightCoord %'15llu rightPos %'15llu\n", rightId, rightCoord, rightPos          );
+                    std::fprintf( stdout, "FINAL   endId   %'40llu endCoord   %'15llu endPos   %'15llu\n", endId  , endCoord  , endPos            );
+                    std::fprintf( stdout, "FINAL   currId  %'40llu currCoord  %'15llu currPos  %'15llu\n", currId , currCoord , get_hash()        );
+                    std::fprintf( stdout, "FINAL   key     %-31s\n"                                                           , get_key().c_str() );
+                    //
+                    std::cout << std::endl;
+                }
+            }
+    };
+}
+

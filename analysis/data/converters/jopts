@@ -1,0 +1,36 @@
+JELLYFISH=/home/aflit001/dev/phylogenomics4/src/libs/Jellyfish/bin/jellyfish
+SAMTOOLS=/home/aflit001/dev/samtools/samtools-1.1/samtools
+
+KSIZE=15
+
+if [[ "$KSIZE" == 31 ]]; then
+MER_SIZE=31
+HASH_SIZE=4G
+fi
+
+if [[ "$KSIZE" == 21 ]]; then
+MER_SIZE=21
+HASH_SIZE=1G
+fi
+
+if [[ "$KSIZE" == 17 ]]; then
+MER_SIZE=17
+HASH_SIZE=512M
+fi
+
+if [[ "$KSIZE" == 15 ]]; then
+MER_SIZE=15
+HASH_SIZE=256M
+fi
+
+if [[ "$KSIZE" == 11 ]]; then
+MER_SIZE=11
+HASH_SIZE=128M
+fi
+
+
+
+COUNTER_LEN=7
+OUT_COUNTER_LEN=1
+JCMD="${JELLYFISH} count -m ${MER_SIZE} -s ${HASH_SIZE} -t 5 -F 300 --disk --counter-len=${COUNTER_LEN} --out-counter-len=${OUT_COUNTER_LEN} --canonical"
+ulimit -Sn 4096

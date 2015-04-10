@@ -1,0 +1,87 @@
+#hdr
+
+#include "phylogenomics_shared.hpp"
+
+#end
+
+namespace phylogenomics {  
+  struct distance {
+    std::vector<baseInt> totalVals;
+    baseInt shared;
+    //double  jaccard_dissimilarity;
+    double  jaccard_similarity;
+    double  fowlkes_mallows_similarity;
+    double  russel_rao_similarity;
+    
+    double  calc(){
+      baseInt sumj = 0;
+      baseInt sumr = 0;
+      double  mul  = 1.0;
+      //std::cerr << "  jaccard calculating\n";
+      
+      for ( baseInt s = 0; s < totalVals.size(); ++s ) {
+        //std::cerr << "    sum b: " << sum << " val: " << totalVals[s] << " shared: " << shared << " diff: " << totalVals[s] - shared << " sum a: " << sum + totalVals[s] - shared << "\n";
+        sumj += totalVals[s] - shared;
+        sumr += totalVals[s];
+        //mul *= shared * ( totalVals[s] - shared );
+        mul  *= (double) ((double)shared / (double)totalVals[s]);
+      }
+      
+      jaccard_similarity         = (double) ((double) shared / (double)( sumj + shared )); // index. similarity
+      russel_rao_similarity      = (double) ((double) shared / (double)( sumr          )); // index. similarity
+      fowlkes_mallows_similarity = (double) sqrt(mul);
+      
+      //jaccard_dissimilarity = 1.0 - jaccard_similarity;                                   // distance. dissimilarity
+      //fowlkes_mallows_similarity = (double) (double) shared / sqrt(mul);
+      //std::cerr << "    shared: " << shared << " sum jaccard: " << sumj << " sim jaccard: " << jaccard_similarity << " sum russel: " << sumr << " sim russel: " << russel_rao_similarity << " mul folkes: " << mul << " sim folks: " << fowlkes_mallows_similarity <<"\n";
+      
+      return jaccard_similarity;
+    };
+    
+    void print(){
+      std::cerr << "    shared " << shared << " added ";
+      for ( baseInt pos = 0; pos < totalVals.size(); ++pos ) {
+        std::cerr << " " << totalVals[pos];
+      }
+      std::cerr << " jaccard " << jaccard_similarity << " folkes " << fowlkes_mallows_similarity << " russel " << russel_rao_similarity << "\n";
+    };
+    
+    void add(baseInt val) {
+      //std::cerr << " jaccard adding " << val << "\n";
+      totalVals.push_back(val);
+      calc();
+    };
+  };
+  
+  typedef std::vector<distance       > distanceVector;
+  typedef std::vector<distanceVector > distanceMatrix;
+  
+  
+  
+  //Rand Index
+  //          exclusive A + exclusive B
+  //  ----------------------------------------
+  //  exclusive A + 2x shared AB + exclusive B
+  //
+  //Jaccard Index
+  //                shared AB
+  //  -------------------------------------
+  //  exclusive A + shared AB + exclusive B
+  //
+  //Fowlker and Mallows
+  //      shared AB
+  //--------------------------------------------------------
+  //sqrt(( shared AB * unique A ) * ( shared AB * unique B))
+  //
+  //Mirkin Metric
+  //2 * ( unique A + unique B )
+  //
+  //Wallace
+  //WAB =      Shared AB
+  //      --------------------
+  //      Unique A + Shared AB
+  //WBA =      Shared AB
+  //      --------------------
+  //      Unique B + Shared AB
+
+}
