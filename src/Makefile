@@ -59,7 +59,7 @@ CPP_INCL=-I/usr/lib/x86_64-linux-gnu \
 		-I$(LIB_EXT)/threadpool \
 		-I$(LIB_SRC) \
 		-I$(SRC_CPP) \
-		-I/home/aflit001/lib/include \
+		-I$HOME/include \
 		-I/usr/include/python2.7
 
 

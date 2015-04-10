@@ -1,11 +1,11 @@
 #intall system wide libraries
 apt-get update
-apt-get install -y libboost-all-dev swig libc6-i386 lib32stdc++6
+apt-get install -y libboost-all-dev swig libc6-i386 lib32stdc++6 make g++
 apt-get install -y python python-setuptools python-numpy python-pandas python-matplotlib python-cogent python-imaging python-qt4 python-pip python-lxml
 #python-mpi4py
 
 #install python libraries
-easy_install --user ete2
-easy_install --user hcluster
+easy_install ete2
+easy_install hcluster
 
 
