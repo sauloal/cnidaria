@@ -1,4 +1,4 @@
-FROM cnidaria_run
+FROM sauloal/cnidaria_run
 
 RUN git clone https://github.com/sauloal/cnidaria.git
 

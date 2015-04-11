@@ -1,4 +1,4 @@
-FROM cnidaria_make_env
+FROM sauloal/cnidaria_make_env
 
 VOLUME "/data"
 
