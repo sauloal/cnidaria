@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Cnidaria by sauloal</title>
+    <title>Cnidaria by Saulo Aflitos</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -42,7 +42,7 @@ supra-species level and 78% accuracy for species level.</p>
 <p>Availability and Implementation: Cnidaria is written in C++ and Python and 
 is available at <a href="http://www.ab.wur.nl/cnidaria">http://www.ab.wur.nl/cnidaria</a>.</p>
 
-<p>Contact: <a href="mailto:sauloal@gmail.com">sauloal@gmail.com</a></p>
+<p>Contact: Saulo Aflitos - <a href="mailto:sauloal@gmail.com">sauloal@gmail.com</a></p>
 
 <p>Supplementary information: Supplementary data are available at 
 Bioinformatics online.</p>
@@ -50,7 +50,12 @@ Bioinformatics online.</p>
 
 <h1>How to run</h1>
 <h2>Docker</h2>
-<p>At src/docker you can find the docker recipes.</p>
+<p>You can find the docker recipes at src/docker.</p>
+<p>You can install cnidaria on docker by:</p>
+<pre>
+docker pull sauloal/cnidaria_full
+docker run -it -v data/:/data sauloal/cnidaria_full
+</pre>
 
 <h2>Install</h2>
 <h3>To install the system requirements:</h3>
