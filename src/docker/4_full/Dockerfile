@@ -1,15 +1,21 @@
 FROM sauloal/cnidaria_run
 
-RUN git clone https://github.com/sauloal/cnidaria.git
+RUN useradd --create-home --shell /bin/bash cnidaria && \
+    echo `echo "cnidaria\ncnidaria\n" | passwd cnidaria`
 
-RUN cd cnidaria/src && \
+USER cnidaria
+
+WORKDIR /home/cnidaria
+
+RUN git clone https://github.com/sauloal/cnidaria.git && \
+    cd cnidaria/src && \
     make clean && \
     make all && \
     cd libs/jellyfish-2.1.3 && \
     ./configure && \
-    make
+    make && \
+    cd ../../../scripts && \
+    ./cnidaria.py -h && \
+    mkdir ~cnidaria/data
 
-RUN cd cnidaria/scripts && \
-    ./cnidaria.py -h
-
-VOLUME "/data"
+VOLUME "/home/cnidaria/data"

@@ -1,3 +1,5 @@
+set -xeu
+
 if [[ -f "ok" ]]; then
 exit 0
 fi
