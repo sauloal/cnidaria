@@ -8,7 +8,7 @@ make all
 
 
 #compile jellyfish
-cd libs/jellyfish-2.1.3
+cd libs/Jellyfish
 make clean
 ./configure
 # ignore the error: config.status: error: cannot find input file: `tests/compat.sh.in'

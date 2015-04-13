@@ -1,1 +1,0 @@
-tar acvf cnidaria.result.tar.gz analysis/tmp_11/test10/test10.json* analysis/tmp_15/test12/test12.json* analysis/tmp_17/test12/test12.json* analysis/tmp_21/test10/test10.json* analysis/tmp_21/test10/test10_0001_0050.json* analysis/tmp_31/test10/test10.json* test/qry/cnidaria_db.json* test/qry/cnidaria_db_0001_0020.json*
