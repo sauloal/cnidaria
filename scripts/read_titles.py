@@ -1,9 +1,15 @@
 import os
 import sys
 
-def readFilesTitles(filetitles):    
-    macros = {}
+curr_pwd = os.getcwd()
+
+def readFilesTitles(filetitles):
+    macros = {
+        'CURR_PWD': curr_pwd
+    }
+
     titles = {}
+
     with open(filetitles, 'r') as fhd:
         for line in fhd:
             line = line.strip()
@@ -40,9 +46,11 @@ def readFilesTitles(filetitles):
                 continue
 
             
+
             try:
                 fname, fnewname = [ x.strip() for x in line.split("\t")[:2] ]
-                titles[ fname ] = os.path.abspath( fnewname )
+                titles[                  fname % macros   ] = fnewname
+                titles[ os.path.abspath( fname % macros ) ] = fnewname
                 #print "adding %s to %s" % ( fname, fnewname )
                 
             except:
@@ -51,11 +59,13 @@ def readFilesTitles(filetitles):
                 raise
                 sys.exit(1)
             
+
+
             if 'EXTS' in macros:
                 exts = macros['EXTS']
                 for ext in exts:
                     fext         = fname + ext
-                    titles[fext] = os.path.abspath( fnewname )
+                    titles[fext] = fnewname
                     #print "adding ext %s to %s" % ( fext, fnewname )
 
     return titles

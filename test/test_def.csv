@@ -6,7 +6,6 @@ test	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_fumigatus_uid14003.fasta%(EXT)s
 test	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_nidulans_FGSC_A4_uid13961.fasta%(EXT)s
 test	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_niger_CBS_513_88_uid19263.fasta%(EXT)s
 test	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_oryzae_RIB40_uid28175.fasta%(EXT)s
-test	%(RAW_EXTERNAL_FUNGI)s/Candida_albicans_uid14005.fasta%(EXT)s
 test	%(RAW_EXTERNAL_FUNGI)s/Candida_dubliniensis_CD36_uid38659.fasta%(EXT)s
 test	%(RAW_EXTERNAL_FUNGI)s/Candida_glabrata_CBS138_uid12376.fasta%(EXT)s
 test	%(RAW_EXTERNAL_FUNGI)s/Cryptococcus_gattii_WM276.fasta%(EXT)s

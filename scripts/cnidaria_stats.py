@@ -497,20 +497,17 @@ def dissi2dissimatrix(dissi, stats):
 
 
 def fixTitles( titles, stats ):
-    #print sorted(stats.speciesPosition.keys())
-    #print titles
-    for fname in titles:
-        if fname in stats.speciesPosition:
-            fnewname = titles[fname]
-            print " renaming", fname, "to", fnewname
-            pos = stats.speciesPosition[ fname    ]
-            stats.speciesNames[          pos      ] = fnewname
-            stats.speciesPosition[       fnewname ] = pos
-            del stats.speciesPosition[   fname    ]
-        
-        else:
-            #print " name %s not present" % fname
-            pass
+    print sorted(stats.speciesPosition.keys())
+    print titles
+    for fname in stats.speciesPosition:
+        for tname in titles:
+            if tname in fname:
+                fnewname = titles[ tname ]
+                print " renaming", fname, "to", fnewname
+                pos = stats.speciesPosition[ fname    ]
+                stats.speciesNames[          pos      ] = fnewname
+                stats.speciesPosition[       fnewname ] = pos
+                del stats.speciesPosition[   fname    ]
 
 
 def exportMatrices(infile, matrices, stats):
@@ -579,6 +576,7 @@ def main():
 
     try:
         filetitles = sys.argv[2]
+        print "input file titles given:", filetitles
         
     except:
         filetitles = None
@@ -587,6 +585,7 @@ def main():
 
     try:
         ignore_file = sys.argv[3]
+        print "ignore file given:", ignore_file
         
     except:
         ignore_file = None
