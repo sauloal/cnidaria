@@ -38,6 +38,10 @@ DEBUG=-g -pg
 DEBUG=-g
 #DEBUG=
 
+JELLY_LIB=$(LIB_EXT)/Jellyfish/lib
+JELLY_LIB=$(LIB_EXT)/jelly
+
+
 CPP_OPTS=$(DEBUG) -std=c++11 -m64 -fPIC -mtune=native
 
 #CPP_OPTS+=	-faggressive-loop-optimizations -fexpensive-optimizations \
@@ -52,22 +56,24 @@ CPP_OPTS+=-Ofast
 #CPP_OPTS+=-O0    
 
 CPP_INCL=-I/usr/lib/x86_64-linux-gnu \
-		-I$(LIB_EXT)/Jellyfish \
-		-I$(LIB_EXT)/Jellyfish/include \
-		-I$(LIB_EXT)/Jellyfish/include/jellyfish \
 		-I$(LIB_EXT)/rapidjson/include \
 		-I$(LIB_EXT)/threadpool \
+        -I$(JELLY_LIB) \
 		-I$(LIB_SRC) \
 		-I$(SRC_CPP) \
 		-I$HOME/include \
 		-I/usr/include/python2.7
 
+#		-I$(LIB_EXT)/Jellyfish \
+#		-I$(LIB_EXT)/Jellyfish/include \
+#		-I$(LIB_EXT)/Jellyfish/include/jellyfish \
+
 
 CPP_LIBS=-L/usr/lib/x86_64-linux-gnu -fopenmp -lboost_system -lboost_filesystem -lboost_thread -lpthread
 
-CPP_VARS=-DKMER_SIZE=$(KMER_SIZE)
 
 ifdef GEN_DEBUG
+CPP_VARS=-DKMER_SIZE=$(KMER_SIZE)
 CPP_VARS+= -DDEBUG
 endif
 
@@ -79,7 +85,6 @@ LDD_OPTS=
 
 
 
-JELLY_LIB=$(LIB_EXT)/Jellyfish/lib
 
 J_SRC=  $(JELLY_LIB)/allocators_mmap.cc           \
         $(JELLY_LIB)/jsoncpp.cc                   \
