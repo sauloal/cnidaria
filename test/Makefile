@@ -62,5 +62,5 @@ $(OUT_MAKE): $(FILE_LIST) $(DEF_FILE)
 
 
 $(OUT_FILE): $(OUT_MAKE) $(INJF)
-	$(MAKE) -C $(OUT_DIR) all
+	$(MAKE) -C $(OUT_DIR) test
 
