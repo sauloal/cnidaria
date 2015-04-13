@@ -14,7 +14,7 @@ def readFilesTitles(filetitles):
                 # MACRO:EXTS:.jf
                 if 'MACRO' in line:
                     print "has macro"
-                    cols = [x.strip() for x in line[1:].split(":")]
+                    cols       = [x.strip() for x in line[1:].split(":")]
                     macro_type = cols[1]
                     macro_name = cols[2]
                     macro_val  = cols[3]
@@ -41,7 +41,7 @@ def readFilesTitles(filetitles):
             
             try:
                 fname, fnewname = [ x.strip() for x in line.split("\t")[:2] ]
-                titles[ fname ] = fnewname
+                titles[ fname ] = os.path.abspath( fnewname )
                 #print "adding %s to %s" % ( fname, fnewname )
                 
             except:
@@ -51,8 +51,8 @@ def readFilesTitles(filetitles):
             if 'EXTS' in macros:
                 exts = macros['EXTS']
                 for ext in exts:
-                    fext = fname + ext
-                    titles[fext] = fnewname
+                    fext         = fname + ext
+                    titles[fext] = os.path.abspath( fnewname )
                     #print "adding ext %s to %s" % ( fext, fnewname )
 
     return titles

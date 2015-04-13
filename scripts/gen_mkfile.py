@@ -95,7 +95,7 @@ def read_def( defs, def_file, selected_proj_name=None ):
             if proj_name not in projs:
                 projs[ proj_name ] = []
                 
-            file_name = file_name % defs
+            file_name = os.path.abspath( file_name % defs )
             projs[ proj_name ].append( file_name )
             print proj_name, file_name
             
@@ -106,7 +106,7 @@ def read_def( defs, def_file, selected_proj_name=None ):
                 if proj_name not in defs["_reqs"]:
                     defs["_reqs"][proj_name] = []
 
-                defs["_reqs"][proj_name].append(file_name)
+                defs["_reqs"][proj_name].append( file_name )
 
     if len(defs["_verify"]) > 0:
         to_check = defs["_verify"]

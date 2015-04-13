@@ -4,8 +4,10 @@ import os
 import sys
 import argparse
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'build'))
+basedir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(basedir, 'build'))
 
+print basedir
 import cnidariapy
 
 print cnidariapy.fact(3)
