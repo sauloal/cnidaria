@@ -53,8 +53,8 @@ Bioinformatics online.</p>
 <p>You can find the docker recipes at src/docker.</p>
 <p>You can install cnidaria on docker by:</p>
 <pre>
-docker pull sauloal/cnidaria_full
-docker run -it -v $PWD/data/:/data sauloal/cnidaria_full bash
+$ docker pull sauloal/cnidaria_full
+$ docker run -it -v $PWD/data/:/data sauloal/cnidaria_full bash
 </pre>
 
 <h2>Test</h2>
@@ -66,13 +66,12 @@ $ make
 
 <p>It will download 16 fungi genomes from NCBI, extract its 21-mers and run cnidaria on it. The output should be:</p>
 
-<p>The test takes approx. 30 min to run</p>
-<p>The raw data amounts to 301 Mb</p>
-<p>The jellyfish data amounts to 2.0 Gb</p>
-<p>The cnidariadata amounts to 1.7 Mb</p>
+<p>The test takes approx. 30 min to run<br/>
+The raw data amounts to 301 Mb<br/>
+The jellyfish data amounts to 2.0 Gb<br/>
+The cnidariadata amounts to 1.7 Mb</p>
 
 <pre>
-
 $ ls data/fungi
 4.0K Aspergillus_fumigatus_uid14003
  29M Aspergillus_fumigatus_uid14003.fasta
@@ -236,7 +235,7 @@ $ cat /usr/include/boost/version.hpp | grep "BOOST_LIB_VERSION"
 
 <p><strong>gcc >= 4.8</strong></p>
 <pre>
-$gcc -v  
+$ gcc -v  
 gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1)
 </pre>
 
