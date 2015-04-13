@@ -66,14 +66,146 @@ $ make
 
 <p>It will download 16 fungi genomes from NCBI, extract its 21-mers and run cnidaria on it. The output should be:</p>
 
-<pre>
-$ ls out/test/
-
-</pre>
-
-<p>The raw data amounts to 301 Gb</p>
+<p>The test takes approx. 30 min to run</p>
+<p>The raw data amounts to 301 Mb</p>
 <p>The jellyfish data amounts to 2.0 Gb</p>
 <p>The cnidariadata amounts to 1.7 Mb</p>
+
+<pre>
+
+$ ls data/fungi
+4.0K Aspergillus_fumigatus_uid14003
+ 29M Aspergillus_fumigatus_uid14003.fasta
+189M Aspergillus_fumigatus_uid14003.fasta.21.jf
+4.0K Aspergillus_fumigatus_uid14003.fasta.21.jf.timming
+4.0K Aspergillus_fumigatus_uid14003.sh
+4.0K Aspergillus_nidulans_FGSC_A4_uid13961
+ 29M Aspergillus_nidulans_FGSC_A4_uid13961.fasta
+194M Aspergillus_nidulans_FGSC_A4_uid13961.fasta.21.jf
+4.0K Aspergillus_nidulans_FGSC_A4_uid13961.fasta.21.jf.timming
+4.0K Aspergillus_nidulans_FGSC_A4_uid13961.sh
+4.0K Aspergillus_niger_CBS_513_88_uid19263
+ 33M Aspergillus_niger_CBS_513_88_uid19263.fasta
+226M Aspergillus_niger_CBS_513_88_uid19263.fasta.21.jf
+4.0K Aspergillus_niger_CBS_513_88_uid19263.fasta.21.jf.timming
+4.0K Aspergillus_niger_CBS_513_88_uid19263.sh
+4.0K Aspergillus_oryzae_RIB40_uid28175
+ 36M Aspergillus_oryzae_RIB40_uid28175.fasta
+246M Aspergillus_oryzae_RIB40_uid28175.fasta.21.jf
+4.0K Aspergillus_oryzae_RIB40_uid28175.fasta.21.jf.timming
+4.0K Aspergillus_oryzae_RIB40_uid28175.sh
+   0 Candida_albicans_uid14005
+944K Candida_albicans_uid14005.fasta
+6.3M Candida_albicans_uid14005.fasta.21.jf
+4.0K Candida_albicans_uid14005.fasta.21.jf.timming
+4.0K Candida_albicans_uid14005.sh
+4.0K Candida_dubliniensis_CD36_uid38659
+ 15M Candida_dubliniensis_CD36_uid38659.fasta
+ 93M Candida_dubliniensis_CD36_uid38659.fasta.21.jf
+4.0K Candida_dubliniensis_CD36_uid38659.fasta.21.jf.timming
+4.0K Candida_dubliniensis_CD36_uid38659.sh
+4.0K Candida_glabrata
+4.0K Candida_glabrata_CBS138_uid12376
+ 12M Candida_glabrata_CBS138_uid12376.fasta
+ 81M Candida_glabrata_CBS138_uid12376.fasta.21.jf
+4.0K Candida_glabrata_CBS138_uid12376.fasta.21.jf.timming
+4.0K Candida_glabrata_CBS138_uid12376.sh
+ 12M Candida_glabrata.fasta
+ 81M Candida_glabrata.fasta.21.jf
+4.0K Candida_glabrata.fasta.21.jf.timming
+4.0K Candida_glabrata.sh
+4.0K Cryptococcus_gattii_WM276
+ 18M Cryptococcus_gattii_WM276.fasta
+118M Cryptococcus_gattii_WM276.fasta.21.jf
+4.0K Cryptococcus_gattii_WM276.fasta.21.jf.timming
+4.0K Cryptococcus_gattii_WM276.sh
+4.0K Cryptococcus_neoformans_var_JEC21_uid10698
+ 19M Cryptococcus_neoformans_var_JEC21_uid10698.fasta
+122M Cryptococcus_neoformans_var_JEC21_uid10698.fasta.21.jf
+4.0K Cryptococcus_neoformans_var_JEC21_uid10698.fasta.21.jf.timming
+4.0K Cryptococcus_neoformans_var_JEC21_uid10698.sh
+4.0K Kluyveromyces_lactis_NRRL_Y-1140_uid12377
+ 11M Kluyveromyces_lactis_NRRL_Y-1140_uid12377.fasta
+ 71M Kluyveromyces_lactis_NRRL_Y-1140_uid12377.fasta.21.jf
+4.0K Kluyveromyces_lactis_NRRL_Y-1140_uid12377.fasta.21.jf.timming
+4.0K Kluyveromyces_lactis_NRRL_Y-1140_uid12377.sh
+ 44K Neurospora_crassa_uid132
+ 37M Neurospora_crassa_uid132.fasta
+250M Neurospora_crassa_uid132.fasta.21.jf
+4.0K Neurospora_crassa_uid132.fasta.21.jf.timming
+4.0K Neurospora_crassa_uid132.sh
+4.0K Saccharomyces_cerevisiae_uid128
+ 12M Saccharomyces_cerevisiae_uid128.fasta
+ 77M Saccharomyces_cerevisiae_uid128.fasta.21.jf
+4.0K Saccharomyces_cerevisiae_uid128.fasta.21.jf.timming
+4.0K Saccharomyces_cerevisiae_uid128.sh
+   0 Schizosaccharomyces_pombe_uid127
+ 13M Schizosaccharomyces_pombe_uid127.fasta
+ 82M Schizosaccharomyces_pombe_uid127.fasta.21.jf
+4.0K Schizosaccharomyces_pombe_uid127.fasta.21.jf.timming
+4.0K Schizosaccharomyces_pombe_uid127.sh
+4.0K Yarrowia_lipolytica_CLIB122_uid12414
+ 20M Yarrowia_lipolytica_CLIB122_uid12414.fasta
+134M Yarrowia_lipolytica_CLIB122_uid12414.fasta.21.jf
+4.0K Yarrowia_lipolytica_CLIB122_uid12414.fasta.21.jf.timming
+4.0K Yarrowia_lipolytica_CLIB122_uid12414.sh
+4.0K Zygosaccharomyces_rouxii_CBS_732_uid39573
+9.5M Zygosaccharomyces_rouxii_CBS_732_uid39573.fasta
+ 65M Zygosaccharomyces_rouxii_CBS_732_uid39573.fasta.21.jf
+4.0K Zygosaccharomyces_rouxii_CBS_732_uid39573.fasta.21.jf.timming
+4.0K Zygosaccharomyces_rouxii_CBS_732_uid39573.sh
+
+$ ls out/
+Makefile
+
+$ ls out/test/
+ 12K Makefile
+ 32K test_0001_0001.cnm
+ 20K test_0001_0001.json
+4.0K test_0001_0001.json.count.csv
+8.0K test_0001_0001.json.csv
+8.0K test_0001_0001.json.no_scale.jaccard_dissimilarity.matrix
+4.0K test_0001_0001.json.no_scale.jaccard_dissimilarity.nj
+140K test_0001_0001.json.no_scale.jaccard_dissimilarity.nj.png
+4.0K test_0001_0001.json.no_scale.jaccard_dissimilarity.nj.tree
+8.0K test_0001_0001.json.no_scale.jaccard_dissimilarity_sqrt.matrix
+4.0K test_0001_0001.json.no_scale.jaccard_dissimilarity_sqrt.nj
+140K test_0001_0001.json.no_scale.jaccard_dissimilarity_sqrt.nj.png
+4.0K test_0001_0001.json.no_scale.jaccard_dissimilarity_sqrt.nj.tree
+4.0K test_0001_0001.json.no_scale.jaccard_dissimilarity_sqrt.upgma
+140K test_0001_0001.json.no_scale.jaccard_dissimilarity_sqrt.upgma.png
+4.0K test_0001_0001.json.no_scale.jaccard_dissimilarity_sqrt.upgma.tree
+4.0K test_0001_0001.json.no_scale.jaccard_dissimilarity.upgma
+140K test_0001_0001.json.no_scale.jaccard_dissimilarity.upgma.png
+4.0K test_0001_0001.json.no_scale.jaccard_dissimilarity.upgma.tree
+   0 test_0001_0001.json.pngok
+424K test_0001_0001.log
+   0 test_0001_0001.ok
+4.0K test.all.count.csv
+ 12K test.all.csv
+   0 test.cnm
+   0 test.json
+4.0K test.json.count.csv
+8.0K test.json.csv
+8.0K test.json.no_scale.jaccard_dissimilarity.matrix
+4.0K test.json.no_scale.jaccard_dissimilarity.nj
+140K test.json.no_scale.jaccard_dissimilarity.nj.png
+4.0K test.json.no_scale.jaccard_dissimilarity.nj.tree
+8.0K test.json.no_scale.jaccard_dissimilarity_sqrt.matrix
+4.0K test.json.no_scale.jaccard_dissimilarity_sqrt.nj
+140K test.json.no_scale.jaccard_dissimilarity_sqrt.nj.png
+4.0K test.json.no_scale.jaccard_dissimilarity_sqrt.nj.tree
+4.0K test.json.no_scale.jaccard_dissimilarity_sqrt.upgma
+140K test.json.no_scale.jaccard_dissimilarity_sqrt.upgma.png
+4.0K test.json.no_scale.jaccard_dissimilarity_sqrt.upgma.tree
+4.0K test.json.no_scale.jaccard_dissimilarity.upgma
+140K test.json.no_scale.jaccard_dissimilarity.upgma.png
+4.0K test.json.no_scale.jaccard_dissimilarity.upgma.tree
+   0 test.json.pngok
+4.0K test.log
+   0 test.ok
+</pre>
+
 
 <h2>Install</h2>
 <h3>To install the system requirements:</h3>
