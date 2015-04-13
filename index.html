@@ -57,6 +57,21 @@ docker pull sauloal/cnidaria_full
 docker run -it -v $PWD/data/:/data sauloal/cnidaria_full bash
 </pre>
 
+<h2>Test</h2>
+<p>After <a href="#compile">compiling</a>:</p>
+<pre>
+$ cd test
+$ make
+</pre>
+
+<p>It will download 16 fungi genomes from NCBI, extract its 21-mers and run cnidaria on it. The raw data amounts to 2.6 Gb. The output should be:</p>
+
+<pre>
+$ ls out/test/
+
+</pre>
+The output should amount to 2.6 Gb
+
 <h2>Install</h2>
 <h3>To install the system requirements:</h3>
 <pre>
@@ -66,7 +81,7 @@ $ sudo bash INSTALL.1.requirements
 <h3>Minimum requirements:</h3>
 <p><strong>Ubuntu >= 13.4</strong></p>
 <pre>
-lsb_release -a
+$ lsb_release -a
 No LSB modules are available.
 Distributor ID: Ubuntu
 Description:    Ubuntu 14.04.2 LTS
@@ -92,7 +107,7 @@ gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1)
 
 
 
-<h3>To re-compile code:</h3>
+<h3 name="compile">To re-compile code:</h3>
 <pre>
 $ bash INSTALL.2.compile
 </pre>
@@ -154,6 +169,8 @@ JCMD="${JELLYFISH} count -m ${MER_SIZE} -s ${HASH_SIZE} -t 5 -F 300 --disk --cou
 ulimit -Sn 4096
 </pre>
 
+
+
 <p>Run ./run.sh</p>
 
 <p>It will search for all fasta/cram/bam under the current folder and convert them to JF.</p>
@@ -186,13 +203,13 @@ test01  /home/user/cnidaria/data/input/spp5.fas.21.jf
 correct order for: split, calculate, merge, generate statistics and plot 
 graphs in one go</p>
 <pre>
-scripts/gen_mkfile.py -h
+$ scripts/gen_mkfile.py -h
 #usage: gen_mkfile.py [-h] [-thr [NUM_THREADS]] [-min [MINVAL]]
 #                     [-se [SAVE_EVERY]] [-me] [-nm] [-ec] [-nem]
 #                     file_list def_file out_dir kmer_size num_pieces
 
 # ./gen_mkfile.py file_list def_file out_folder kmer_size number_of_pieces
-./gen_mkfile.py /home/user/cnidaria/data/filelist.csv \
+$ ./gen_mkfile.py /home/user/cnidaria/data/filelist.csv \
   /home/user/cnidaria/data/test_def.csv \
   /home/user/cnidaria/data/output 21 20
 </pre>
@@ -202,12 +219,12 @@ scripts/gen_mkfile.py -h
 <h4>Run Makefile</h4>
 <p>Go to the output folder ( /home/user/cnidaria/data/output ) and run:</p>
 <pre>
-  Make all
+$ make all
 </pre>
 
 <p>Or do a specific run:</p>
 <pre>
-  Make test01
+$ make test01
 </pre>
 
 <p>the makefile contains:</p>
@@ -272,9 +289,9 @@ test01.json.no_scale.jaccard_dissimilarity.nj.tree
 
 <h4>To create HTML report</h4>
 <pre>
-/home/user/cnidaria/scripts/report/stats_report.py test01.json \
-/home/user/cnidaria/data/filelist.csv \
-test01.json.no_scale.jaccard_dissimilarity.nj
+$ /home/user/cnidaria/scripts/report/stats_report.py test01.json \
+  /home/user/cnidaria/data/filelist.csv \
+  test01.json.no_scale.jaccard_dissimilarity.nj
 
 #which will generate:
 #test01_kmer_stats_report.html
@@ -284,7 +301,8 @@ test01.json.no_scale.jaccard_dissimilarity.nj
 <h3>Manually</h3>
 <p>Alternatively, you can run scripts/cnidaria.py, the main program, for the analysis.</p>
 <pre>
-scripts/cnidaria.py -h
+$ scripts/cnidaria.py -h
+
 #usage: cnidaria.py [-h] [-out [OUT_FILE]] [-thr [NUM_THREADS]] [-min [MINVAL]]
 #                   [-se [SAVE_EVERY]] [-np [NUM_PIECES]] [-pn [PIECE_NUM]]
 #                   [-n] [-d] [-me] [-nm] [-ec] [-nem]
