@@ -14,7 +14,7 @@ cnidaria:
 	$(MAKE) -C src
 
 jellyfish:
-	$(MAKE) -C src/libs/Jellyfish
+	cd src/libs/Jellyfish && ./configure && $(MAKE)
 
 run:
 	scripts/cnidaria.py -h

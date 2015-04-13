@@ -1,11 +1,13 @@
-DATAFOLDER=$(PWD)/data/fungi
+CURR_DIR_N=$(abspath $(lastword $(MAKEFILE_LIST)))
+CURR_DIR=$(patsubst %/,%,$(dir $(CURR_DIR_N)))
+DATAFOLDER=$(CURR_DIR)/data/fungi
 FILE_LIST=filelist.csv
 DEF_FILE=test_def.csv
-OUT_DIR=out
+OUT_DIR=$(CURR_DIR)/out
 KMER_SIZE=21
 NUM_PIECES=1
 
-JELLYFISH=$(PWD)/../src/libs/Jellyfish/bin/jellyfish
+JELLYFISH=$(CURR_DIR)/../src/libs/Jellyfish/bin/jellyfish
 HASH_SIZE=1G
 COUNTER_LEN=7
 OUT_COUNTER_LEN=1
@@ -23,8 +25,7 @@ INFA=$(patsubst %.sh,%.fasta,$(INSH))
 INJF=$(patsubst %.sh,%.fasta.$(KMER_SIZE).jf,$(INSH))
 
 
-
-
+ 
 all: $(OUT_FILE)
 
 
@@ -34,6 +35,7 @@ clean:
 
 
 print:
+	@echo CURR_DIR   $(CURR_DIR)
 	@echo DATAFOLDER $(DATAFOLDER)
 	@echo FILE_LIST  $(FILE_LIST)
 	@echo DEF_FILE   $(DEF_FILE)
