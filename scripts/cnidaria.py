@@ -93,13 +93,13 @@ class cnidaria(object):
             
     
     def merge_pieces(self):
-        if self.num_pieces == 1:
-            print "one piece. no merging needed"
-            return
-
         exists = True
         for piece_num in xrange(1, self.num_pieces+1):
-            for files, exp in [[self.srcfiles_complete,self.export_complete], [self.srcfiles_matrix, self.export_matrix], [self.srcfiles_matrixj, self.export_matrix]]:
+            for files, exp in [
+                                [self.srcfiles_complete,self.export_complete], 
+                                [self.srcfiles_matrix  , self.export_matrix ],
+                                [self.srcfiles_matrixj , self.export_matrix ]
+                              ]:
                 if exp:
                     fn     = files[piece_num-1]
                     e      = os.path.exists(fn)
@@ -123,44 +123,46 @@ class cnidaria(object):
 
         print "all input files exists. merging"
         if not self.dry_run:
-            print self.out_file, self.srcfiles_complete, self.srcfiles_matrix, self.srcfiles_matrixj
-            cnidariapy.merge_data(self.out_file, self.srcfiles_complete, self.srcfiles_matrix, self.srcfiles_matrixj, self.export_complete, self.export_matrix)
+            if self.num_pieces == 1:
+                print "one piece. no merging needed"
+                if self.export_complete:
+                    os.symlink( self.srcfiles_complete[0], self.ofiles[0] )
+
+                if self.export_matrix:
+                    os.symlink( self.srcfiles_matrix[0] , self.ofiles[1] )
+                    os.symlink( self.srcfiles_matrixj[0], self.ofiles[2] )
+                
+
+            else:
+                print self.out_file, self.srcfiles_complete, self.srcfiles_matrix, self.srcfiles_matrixj
+                cnidariapy.merge_data(self.out_file, self.srcfiles_complete, self.srcfiles_matrix, self.srcfiles_matrixj, self.export_complete, self.export_matrix)
+
         print "merged"
- 
-    
+     
     def gen_names(self):
         self.prefixes          = [None]*self.num_pieces
         self.srcfiles_complete = [None]*self.num_pieces
         self.srcfiles_matrix   = [None]*self.num_pieces
         self.srcfiles_matrixj  = [None]*self.num_pieces
         
-        if self.num_pieces > 1:
-            for j in xrange(1, self.num_pieces+1):
-                i = j-1
-                self.prefixes[          i ] = "%s_%04d_%04d" % (self.out_file, j, self.num_pieces)
-                
-                #if self.export_complete:
-                self.srcfiles_complete[ i ] = self.prefixes[i] + cnidaria.EXT_COMPLETE
-    
-                #if self.export_matrix:
-                self.srcfiles_matrix[   i ] = self.prefixes[i] + cnidaria.EXT_MATRIX
-                self.srcfiles_matrixj[  i ] = self.prefixes[i] + cnidaria.EXT_MATRIXJ
-
-            #if self.export_complete:
-            self.ofiles.append( self.out_file + cnidaria.EXT_COMPLETE )
+        for j in xrange(1, self.num_pieces+1):
+            i = j-1
+            self.prefixes[          i ] = "%s_%04d_%04d" % (self.out_file, j, self.num_pieces)
             
-            #if self.export_matrix:
-            self.ofiles.append( self.out_file + cnidaria.EXT_MATRIX   )
-            self.ofiles.append( self.out_file + cnidaria.EXT_MATRIXJ  )
-
-        else:
-            self.prefixes[          0 ] = "%s" % (self.out_file)
             #if self.export_complete:
-            self.srcfiles_complete[ 0 ] = self.prefixes[0] + cnidaria.EXT_COMPLETE
+            self.srcfiles_complete[ i ] = self.prefixes[i] + cnidaria.EXT_COMPLETE
 
             #if self.export_matrix:
-            self.srcfiles_matrix[   0 ] = self.prefixes[0] + cnidaria.EXT_MATRIX
-            self.srcfiles_matrixj[  0 ] = self.prefixes[0] + cnidaria.EXT_MATRIXJ
+            self.srcfiles_matrix[   i ] = self.prefixes[i] + cnidaria.EXT_MATRIX
+            self.srcfiles_matrixj[  i ] = self.prefixes[i] + cnidaria.EXT_MATRIXJ
+
+        #if self.export_complete:
+        self.ofiles.append( self.out_file + cnidaria.EXT_COMPLETE )
+        
+        #if self.export_matrix:
+        self.ofiles.append( self.out_file + cnidaria.EXT_MATRIX   )
+        self.ofiles.append( self.out_file + cnidaria.EXT_MATRIXJ  )
+
 
 
 

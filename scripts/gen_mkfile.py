@@ -525,7 +525,15 @@ META_FILES=%(meta_files)s
 
 
 
-
+#    if num_pieces == 1:
+#        all_k             = """
+#%(out_ok)s: $(OK_FILES)
+#\ttouch %(out_ok)s
+#\n""" % gdata
+#
+#        makefile.append( all_k   )
+#
+#    else:
     all_k             = """
 
 %(out_ok)s: $(OK_FILES)
@@ -535,6 +543,7 @@ META_FILES=%(meta_files)s
 \tif [ ! -f %(out_ok)s ]; then echo ERROR RUNNING %(out_json)s; touch %(out_err)s; rm %(out_db)s %(out_mat)s %(out_json)s %(out_csv)s 2>&1 || true; false; else echo SUCCESS RUNNING %(out_json)s; fi\n""" % gdata
 
     makefile.append( all_k   )
+
 
 
 

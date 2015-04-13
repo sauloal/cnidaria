@@ -3,7 +3,7 @@ FILE_LIST=filelist.csv
 DEF_FILE=test_def.csv
 OUT_DIR=out
 KMER_SIZE=21
-NUM_PIECES=a1
+NUM_PIECES=1
 
 JELLYFISH=$(PWD)/../src/libs/Jellyfish/bin/jellyfish
 HASH_SIZE=1G

@@ -181,8 +181,8 @@ def main():
         
     infiles = sys.argv[1:]
     
-    if len(infiles) < 3:
-        print "needs at least 3 files"
+    if len(infiles) < 2:
+        print "needs at least 2 files"
         sys.exit(1)
     
     mergedfile = infiles[ -1]

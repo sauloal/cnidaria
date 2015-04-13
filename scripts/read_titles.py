@@ -1,3 +1,4 @@
+import os
 import sys
 
 def readFilesTitles(filetitles):    
@@ -46,6 +47,8 @@ def readFilesTitles(filetitles):
                 
             except:
                 print "error parsing line", line
+                print line.split("\t")
+                raise
                 sys.exit(1)
             
             if 'EXTS' in macros:
