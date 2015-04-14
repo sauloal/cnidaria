@@ -64,14 +64,14 @@ $ cd test
 $ make
 </pre>
 
-<p>It will download 16 fungi genomes from NCBI, extract its 21-mers and run cnidaria on it. The output should be:</p>
+<p>It will download 15 fungi genomes from NCBI, extract its 21-mers and run cnidaria on it. The output should be:</p>
 
 <p>The test takes approx. 30 min to run<br/>
 The raw data amounts to 301 Mb<br/>
 The jellyfish data amounts to 2.0 Gb<br/>
-The cnidariadata amounts to 1.7 Mb</p>
+The cnidaria data amounts to 1.7 Mb</p>
 
-<pre>
+<pre class="prewrap">
 $ ls -sh1 data/fungi
 total 2.3G
 4.0K Aspergillus_fumigatus_uid14003
@@ -240,11 +240,6 @@ $ cat test.json.no_scale.jaccard_dissimilarity.nj
 
 
 <h2>Install</h2>
-<h3>To install the system requirements:</h3>
-<pre>
-$ sudo bash INSTALL.1.requirements
-</pre>
-
 <h3>Minimum requirements:</h3>
 <p><strong>Ubuntu >= 13.4</strong></p>
 <pre>
@@ -273,11 +268,18 @@ gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1)
 </pre>
 
 
-
 <h3><a name="compile"></a>To re-compile code:</h3>
 <pre>
 $ bash INSTALL.2.compile
 </pre>
+
+
+<h3>To install the system requirements:</h3>
+<pre>
+$ sudo bash INSTALL.1.requirements
+</pre>
+
+
 
 <p>The compilation creates a python library called _cnidariapy.so, a shared library for python.</p>
 
@@ -293,15 +295,17 @@ $ bash INSTALL.2.compile
 
 <h3>Go to the folder where your fasta files are</h3>
 <p>Symlink jopts, fasta2jf.sh, cram2jf.sh, bam2jf.sh and run.sh from analysis/data/converters.</p>
-<p>Edit jopts to match your kmer requirements and the jellyfish/samtools executables
-analysis/data/converters/jopts</p>
-<p>The jopts file should have the path to your jellyfish and samtools executables and the
-kmer size. Samtools are only needed if you are importing BAM files</p>
+
+<p>Edit jopts to match your kmer requirements and the jellyfish/samtools executables</p>
+
+<p>The jopts file should have the path to your jellyfish and samtools executables as well as 
+the kmer size. Samtools is only needed if you are importing BAM/CRAM files</p>
+
 <pre>
 JELLYFISH=/home/user/cnidaria/src/libs/Jellyfish/bin/jellyfish
 SAMTOOLS=/home/user/bin/samtools/samtools-1.1/samtools
 
-KSIZE=15
+KSIZE=21
 
 if [[ "$KSIZE" == 31 ]]; then
 MER_SIZE=31
