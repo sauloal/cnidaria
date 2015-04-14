@@ -56,7 +56,19 @@ Bioinformatics online.</p>
 <pre>
 $ docker pull sauloal/cnidaria_full
 $ docker run -it --rm -v $PWD/data/:/home/cnidaria/cnidaria/data sauloal/cnidaria_full bash
+$ pwd
+/home/cnidaria/cnidaria
+$ ls data
+./ ../
 </pre>
+<p>Once inside the VM, as long as you save it on the data/ folder, all files (result or configuration) will be permanent.</p>
+<p>Files created outside the data/ folder will be deleted.</p>
+<p>To leave the VM type 'exit'.</p>
+<p>To install new programs use 'sudo'.</p>
+<p>Username: <strong>cnidaria</strong>
+  Password: <strong>cnidaria</strong>
+</p>
+
 
 <h2>Test</h2>
 <p>After <a href="#compile">compiling</a>:</p>
