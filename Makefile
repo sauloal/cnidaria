@@ -16,7 +16,7 @@ cnidaria:
 jellyfish:
 	cd src/libs/Jellyfish && ./configure && $(MAKE)
 
-run:
+run: cnidaria jellyfish
 	scripts/cnidaria.py -h
 
 test:
