@@ -54,7 +54,7 @@ Bioinformatics online.</p>
 <p>You can install cnidaria on docker by:</p>
 <pre>
 $ docker pull sauloal/cnidaria_full
-$ docker run -it -v $PWD/data/:/data sauloal/cnidaria_full bash
+$ docker run -it --rm -v $PWD/data/:/home/cnidaria/cnidaria/data sauloal/cnidaria_full bash
 </pre>
 
 <h2>Test</h2>
@@ -288,9 +288,9 @@ $ sudo bash INSTALL.1.requirements
 <h3>how to generate jf database files:</h3>
 <p>In analysis/data/converters you can find helper scripts.</p>
 <ul>
-  <li>fasta2jf.sh converts FASTA fo JF. </li>
-  <li>cram2jf.sh converts CRAM fo JF (requires recent samtools).</li>
-  <li>bam2jf.sh converts BAM fo JF (requires samtools). </li>
+  <li>fasta2jf.sh converts FASTA to JF. </li>
+  <li>cram2jf.sh converts CRAM to JF (requires recent samtools).</li>
+  <li>bam2jf.sh converts BAM to JF (requires samtools). </li>
 </ul>
 
 <h3>Go to the folder where your fasta files are</h3>
