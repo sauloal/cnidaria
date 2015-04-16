@@ -23,3 +23,7 @@ RUN git clone https://github.com/sauloal/cnidaria.git && \
 #    mkdir ~cnidaria/data
 
 VOLUME "/home/cnidaria/cnidaria/data"
+
+WORKDIR /home/cnidaria/cnidaria
+
+CMD ["/usr/bin/bash"]
