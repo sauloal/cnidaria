@@ -481,6 +481,62 @@ $ /home/user/cnidaria/scripts/report/stats_report.py test01.json \
 #test01_kmer_stats_report.html
 </pre>
 
+<h4>Output Files</h4>
+<h3>JSON File</h3>
+<pre>
+{
+"num_infiles":3,                 => number of sequences
+"num_srcfiles":3,                => number of files (might not be the same as number of sequences)
+"num_combinations":0,            => not used
+"complete_registers":1406959993, => number of kmers
+"min_val":2,                     => minimum number of species having a kmer to generate the JSON report (nothing to do with the CNE report)
+"max_val":3,                     => maximum number of species having a kmer to generate the JSON report (nothing to do with the CNE report)
+"save_every":1,                  => sampling (1 = no sampliing)
+"num_pieces":1,                  => if the merging was split, what was the number of pieces
+"piece_num":0,                   => if the merging was split, what is this piece position
+"kmer_size":31,                  => kmer size in bp
+"kmer_bytes":8,                  => kmer size in bp (2 bits per bp)
+"data_bytes":1,                  => size, in bytes, of presence/absence list
+"block_bytes":9,                 => size, in bytes, of a block containing k-mer and presence/absence list
+"j_offset":1896,                 => jellyfish hashing internals
+"j_size":4294967296,             => jellyfish hashing internals
+"j_matrices_size":1,             => jellyfish hashing internals 
+"j_matrices":[{                  => jellyfish hashing internals
+"r":32,
+"c":62,
+"l":62,
+"columns":[4076151366,297922355,2914987773,1818276056,4017113960,2118333886,2094414662,3625528161,
+961333575,2834678692,2952312046,4226838616,3262593030,3335110749,2180498335,3545008600,3886083536]}],
+"version":8,                       => cnidaria file version
+"filetype":"cnidaria/json_matrix", => cnidaria file type
+"in_filenames":[                   => input k-mer files
+"/home/user/cnidaria/data/input/spp1.fas.21.jf", 
+"/home/user/cnidaria/data/input/spp2.fas.21.jf", 
+"/home/user/cnidaria/data/input/spp3.fas.21.jf", ],
+"src_filenames":[                  => input merge files (might not be the same as k-mer input files
+"/home/user/cnidaria/data/input/spp1.fas.21.jf", 
+"/home/user/cnidaria/data/input/spp2.fas.21.jf", 
+"/home/user/cnidaria/data/input/spp3.fas.21.jf", ],
+"num_kmer_total_spp":              => total number of k-mers per species
+[351226445,749965518,634623046],
+"num_kmer_valid_spp":              => total number of valid k-mers per species ( min_val >= count >= max_val )
+[324515342,326347640,4555453], 
+"matrix":                          => matrix (num_infiles X num_infiles X num_infiles) of valid k-mers with subcells containing the number of species in which such combination happened
+[[[0,0,0],
+[0,322007966,2291597],
+[0,0,0]]]}
+</pre>
+<h3>JSON File</h3>
+<pre>
+[JSON_POS][ [KMER_BYTES][DATA_BYTES] X complete_registers ][JSON][/EOF]
+
+JSON_POS           = [INT64] coordinates, in byte, for JSON in the END of current file
+KMER_BYTES         = obtained from JSON (for 31, 8)
+DATA_BYTES         = obtained from JSON (for  3, 1)
+complete_registers = obtained from JSON
+JSON               = JSON string until the end of file (EOF) containing all variables
+</pre>
+
 
 <h3>Manually</h3>
 <p>Alternatively, you can run scripts/cnidaria.py, the main program, for the analysis.</p>
