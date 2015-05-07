@@ -40,10 +40,12 @@ def fixTitles( titles, speciesNames, speciesPosition ):
 
 
 @cnidaria_reader.memoize0
-def check_presence(presence, requires_bin, forbids_bin):
+def check_presence(presence, requires_bin, forbids_bin, numSpps):
+    assert presence.any(), "kmer not present in any sample. weird"
+    
     if requires_bin is not None:
         required_present  = presence | requires_bin
-        #print "requires", presence, requires_bin, required_present , "%2d" % required_present.count() , required_present.count() != numSpps, not required_present.all()
+        #print "requires", presence, 'or ', requires_bin, required_present , "%2d" % required_present.count() , required_present.count() != numSpps, not required_present.all()
         #assert ( required_present.count() != numSpps ) == ( not required_present.all() ), "presence %s req %s count %d num spps %d neq %s not required_present.all %s and %s" % ( presence, required_present, required_present.count(), numSpps, ( required_present.count() != numSpps ), not required_present.all(), (( required_present.count() != numSpps ) == ( not required_present.all() )) )
         #if required_present.count() != numSpps:
         if not required_present.all():
@@ -52,7 +54,7 @@ def check_presence(presence, requires_bin, forbids_bin):
     
     if forbids_bin is not None:
         forbidden_present = presence & forbids_bin
-        #print "forbids ", presence, forbids_bin , forbidden_present, "%2d" % forbidden_present.count(), forbidden_present.count() != 0    , forbidden_present.any()
+        #print "forbids ", presence, 'and', forbids_bin , forbidden_present, "%2d" % forbidden_present.count(), forbidden_present.count() != 0    , forbidden_present.any()
         #assert ( forbidden_present.count() != 0 ) == ( forbidden_present.any() )
         #if forbidden_present.count() != 0:
         if forbidden_present.any():
@@ -61,15 +63,21 @@ def check_presence(presence, requires_bin, forbids_bin):
     
     return True
 
-def print_fasta(fhd, pos, seq):
-    fhd.write(">%d\n%s\n\n" % (pos, seq))
+def print_fasta(fhd, pos, seq, name=None):
+    if name is None:
+        fhd.write(">%d\n%s\n" % (pos, seq))
+    else:
+        fhd.write(">%d %s\n%s\n" % (pos, name, seq))
 
-def print_lst(fhd, pos, seq):
+def print_lst(fhd, pos, seq, name=""):
     fhd.write(seq)
     fhd.write("\n")
 
-def print_tab(fhd, pos, seq):
-    fhd.write("%d\t%s\n" % (pos, seq))
+def print_tab(fhd, pos, seq, name=None):
+    if name is None:
+        fhd.write("%d\t%s\n" % (pos, seq))
+    else:
+        fhd.write("%d\t%s\t%s\n" % (pos, name, seq))
 
 formaters = {
     'fasta': print_fasta,
@@ -79,32 +87,44 @@ formaters = {
 
 def main():
     parser = argparse.ArgumentParser(description="Cnidaria CNE file filter")
-    parser.add_argument("infile"    , type=str,                                                  help='Input CNE file'                     )
-    parser.add_argument("--dry"     ,                                       action='store_true', help='Dry run'                            )
-    parser.add_argument("--titles"  , type=str,            default=None   ,                      help='Titles file'                        )
-    parser.add_argument("--sep"     , type=str,            default=','    ,                      help='List separator'                     )
-    parser.add_argument("--out"     , type=str,            default=None   ,                      help='Output (default: out.[format])'     )
-    parser.add_argument("--format"  , type=str,            default='fasta',                      help='Output Format (fasta, lst, tab)'    )
-    parser.add_argument("--require" , type=str, nargs='+', default=None   ,                      help='Required sample'                    )
-    parser.add_argument("--requires", type=str,            default=None   ,                      help='Required samples (comma separated)' )
-    parser.add_argument("--forbid"  , type=str, nargs='+', default=None   ,                      help='Forbidden sample'                   )
-    parser.add_argument("--forbids" , type=str,            default=None   ,                      help='Forbidden samples (comma separated)')
+    
+    parser.add_argument("--dry"        ,                                         action='store_true'     , help='Dry run'                            )
+    parser.add_argument("--titles"     , type=str  ,            default=None   ,                           help='Titles file'                        )
+    parser.add_argument("--sep"        , type=str  ,            default=','    ,                           help='List separator'                     )
+    parser.add_argument("--out"        , type=str  ,            default=None   ,                           help='Output basename (default: out.[format])'     )
+    parser.add_argument("--format"     , type=str  ,            default='fasta', choices=formaters.keys(), help='Output Format (fasta, lst, tab)'    )
+    parser.add_argument("--print_every", type=float,            default=0.01   ,                           help='Piece number'                       )
+    
+     
+    parser.add_argument("--piece"      , type=int  ,            default=None   ,                           help='Piece number'                       )
+    parser.add_argument("--pieces"     , type=int  ,            default=None   ,                           help='Number of Pieces'                   )
+    
+    parser.add_argument("--require"    , type=str  , nargs='*', default=None   ,                           help='Required sample'                    )
+    parser.add_argument("--requires"   , type=str  ,            default=None   ,                           help='Required samples (comma separated)' )
+    parser.add_argument("--forbid"     , type=str  , nargs='*', default=None   ,                           help='Forbidden sample'                   )
+    parser.add_argument("--forbids"    , type=str  ,            default=None   ,                           help='Forbidden samples (comma separated)')
+    
+    parser.add_argument("--infile"     , type=str  ,                             required=True           , help='Input CNE file'                     )
 
-    args       = parser.parse_args()
-    infile     = args.infile
-    dry        = args.dry
-    filetitles = args.titles
-    list_sep   = args.sep
-    out        = args.out
-    out_fmt    = args.format
+    args        = parser.parse_args()
+    infile      = args.infile
+    dry         = args.dry
+    filetitles  = args.titles
+    list_sep    = args.sep
+    out         = args.out
+    out_fmt     = args.format
+    print_every = args.print_every
     
-    arequire   = args.require
-    arequires  = args.requires
-    aforbid    = args.forbid
-    aforbids   = args.forbids
+    piece       = args.piece
+    pieces      = args.pieces
     
-    requires = []
-    forbids  = []
+    arequire    = args.require
+    arequires   = args.requires
+    aforbid     = args.forbid
+    aforbids    = args.forbids
+    
+    requires    = []
+    forbids     = []
     
     if arequire is not None:
         requires.extend(arequire)
@@ -121,30 +141,51 @@ def main():
     
     if out_fmt in formaters:
         out_fmt = formaters[out_fmt]
+        
     else:
         print "invalid format", out_fmt
         sys.exit(1)
     
+    if ((piece is None) and (pieces is not None)) or ((piece is not None) and (pieces is None)):
+        print "piece and pieces have to be both defined"
+        sys.exit(1)
+    
+    if piece is None:
+        piece = 1
+        
+    if pieces is None:
+        pieces = 1
+    
+    
+    assert piece  >= 1     , "piece number should be >= 1"
+    assert pieces >= 1     , "number of pieces should be >= 1 "
+    assert piece  <= pieces, "piece number %d should be <= number of pieces %d"% ( piece, pieces)
+    
     if out is None:
-        out = 'out.' + args.format
+        out = 'out'
+    
+    if pieces == 1:
+        out = '%s.%s' % ( out, args.format )
+    
+    else:
+        out = '%s.%03d_%03d.%s' % ( out, piece, pieces, args.format )
+
     
     out_fhd = open(out, 'w')
 
-    print "Input File ", infile
+    print "Input File     :", infile
     if not os.path.exists(infile):
         print "input file %s does not exists" % infile
         sys.exit(1)
 
 
     if filetitles is not None:
-        print "Titles File ", filetitles
+        print "Titles File    :", filetitles
         if ( not os.path.exists( filetitles ) ):
             print "input file titles given %s but file does not exists" % (filetitles)
             sys.exit(1)
 
-    print "Output File" , out
-    print "Requires\n\t", "\n\t".join(requires)
-    print "Forbids\n\t" , "\n\t".join(forbids )
+    print "Output File    :", out
 
 
     jfinst          = cnidaria_reader.reader(infile, verbose=False)
@@ -156,7 +197,8 @@ def main():
     Total           = jfinst.getKey( "num_kmer_total_spp" )
     Valid           = jfinst.getKey( "num_kmer_valid_spp" )
     
-    size            = jfinst.getSize()
+    sizeBytes       = jfinst.getSizeBytes()
+    numRegisters    = jfinst.getNumRegisters()
 
     if   ( filetype != "cnidaria/complete" ):
         print "only complete file (.cne) can be used"
@@ -172,11 +214,36 @@ def main():
     numSpps                        = len( speciesNames )
 
 
-    print "filetype   : %s"    % filetype
-    #print "total kmers: %s"    % ", ".join( [ "%12d" %x for x in Total ] )
-    #print "valid kmers: %s"    % ", ".join( [ "%12d" %x for x in Valid ] )
-    print "numSpps    : %d"    % numSpps
-    print "size       : %d"    % size
+    print "filetype       : %s"     % filetype
+    #print "total kmers    : %s"     % ", ".join( [ "%12d" %x for x in Total ] )
+    #print "valid kmers    : %s"     % ", ".join( [ "%12d" %x for x in Valid ] )
+    print "numSpps        : %12d"     % numSpps
+    print "size bytes     : %12d"   % sizeBytes
+
+    piece_registers = numRegisters
+    piece_begin     = 1
+    piece_end       = 1
+    
+
+    if pieces != 1:
+        print "# pieces       : %12d"    % pieces
+        print "piece #        : %12d"    % piece
+        piece_registers = piece_registers  /  pieces
+        piece_begin     = piece_registers  * (piece-1)       + 1
+        piece_end       = piece_begin      + piece_registers - 1
+
+        if piece == pieces:
+            piece_end = numRegisters
+
+    print "num registers  : %12d"   % numRegisters
+    print "piece registers: %12d"   % piece_registers
+    print "piece begin    : %12d"   % piece_begin
+    print "piece end      : %12d"   % piece_end
+    print "piece real Regs: %12d"   % (piece_end - piece_begin)
+
+    print "Requires\n\t", "\n\t".join(requires)
+    print "Forbids\n\t" , "\n\t".join(forbids )
+
     print "species    :"
     for sn in speciesNames:
         print "\t", 
@@ -187,9 +254,7 @@ def main():
         else:
             print ' ',
         print sn
-        
-
-    
+            
     if not all([x in speciesNames for x in requires]):
         print "not all required species is present in the file"
         for x in requires:
@@ -230,6 +295,23 @@ def main():
         
     print "requires_bin", requires_bin
     print "forbids_bin ", forbids_bin
+
+
+
+    
+    
+    print_log       = math.log(print_every, 10)
+    if print_log > 0:
+        print_every_div = float(100 / print_every)
+
+    else:
+        print_every_div = 10 ** (abs(print_log) + 2)
+    print "print every    ", print_every
+    print "print log      ", print_log
+    print "print_every_div", print_every_div
+    print
+
+
     sys.stdout.flush()
 
     if dry:
@@ -256,24 +338,33 @@ def main():
     parseCompleteRegisterKmerPiece = jfinst.parseCompleteRegisterKmerPiece
     nextCompletePair               = jfinst.nextCompletePair
 
+    if piece != 1:
+        print "seeking"
+        jfinst.goToCompleteRegister(piece_begin)
+        print "reading"
+
     for kmer_str, data_str in nextCompletePair():
         count_total += 1
         
-        curr_perc = int((count_total / (size * 1.0)) * 10000)
+        curr_perc = int((count_total / (piece_registers * 1.0)) * print_every_div)
         if curr_perc != last_perc:
             curr_time     = time()
             elap_timeG    = curr_time - start_time
             last_perc     = curr_perc
             last_time     = curr_time
-            speed         = count_total   / elap_timeG
-            missing_count = size          - count_total
-            etc           = missing_count / speed
-            print '%6.2f %% | valid %12d | current %12d | total %12d | ela %8d sec | speed %7d reg/sec | etc %8d sec' % (curr_perc/100.0, count_valid, count_total, size, elap_timeG, speed, etc)
+            speed         = count_total     / elap_timeG
+            missing_count = piece_registers - count_total
+            etc           = missing_count   / speed
+            print '{:3d}/{:3d} | {:6.2f} % | valid {:15,d} | current {:15,d} | total {:15,d} | ela {:8,d} sec | speed {:7,d} reg/sec | etc {:8,d} sec'.format(piece, pieces, curr_perc/(print_every_div/100), int(count_valid), int(count_total), int(piece_registers), int(elap_timeG), int(speed), int(etc))
             sys.stdout.flush()
+
+        if pieces != 1 and count_total > piece_registers:
+            print "end of piece"
+            break
         
         presence = parseCompleteRegisterDataPiece(data_str)
         
-        if not check_presence(presence, requires_bin, forbids_bin):
+        if not check_presence(presence, requires_bin, forbids_bin, numSpps):
             continue
         
         kmer = parseCompleteRegisterKmerPiece(kmer_str)
@@ -287,12 +378,13 @@ def main():
         #print
         #sys.stdout.flush()
 
-        out_fmt(out_fhd, count_valid, kmer)
+        out_fmt(out_fhd, count_valid, kmer, name=presence.to01())
         
         count_valid += 1
         if profile:
             if count_valid == 5:
                 break
+            
     
     out_fhd.flush()
     

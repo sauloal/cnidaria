@@ -61,7 +61,8 @@ class readBin(object):
         self.block_size = block_size
     
     def Seek(self, pos):
-        self.filehand.seek(pos)
+        self.filehand.seek(pos, 0)
+        self.filehand.flush()
     
     def Tell(self):
         return self.filehand.tell()
@@ -239,6 +240,7 @@ class reader(object):
         self.jsonSize          = None
         self.opts              = []
         self.currPos           = 0
+        self.currReg           = 0
         
         self.verbose           = verbose
         self.debug             = debug
@@ -249,6 +251,19 @@ class reader(object):
                 'G': bitarray('11'),
                 'T': bitarray('10')
             }
+        
+        #self.conversionKeys = {}
+        self.conversionKeys = []
+        alpha = 'ACGT'
+        for k1 in alpha:
+            for k2 in alpha:
+                k12 = k1 + k2
+                for k3 in alpha:
+                    k123 = k12 + k3
+                    for k4 in alpha:
+                        self.conversionKeys.append( k123 + k4 )
+                        #self.conversionKeys[chr(len(self.conversionKeys))] = k123 + k4
+        #print self.conversionKeys
         
         if not any( [ infile.endswith(x[0]) for x in self.VALID_EXTENSIONS ] ):
             print "input file %s does not have a valid extension" % ( infile )
@@ -282,13 +297,17 @@ class reader(object):
             
             self.readbin.Seek( self.jsonPos )
 
-        self.jsonPos  = self.readbin.Tell()
+        else:
+            self.jsonPos  = self.readbin.Tell()
+        
         self.jsonSize = self.readbin.Int()
         print "  json size  : ", self.jsonSize
 
         self.offset   = self.jsonSize + self.readbin.INT_SIZE
 
         jsonstr       = self.readbin.Str( self.jsonSize ).strip('\x00')
+    
+        self.lastByte = self.readbin.Tell()
     
         if data_type == 'bin/end': #rewind to begining of the file
             self.readbin.Seek( self.readbin.INT_SIZE )
@@ -340,15 +359,19 @@ class reader(object):
         #self.Print()
         self.filetype = self.json["filetype"]
         if   self.filetype == "cnidaria/complete":
-            self.getSize        = self.getSizeComplete
-            self.getAll         = self.getAllComplete
-            self.next           = self.nextComplete
+            self.getSizeBytes    = self.getSizeBytesComplete
+            self.getNumRegisters = self.getNumRegistersComplete
+            self.getAll          = self.getAllComplete
+            self.next            = self.nextComplete
             
-            self.block_bytes    = self.json['block_bytes']
-            self.kmer_size      = self.json['kmer_size'  ]
-            self.kmer_bytes     = self.json['kmer_bytes' ]
-            self.num_infiles    = self.json['num_infiles']
-            self.data_bytes     = self.json['data_bytes' ]
+            self.block_bytes     = self.json['block_bytes'       ]
+            self.kmer_size       = self.json['kmer_size'         ]
+            self.kmer_bytes      = self.json['kmer_bytes'        ]
+            self.num_infiles     = self.json['num_infiles'       ]
+            self.data_bytes      = self.json['data_bytes'        ]
+            self.numRegs         = self.json["complete_registers"]
+            
+            assert ((self.block_bytes * self.numRegs)+self.readbin.INT_SIZE) == self.jsonPos, "block bytes %12d * num regs %12d (%12d) != json pos %12d" % (self.block_bytes, self.numRegs, (self.block_bytes * self.numRegs), self.jsonPos)
 
             self.readbin.set_blok_size(self.block_bytes)
 
@@ -356,21 +379,22 @@ class reader(object):
             #print self.readbin.Tell()
 
         elif self.filetype == "cnidaria/summary" :
-            self.getSize = self.getSizeSummary
-            self.getAll  = self.getAllSummary
-            self.next    = self.nextSummary
+            self.getSizeBytes    = self.getSizeBytesSummary
+            self.getAll          = self.getAllSummary
+            self.next            = self.nextSummary
             print "file format", filetype, "not yet implemented"
             sys.exit(1)
             
         elif self.filetype == "cnidaria/matrix"  :
-            self.getSize = self.getSizeMatrix
-            self.getAll  = self.getAllMatrix
-            self.next    = self.nextMatrix
+            self.getBytesSize    = self.getSizeBytesMatrix
+            self.getNumRegisters = self.getNumRegistersMatrix
+            self.getAll          = self.getAllMatrix
+            self.next            = self.nextMatrix
         
         elif self.filetype == "cnidaria/json_matrix"  :
-            self.getSize = self.getSizeMatrix
-            self.getAll  = self.getAllJsonMatrix
-            self.next    = self.nextJsonMatrix
+            self.getSize         = self.getSizeMatrix
+            self.getAll          = self.getAllJsonMatrix
+            self.next            = self.nextJsonMatrix
         
         else:
             print "unknown file format:", filetype
@@ -392,17 +416,31 @@ class reader(object):
         for opt, key, func in self.opts:
             print " ", "%-25s"%key, func(self)
     
-    def getSizeComplete(self):
-        return self.json["complete_registers"]
-    def getSizeSummary(self):
+    def getSizeBytes(self):
         pass
-    def getSizeMatrix(self):
+    def getSizeBytesComplete(self):
+        return self.json["complete_registers"]*self.block_bytes + self.readbin.INT_SIZE
+    def getSizeBytesSummary(self):
+        pass
+    def getSizeBytesMatrix(self):
+        numInFiles = self.json["num_infiles"]
+        return numInFiles * numInFiles * numInFiles * self.readbin.INT_SIZE
+    
+    def getNumRegisters(self):
+        pass
+    def getNumRegistersComplete(self):
+        return self.json["complete_registers"]
+    def getNumSizeSummary(self):
+        pass
+    def getNumSizeMatrix(self):
         numInFiles = self.json["num_infiles"]
         return numInFiles * numInFiles * numInFiles
-    
+        
     def getHeader(self):
         return self.json
     
+    def getAll(self):
+        pass
     def getAllComplete(self):
         return None
     def getAllSummary(self):
@@ -452,20 +490,31 @@ class reader(object):
         #    print "char_data_bytes  ", repr(char_data_bytes), len(char_data_bytes)
         
         assert len(char_kmer_bytes) == self.kmer_bytes
+        #print '{:b}'.format(char_kmer_bytes)
+        #b = bitarray()
+        #conversionKeys    = {
+        #        'A': bitarray('00'),
+        #        'C': bitarray('01'),
+        #        'G': bitarray('10'),
+        #        'T': bitarray('11')
+        #    }
+        #b.frombytes(char_kmer_bytes)
+        #str_kmer = b.decode(conversionKeys)
+        ##str_kmer = b.decode(self.conversionKeys)
+        #print "char_kmer_bytes", ''.join(format(ord(x), '08b') for x in char_kmer_bytes)
+        #print "bytes          ", b.to01()
+        #print "str_kmer bit   ", ''.join(str_kmer)
         
-        b = bitarray()
-        b.frombytes(char_kmer_bytes)
-        str_kmer = "".join( b.decode(self.conversionKeys) )
+        #str_kmer = [ self.conversionKeys[char_kmer] for char_kmer in char_kmer_bytes ]
+        str_kmer = [ self.conversionKeys[ord(char_kmer)] for char_kmer in char_kmer_bytes ]
+        #print "str_kmer arr   ", ''.join(str_kmer)
         
-        #str_kmer = ""
-        #for char_kmer in char_kmer_bytes:
-        #    str_kmer += self.conversionKeys[char_kmer]
-        #
         #if self.debug:
         #    print "str_kmer B       ", str_kmer, len(str_kmer)
         
         assert len(str_kmer) == self.kmer_bytes * 4
-        str_kmer = str_kmer[:self.kmer_size]
+        str_kmer =          str_kmer[:self.kmer_size]
+        str_kmer = "".join( str_kmer )
         
         #if self.debug:
         #    print "str_kmer A       ", str_kmer, len(str_kmer)
@@ -481,10 +530,15 @@ class reader(object):
     
     @memoize1
     def parseCompleteRegisterDataPiece(self, char_data_bytes):
-        #assert len(char_data_bytes) == data_bytes
+        #assert len(char_data_bytes) == self.data_bytes
+        
+        #print repr(char_data_bytes)
         
         data_bool_array = bitarray()
         data_bool_array.frombytes(char_data_bytes)
+        data_bool_array.reverse()
+        
+        #print data_bool_array
         
         #data_bin_str_lst = [ bin(ord(x)) for x in char_data_bytes ]
         #if dbg:
@@ -499,6 +553,9 @@ class reader(object):
 
         assert data_bool_array.length() == self.data_bytes * 8
         data_bool_array = data_bool_array[:self.num_infiles]
+        
+        #print data_bool_array
+        #print
         
         #if self.debug:
         #    print "data_bool_array A", data_bool_array
@@ -524,32 +581,58 @@ class reader(object):
         for d in self:
             yield self.parseCompleteRegister( d )
 
+    def goToCompleteRegister(self, reg_num):
+        print " seeking register #: %12d" % reg_num
+        print " file size         : %12d" % self.filesize
+        print " last byte         : %12d" % self.lastByte
+        print " JSON pos          : %12d" % self.jsonPos
+
+        reg_coord    = self.block_bytes * reg_num + self.readbin.INT_SIZE
+
+        print " seeking coordinate: %12d bytes" % reg_coord
+
+        assert reg_coord < self.filesize, "register coordinate %12d > end of file %12d" % (reg_coord, self.filesize )
+        assert reg_coord < self.jsonPos , "register coordinate %12d > end of data %12d" % (reg_coord, self.jsonPos  )
+
+        print " registers left    : %12d" % ((self.jsonPos - reg_coord) / self.block_bytes)
+
+        self.readbin.Seek(reg_coord)
+        
+        self.currReg = reg_num
+        self.currPos = reg_coord
+
+        print " done seeking.\ncurrent coordinate : %12d bytes" % self.readbin.Tell()
+    
+
     def getAllJsonMatrix(self):
         return self.json['matrix']
     
     def hasFinishedMatrix(self):
-        size = self.getSize()
-        if self.currPos >= size:
-            if self.currPos == size:
+        numRegs = self.getNumRegisters()
+        if self.currReg >= numRegs:
+            if self.currReg == numRegs:
                 print "cheking file integrity"
                 lastVal = self.readbin.Int()
-                print " size %d == curr pos %5d == lastVal %5d" % ( self.currPos, size, lastVal )
+                print " size %d == curr pos %5d == lastVal %5d" % ( self.currReg, numRegs, lastVal )
                 assert(lastVal == size)
             return True
         return False
 
     def hasFinishedComplete(self):
-        if self.currPos >= self.jsonPos - self.block_bytes:
+        #if self.currReg >= self.jsonPos - self.block_bytes:
+        if self.currReg >= self.numRegs:
             return False
+        return True
 
     def __iter__(self):
         return self
     
     def nextComplete(self):
-        if self.hasFinishedComplete():
+        if not self.hasFinishedComplete():
             raise StopIteration
         
-        self.currPos += 1
+        self.currPos += self.block_bytes
+        self.currReg += 1
         
         reg         = self.readbin.Block()
         
@@ -562,8 +645,9 @@ class reader(object):
         return reg
     
     def nextCompletePair(self):
-        while not self.hasFinishedComplete():
-            self.currPos += 1
+        while self.hasFinishedComplete():
+            self.currPos += self.block_bytes
+            self.currReg += 1
             
             kmer, data  = self.readbin.Pair(self.kmer_bytes, self.data_bytes)
             
@@ -571,22 +655,24 @@ class reader(object):
                 print "kmer             ", repr(kmer), len(kmer), self.kmer_bytes
                 print "data             ", repr(data), len(data), self.data_bytes
             
-            assert len(kmer) == self.kmer_bytes, "kmer length %d != kmer bytes %d" % (len(kmer), self.kmer_bytes)
-            assert len(data) == self.data_bytes, "data length %d != data bytes %d" % (len(data), self.data_bytes)
+            #print self.currReg, self.numRegs, self.currReg >= self.numRegs, self.hasFinishedComplete(), self.readbin.Tell(), self.jsonPos, ( ["%3d"%ord(x) for x in kmer], ["%3d"%ord(x) for x in data] )
+
+            assert len(kmer) == self.kmer_bytes, "kmer length %d != kmer bytes %d %s" % (len(kmer), self.kmer_bytes, repr(kmer))
+            assert len(data) == self.data_bytes, "data length %d != data bytes %d %s" % (len(data), self.data_byte , repr(data))
             
             yield ( kmer, data )
 
         print "STOP"
         raise StopIteration
-        
-        
+
     def nextSummary(self):
         raise StopIteration
     def nextMatrix(self):
         if self.hasFinishedMatrix():
             raise StopIteration
         
-        self.currPos += 1
+        self.currPos += self.readbin.INT_SIZE
+        self.currReg += 1
         
         return self.readbin.Int()
     
