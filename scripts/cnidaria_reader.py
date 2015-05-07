@@ -512,9 +512,11 @@ class reader(object):
         #if self.debug:
         #    print "str_kmer B       ", str_kmer, len(str_kmer)
         
-        assert len(str_kmer) == self.kmer_bytes * 4
-        str_kmer =          str_kmer[:self.kmer_size]
+        #assert len(str_kmer) == self.kmer_bytes * 4, "len str_kmer %12d (%s) != kmer_bytes %12d" % ( len(str_kmer), repr(str_kmer), self.kmer_bytes * 4 )
+
+        assert len(str_kmer) * 4 == self.kmer_bytes * 4, "len str_kmer %12d (%s) != kmer_bytes %12d" % ( len(str_kmer) * 4, repr(str_kmer), self.kmer_bytes * 4 )
         str_kmer = "".join( str_kmer )
+        str_kmer =          str_kmer[:self.kmer_size]
         
         #if self.debug:
         #    print "str_kmer A       ", str_kmer, len(str_kmer)
