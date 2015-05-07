@@ -2,10 +2,11 @@ import os
 import sys
 import copy
 import struct
+import functools
 
 print " cnidaria reader: importing simplejson"
 import simplejson   
-
+from bitarray import bitarray
 
 #FILE FORMATS:
 #    cne - cnidaria extended
@@ -38,7 +39,7 @@ class readBin(object):
     INT_SIZE    = 8
     DOUBLE_SIZE = 8
     
-    def __init__( self, filename, intype='filename' ):
+    def __init__( self, filename, intype='filename', block_size=1 ):
         if   intype == 'filename':
             self.filename = filename
             try:
@@ -53,7 +54,11 @@ class readBin(object):
         else:
             print "unknown in type:", intype, ". acceptable values are filename and filehandle"
             sys.exit(1)
+            
+        self.block_size = block_size
 
+    def set_blok_size(self, block_size):
+        self.block_size = block_size
     
     def Seek(self, pos):
         self.filehand.seek(pos)
@@ -82,12 +87,146 @@ class readBin(object):
         name = self.Raw(siz)
         return name[:siz]
     
+    def Block(self):
+        return self.filehand.read(self.block_size)
 
+    def Pair(self, s1, s2):
+        return self.filehand.read(s1), self.filehand.read(s2)
+
+def memoize(obj):
+    max_size  = 100000
+    obj.cache = {}
+
+    @functools.wraps(obj)
+    def memoizer(*args, **kwargs):
+        #key = str(args) + str(kwargs)
+        key = args
+        
+        if key in obj.cache:
+            return obj.cache[key]
+        
+        else:
+            if len(obj.cache) > max_size:
+                obj.cache = {}
+                print "flushing"
+
+            obj.cache[key] = obj(*args, **kwargs)
+            
+            return obj.cache[key]
+
+        #if args not in obj.cache:
+        #    obj.cache[args] = [ obj(*args, **kwargs), 1 ]
+        #    #print "\n", len(obj.cache)
+        #
+        #else:
+        #    obj.cache[args][ 1 ] += 1
+        #    
+        #return obj.cache[args][ 0 ]
+
+    return memoizer
+
+def memoize0(obj):
+    max_size  = 100000
+    obj.cache = {}
+
+    @functools.wraps(obj)
+    def memoizer(*args, **kwargs):
+        #key = str(args) + str(kwargs)
+        key = args[0]
+
+        v   = obj.cache.get(key, None)
+        
+        if v is None:
+            if len(obj.cache) > max_size:
+                obj.cache = {}
+                print "flushing"
+
+            v = obj(*args, **kwargs)
+            
+            obj.cache[key] = v
+            
+            return v
+
+        else:
+            return v
+
+        #if key in obj.cache:
+        #    return obj.cache[key]
+        #
+        #else:
+        #    if len(obj.cache) > max_size:
+        #        obj.cache = {}
+        #        print "flushing"
+        #
+        #    obj.cache[key] = obj(*args, **kwargs)
+        #    
+        #    return obj.cache[key]
+
+        #if args not in obj.cache:
+        #    obj.cache[args] = [ obj(*args, **kwargs), 1 ]
+        #    #print "\n", len(obj.cache)
+        #
+        #else:
+        #    obj.cache[args][ 1 ] += 1
+        #    
+        #return obj.cache[args][ 0 ]
+
+    return memoizer
+
+
+def memoize1(obj):
+    max_size  = 100000
+    obj.cache = {}
+
+    @functools.wraps(obj)
+    def memoizer(*args, **kwargs):
+        #key = str(args) + str(kwargs)
+        key = args[1]
+        
+        v   = obj.cache.get(key, None)
+        
+        if v is None:
+            if len(obj.cache) > max_size:
+                obj.cache = {}
+                print "flushing"
+
+            v = obj(*args, **kwargs)
+            
+            obj.cache[key] = v
+            
+            return v
+
+        else:
+            return v
+
+        
+        #if key in obj.cache:
+        #    return obj.cache[key]
+        #
+        #else:
+        #    if len(obj.cache) > max_size:
+        #        obj.cache = {}
+        #        print "flushing"
+        #
+        #    obj.cache[key] = obj(*args, **kwargs)
+        #    
+        #    return obj.cache[key]
+
+        #if args not in obj.cache:
+        #    obj.cache[args] = [ obj(*args, **kwargs), 1 ]
+        #    #print "\n", len(obj.cache)
+        #
+        #else:
+        #    obj.cache[args][ 1 ] += 1
+        #    
+        #return obj.cache[args][ 0 ]
+
+    return memoizer
 
 class reader(object):
     VALID_EXTENSIONS = [ [ 'cne', 'bin/end' ], [ 'cnm', 'bin/begin' ], [ 'cns', 'bin/begin' ], [ 'json', 'json' ] ]
 
-    def __init__(self, infile, verbosiy=5):
+    def __init__(self, infile, verbose=True, debug=False):
         print "starting"
 
         print "opening", infile
@@ -101,7 +240,15 @@ class reader(object):
         self.opts              = []
         self.currPos           = 0
         
-        self.verbosiy          = verbosiy
+        self.verbose           = verbose
+        self.debug             = debug
+        
+        self.conversionKeys    = {
+                'A': bitarray('00'),
+                'C': bitarray('01'),
+                'G': bitarray('11'),
+                'T': bitarray('10')
+            }
         
         if not any( [ infile.endswith(x[0]) for x in self.VALID_EXTENSIONS ] ):
             print "input file %s does not have a valid extension" % ( infile )
@@ -113,7 +260,6 @@ class reader(object):
                 self.reader( data )
                 self.load()
                 break
-        
 
     def reader(self, data):
         if data[1] in [ 'bin/begin', 'bin/end' ]:
@@ -152,7 +298,7 @@ class reader(object):
     def loadjsonstr(self, jsonstr):
         #self.fhd.read(1) # null terminator
 
-        if self.verbosiy <= 1:
+        if self.verbose:
             print "  json string: '%s'" % jsonstr
 
         try:
@@ -173,60 +319,58 @@ class reader(object):
     
     def load(self):
         print " opening"
-
-        #o.AddMember( "num_infiles"         , (uint64_t) hd.infiles->size()      , a );
-        #o.AddMember( "num_combinations"  , (uint64_t) hd.hash_table->size()   , a );
-        #o.AddMember( "extended_registers", (uint64_t) hd.extended_registers   , a );
-        #o.AddMember( "min_val"           , (uint64_t) hd.min_val              , a );
-        #o.AddMember( "max_val"           , (uint64_t) hd.max_val              , a );
-        #o.AddMember( "save_every"        , (uint64_t) hd.save_every           , a );
-        #o.AddMember( "num_pieces"        , (uint64_t) hd.num_pieces           , a );
-        #o.AddMember( "piece_num"         , (uint64_t) hd.piece_num            , a );
-        #o.AddMember( "version"           , (uint_t  ) __CNIDARIA_VERSION__    , a );
-        #o.AddMember( "filetype"          ,            filetype                , a );
-        #o.AddMember( "filenames"         ,            filenames_j             , a );
-        #o.AddMember( "num_kmer_total_spp",            num_kmer_total_spp_j    , a );
-
-        for key in sorted( self.json ):
-            print "%-25s"%key
-            #print "%-25s"%key, self.json[ key ]
             
-            def mkfunc(k):
-                def func(self):
-                    return self.json[ k ]
-                return func
+        def mkfunc(k):
+            def func(self):
+                return self.json[ k ]
+            return func
+        
+        for key in sorted( self.json ):
+            if self.verbose:
+                print "%-25s"%key
+            #print "%-25s"%key, self.json[ key ]
             
             opt = "get_key_" + key
             fc  = mkfunc( key )
+            
             setattr( self, opt, fc )
+            
             self.opts.append( [ opt, key, fc ] )
 
         #self.Print()
-
-        filetype = self.json["filetype"]
-        if   filetype == "cnidaria/complete":
-             self.getSize = self.getSizeComplete
-             self.getAll  = self.getAllComplete
-             self.next    = self.nextComplete
-             print "file format", filetype, "not yet implemented"
-             sys.exit(1)
-
-        elif filetype == "cnidaria/summary" :
-             self.getSize = self.getSizeSummary
-             self.getAll  = self.getAllSummary
-             self.next    = self.nextSummary
-             print "file format", filetype, "not yet implemented"
-             sys.exit(1)
+        self.filetype = self.json["filetype"]
+        if   self.filetype == "cnidaria/complete":
+            self.getSize        = self.getSizeComplete
+            self.getAll         = self.getAllComplete
+            self.next           = self.nextComplete
             
-        elif filetype == "cnidaria/matrix"  :
-             self.getSize = self.getSizeMatrix
-             self.getAll  = self.getAllMatrix
-             self.next    = self.nextMatrix
+            self.block_bytes    = self.json['block_bytes']
+            self.kmer_size      = self.json['kmer_size'  ]
+            self.kmer_bytes     = self.json['kmer_bytes' ]
+            self.num_infiles    = self.json['num_infiles']
+            self.data_bytes     = self.json['data_bytes' ]
+
+            self.readbin.set_blok_size(self.block_bytes)
+
+            #print self.json
+            #print self.readbin.Tell()
+
+        elif self.filetype == "cnidaria/summary" :
+            self.getSize = self.getSizeSummary
+            self.getAll  = self.getAllSummary
+            self.next    = self.nextSummary
+            print "file format", filetype, "not yet implemented"
+            sys.exit(1)
+            
+        elif self.filetype == "cnidaria/matrix"  :
+            self.getSize = self.getSizeMatrix
+            self.getAll  = self.getAllMatrix
+            self.next    = self.nextMatrix
         
-        elif filetype == "cnidaria/json_matrix"  :
-             self.getSize = self.getSizeMatrix
-             self.getAll  = self.getAllJsonMatrix
-             self.next    = self.nextJsonMatrix
+        elif self.filetype == "cnidaria/json_matrix"  :
+            self.getSize = self.getSizeMatrix
+            self.getAll  = self.getAllJsonMatrix
+            self.next    = self.nextJsonMatrix
         
         else:
             print "unknown file format:", filetype
@@ -249,7 +393,7 @@ class reader(object):
             print " ", "%-25s"%key, func(self)
     
     def getSizeComplete(self):
-        pass
+        return self.json["complete_registers"]
     def getSizeSummary(self):
         pass
     def getSizeMatrix(self):
@@ -260,7 +404,7 @@ class reader(object):
         return self.json
     
     def getAllComplete(self):
-        pass
+        return None
     def getAllSummary(self):
         pass
     def getAllMatrix(self):
@@ -296,11 +440,94 @@ class reader(object):
         print "max size ", self.getSize()
         
         return lst
+    
+    def parseCompleteRegisterKmer(self, reg):
+        char_kmer_bytes = reg[:self.kmer_bytes]
         
+        return self.parseCompleteRegisterKmerPiece( char_kmer_bytes )
+    
+    def parseCompleteRegisterKmerPiece(self, char_kmer_bytes):
+        #if self.debug:
+        #    print "char_kmer_bytes  ", repr(char_kmer_bytes), len(char_kmer_bytes)
+        #    print "char_data_bytes  ", repr(char_data_bytes), len(char_data_bytes)
+        
+        assert len(char_kmer_bytes) == self.kmer_bytes
+        
+        b = bitarray()
+        b.frombytes(char_kmer_bytes)
+        str_kmer = "".join( b.decode(self.conversionKeys) )
+        
+        #str_kmer = ""
+        #for char_kmer in char_kmer_bytes:
+        #    str_kmer += self.conversionKeys[char_kmer]
+        #
+        #if self.debug:
+        #    print "str_kmer B       ", str_kmer, len(str_kmer)
+        
+        assert len(str_kmer) == self.kmer_bytes * 4
+        str_kmer = str_kmer[:self.kmer_size]
+        
+        #if self.debug:
+        #    print "str_kmer A       ", str_kmer, len(str_kmer)
+        
+        assert len(str_kmer) == self.kmer_size
+        
+        return str_kmer
+    
+    def parseCompleteRegisterData(self, reg):
+        char_data_bytes = reg[self.kmer_bytes:]
+        
+        return self.parseCompleteRegisterDataPiece(char_data_bytes)
+    
+    @memoize1
+    def parseCompleteRegisterDataPiece(self, char_data_bytes):
+        #assert len(char_data_bytes) == data_bytes
+        
+        data_bool_array = bitarray()
+        data_bool_array.frombytes(char_data_bytes)
+        
+        #data_bin_str_lst = [ bin(ord(x)) for x in char_data_bytes ]
+        #if dbg:
+        #    print "data_bin_str_lst ", data_bin_str_lst
+        #data_bool_array  = []
+        #for data_bin_str in data_bin_str_lst:
+        #    #print [x for x in data_bin_str[2:]]
+        #    data_bool_array.extend( [x == '1' for x in data_bin_str[2:]] )
+        
+        #if self.debug:
+        #    print "data_bool_array B", data_bool_array
+
+        assert data_bool_array.length() == self.data_bytes * 8
+        data_bool_array = data_bool_array[:self.num_infiles]
+        
+        #if self.debug:
+        #    print "data_bool_array A", data_bool_array
+        
+        #assert len(data_bool_array) == num_infiles
+        
+        return data_bool_array
+    
+    def parseCompleteRegister(self, reg):
+        str_kmer        = self.parseCompleteRegisterKmer(reg)
+        data_bool_array = self.parseCompleteRegisterData(reg)
+        return (str_kmer, data_bool_array)
+
+    def nextCompleteRegisterKmer(self):
+        for d in self:
+            yield self.parseCompleteRegisterKmer( d )
+    
+    def nextCompleteRegisterData(self):
+        for d in self:
+            yield self.parseCompleteRegisterData( d )
+    
+    def nextCompleteRegister(self):
+        for d in self:
+            yield self.parseCompleteRegister( d )
+
     def getAllJsonMatrix(self):
         return self.json['matrix']
     
-    def hasFinished(self):
+    def hasFinishedMatrix(self):
         size = self.getSize()
         if self.currPos >= size:
             if self.currPos == size:
@@ -311,15 +538,52 @@ class reader(object):
             return True
         return False
 
+    def hasFinishedComplete(self):
+        if self.currPos >= self.jsonPos - self.block_bytes:
+            return False
+
     def __iter__(self):
         return self
     
     def nextComplete(self):
+        if self.hasFinishedComplete():
+            raise StopIteration
+        
+        self.currPos += 1
+        
+        reg         = self.readbin.Block()
+        
+        #if self.debug:
+        #    print "reg              ", repr(reg), len(reg)
+        #    print "block_bytes      ", block_bytes
+        
+        assert len(reg) == self.block_bytes, "register length %d != block bytes %d" % (len(reg), self.block_bytes)
+        
+        return reg
+    
+    def nextCompletePair(self):
+        while not self.hasFinishedComplete():
+            self.currPos += 1
+            
+            kmer, data  = self.readbin.Pair(self.kmer_bytes, self.data_bytes)
+            
+            if self.debug:
+                print "kmer             ", repr(kmer), len(kmer), self.kmer_bytes
+                print "data             ", repr(data), len(data), self.data_bytes
+            
+            assert len(kmer) == self.kmer_bytes, "kmer length %d != kmer bytes %d" % (len(kmer), self.kmer_bytes)
+            assert len(data) == self.data_bytes, "data length %d != data bytes %d" % (len(data), self.data_bytes)
+            
+            yield ( kmer, data )
+
+        print "STOP"
         raise StopIteration
+        
+        
     def nextSummary(self):
         raise StopIteration
     def nextMatrix(self):
-        if self.hasFinished():
+        if self.hasFinishedMatrix():
             raise StopIteration
         
         self.currPos += 1
@@ -330,16 +594,20 @@ class reader(object):
         raise StopIteration
 
     def next(self):
-        if   self.json["filetype"] == "cnidaria/complete":
+        if   self.filetype == "cnidaria/complete":
+            self.next = self.nextComplete
             return self.nextComplete()
 
-        elif self.json["filetype"] == "cnidaria/summary" :
+        elif self.filetype == "cnidaria/summary" :
+            self.next = self.nextSummary
             return self.nextSummary()
             
-        elif self.json["filetype"] == "cnidaria/matrix"  :
+        elif self.filetype == "cnidaria/matrix"  :
+            self.next = self.nextMatrix
             return self.nextMatrix()
             
-        elif self.json["filetype"] == "cnidaria/json_matrix"  :
+        elif self.filetype == "cnidaria/json_matrix"  :
+            self.next = self.nextJsonMatrix
             return self.nextJsonMatrix()
 
 

@@ -564,43 +564,10 @@ def exportMatrices(infile, matrices, stats):
 
 
 
-
-def main():
-    try:
-        infile = sys.argv[1]
-        
-    except:
-        print "no input file given"
-        sys.exit(1)
-
-
-    try:
-        filetitles = sys.argv[2]
-        print "input file titles given:", filetitles
-        
-    except:
-        filetitles = None
-        print "no input file titles given"
-
-
-    try:
-        ignore_file = sys.argv[3]
-        print "ignore file given:", ignore_file
-        
-    except:
-        ignore_file = None
-        print "no ignore file given"
-
-
-    methods = methods_available.keys()
-
-
-    processBin( infile, filetitles=filetitles, ignore_file=ignore_file, scaleType=statsfh.SCALE_NONE       , methods=methods )
-
-
 def processBin( infile, filetitles=None, ignore_file=None, scaleType=statsfh.SCALE_NONE, methods=methods_available.keys(), matrixType="Raw" ):
     if not os.path.exists(infile):
         print "input file %s does not exists" % infile
+        sys.exit(1)
     
 
 
@@ -649,6 +616,40 @@ def processBin( infile, filetitles=None, ignore_file=None, scaleType=statsfh.SCA
     exportMatrices(infile, matrices, stats)
     print "EXPORTING NJ ... done"
 
+
+
+
+def main():
+    try:
+        infile = sys.argv[1]
+        
+    except:
+        print "no input file given"
+        sys.exit(1)
+
+
+    try:
+        filetitles = sys.argv[2]
+        print "input file titles given:", filetitles
+        
+    except:
+        filetitles = None
+        print "no input file titles given"
+
+
+    try:
+        ignore_file = sys.argv[3]
+        print "ignore file given:", ignore_file
+        
+    except:
+        ignore_file = None
+        print "no ignore file given"
+
+
+    methods = methods_available.keys()
+
+
+    processBin( infile, filetitles=filetitles, ignore_file=ignore_file, scaleType=statsfh.SCALE_NONE       , methods=methods )
 
 
 if __name__ == '__main__':

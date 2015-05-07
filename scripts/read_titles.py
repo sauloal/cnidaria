@@ -3,7 +3,7 @@ import sys
 
 curr_pwd = os.getcwd()
 
-def readFilesTitles(filetitles):
+def readFilesTitles(filetitles, verbose=True):
     macros = {
         'CURR_PWD': curr_pwd
     }
@@ -20,12 +20,14 @@ def readFilesTitles(filetitles):
             if line[0] == '#':
                 # MACRO:EXTS:.jf
                 if 'MACRO' in line:
-                    print "has macro"
+                    if verbose:
+                        print "has macro"
                     cols       = [x.strip() for x in line[1:].split(":")]
                     macro_type = cols[1]
                     macro_name = cols[2]
                     macro_val  = cols[3]
-                    print "name %s type %s val %s" % ( macro_name, macro_type, macro_val )
+                    if verbose:
+                        print "name %s type %s val %s" % ( macro_name, macro_type, macro_val )
                     if macro_type == 'A':
                         if macro_name not in macros:
                             macros[ macro_name ] = []

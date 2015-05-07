@@ -7,5 +7,6 @@ apt-get install -y python python-setuptools python-numpy python-pandas python-ma
 #install python libraries
 easy_install ete2
 easy_install hcluster
+easy_install bitarray
 
 

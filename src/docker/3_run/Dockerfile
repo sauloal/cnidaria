@@ -10,6 +10,6 @@ RUN apt-get update && \
 
 #python-mpi4py
 
-RUN easy_install ete2 && easy_install hcluster
+RUN easy_install ete2 && easy_install hcluster && easy_install bitarray
 
 VOLUME "/data"
