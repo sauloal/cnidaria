@@ -481,7 +481,20 @@ $ /home/user/cnidaria/scripts/report/stats_report.py test01.json \
 #test01_kmer_stats_report.html
 </pre>
 
-<h4>Output Files</h4>
+
+<h3>Manually</h3>
+<p>Alternatively, you can run scripts/cnidaria.py, the main program, for the analysis.</p>
+<pre>
+$ scripts/cnidaria.py -h
+
+#usage: cnidaria.py [-h] [-out [OUT_FILE]] [-thr [NUM_THREADS]] [-min [MINVAL]]
+#                   [-se [SAVE_EVERY]] [-np [NUM_PIECES]] [-pn [PIECE_NUM]]
+#                   [-n] [-d] [-me] [-nm] [-ec] [-nem]
+#                   infiles [infiles ...]
+</pre>
+
+
+<h2>Output Files</h2>
 <h3>JSON File</h3>
 <pre>
 {
@@ -526,7 +539,8 @@ $ /home/user/cnidaria/scripts/report/stats_report.py test01.json \
 [0,322007966,2291597],
 [0,0,0]]]}
 </pre>
-<h3>JSON File</h3>
+
+<h3>Complete File (.cne)</h3>
 <pre>
 [JSON_POS][ [KMER_BYTES][DATA_BYTES] X complete_registers ][JSON][/EOF]
 
@@ -538,17 +552,45 @@ JSON               = JSON string until the end of file (EOF) containing all vari
 </pre>
 
 
-<h3>Manually</h3>
-<p>Alternatively, you can run scripts/cnidaria.py, the main program, for the analysis.</p>
+<h2>Filter For Presence/Absence</h2>
+srcipts cnidaria_cne_filter.py
 <pre>
-$ scripts/cnidaria.py -h
+usage: cnidaria_cne_filter.py [-h] [--dry] [--titles TITLES] [--sep SEP]
+                              [--out OUT] [--format {fasta,lst,tab}]
+                              [--print_every PRINT_EVERY] [--piece PIECE]
+                              [--pieces PIECES]
+                              [--require [REQUIRE [REQUIRE ...]]]
+                              [--requires REQUIRES]
+                              [--forbid [FORBID [FORBID ...]]]
+                              [--forbids FORBIDS] --infile INFILE
 
-#usage: cnidaria.py [-h] [-out [OUT_FILE]] [-thr [NUM_THREADS]] [-min [MINVAL]]
-#                   [-se [SAVE_EVERY]] [-np [NUM_PIECES]] [-pn [PIECE_NUM]]
-#                   [-n] [-d] [-me] [-nm] [-ec] [-nem]
-#                   infiles [infiles ...]
+Cnidaria CNE file filter
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --dry                 Dry run
+  --titles TITLES       Titles file
+  --sep SEP             List separator
+  --out OUT             Output basename (default: out.[format])
+  --format {fasta,lst,tab}
+                        Output Format (fasta, lst, tab)
+  --print_every PRINT_EVERY
+                        Piece number
+  --piece PIECE         Piece number
+  --pieces PIECES       Number of Pieces
+  --require [REQUIRE [REQUIRE ...]]
+                        Required sample
+  --requires REQUIRES   Required samples (comma separated)
+  --forbid [FORBID [FORBID ...]]
+                        Forbidden sample
+  --forbids FORBIDS     Forbidden samples (comma separated)
+  --infile INFILE       Input CNE file
 </pre>
-
+Example:
+This will generate a fasta file containing all k-mers present in species 1 and absent in species 2 and 3.
+<pre>
+scripts/cnidaria_cne_filter.py --infile test01.cne --require "Species 01" --forbids "Species 02,Species 03" --out "test01_s1_not_s23"
+</pre>
 
 
 
@@ -570,6 +612,5 @@ $ scripts/cnidaria.py -h
             pageTracker._trackPageview();
             } catch(err) {}
           </script>
-
   </body>
 </html>
