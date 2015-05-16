@@ -225,7 +225,12 @@ def main():
     piece_end       = 1
     
 
-    if pieces != 1:
+    if pieces == 1:
+        piece_registers = numRegisters
+        piece_begin     = 1
+        piece_end       = numRegisters
+
+    else:
         print "# pieces       : %12d"    % pieces
         print "piece #        : %12d"    % piece
         piece_registers = piece_registers  /  pieces
@@ -306,6 +311,8 @@ def main():
 
     else:
         print_every_div = 10 ** (abs(print_log) + 2)
+
+
     print "print every    ", print_every
     print "print log      ", print_log
     print "print_every_div", print_every_div

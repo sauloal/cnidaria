@@ -245,25 +245,25 @@ class reader(object):
         self.verbose           = verbose
         self.debug             = debug
         
+        # method 1
         self.conversionKeys    = {
                 'A': bitarray('00'),
                 'C': bitarray('01'),
-                'G': bitarray('11'),
-                'T': bitarray('10')
+                'G': bitarray('10'),
+                'T': bitarray('11')
             }
         
-        #self.conversionKeys = {}
-        self.conversionKeys = []
-        alpha = 'ACGT'
-        for k1 in alpha:
-            for k2 in alpha:
-                k12 = k1 + k2
-                for k3 in alpha:
-                    k123 = k12 + k3
-                    for k4 in alpha:
-                        self.conversionKeys.append( k123 + k4 )
-                        #self.conversionKeys[chr(len(self.conversionKeys))] = k123 + k4
-        #print self.conversionKeys
+        # method 2
+        #self.conversionKeys = []
+        #alpha = 'ACGT'
+        #for k1 in alpha:
+        #    for k2 in alpha:
+        #        k12 = k1 + k2
+        #        for k3 in alpha:
+        #            k123 = k12 + k3
+        #            for k4 in alpha:
+        #                self.conversionKeys.append( k123 + k4 )
+        #                print k123 + k4
         
         if not any( [ infile.endswith(x[0]) for x in self.VALID_EXTENSIONS ] ):
             print "input file %s does not have a valid extension" % ( infile )
@@ -292,14 +292,16 @@ class reader(object):
         self.readbin           = readBin( self.fhd, intype='filehandle' )
 
         if data_type == 'bin/end': #seek end
+            print "tell begining of the file", self.readbin.Tell()
             self.jsonPos = self.readbin.Int()
-            print "  json pos   : ", self.jsonPos
-            
+            print "tell begining of the data", self.readbin.Tell()
+            print "seeking json"
             self.readbin.Seek( self.jsonPos )
 
         else:
             self.jsonPos  = self.readbin.Tell()
         
+        print "  json pos   : ", self.jsonPos
         self.jsonSize = self.readbin.Int()
         print "  json size  : ", self.jsonSize
 
@@ -311,6 +313,7 @@ class reader(object):
     
         if data_type == 'bin/end': #rewind to begining of the file
             self.readbin.Seek( self.readbin.INT_SIZE )
+            print "seeking begining of the file", self.readbin.Tell()
         
         self.loadjsonstr( jsonstr )
 
@@ -370,6 +373,10 @@ class reader(object):
             self.num_infiles     = self.json['num_infiles'       ]
             self.data_bytes      = self.json['data_bytes'        ]
             self.numRegs         = self.json["complete_registers"]
+            
+            print "block size:", self.block_bytes
+            print "kmer  size:", self.kmer_bytes
+            print "data  size:", self.data_bytes
             
             assert ((self.block_bytes * self.numRegs)+self.readbin.INT_SIZE) == self.jsonPos, "block bytes %12d * num regs %12d (%12d) != json pos %12d" % (self.block_bytes, self.numRegs, (self.block_bytes * self.numRegs), self.jsonPos)
 
@@ -486,42 +493,104 @@ class reader(object):
     
     def parseCompleteRegisterKmerPiece(self, char_kmer_bytes):
         #if self.debug:
-        #    print "char_kmer_bytes  ", repr(char_kmer_bytes), len(char_kmer_bytes)
-        #    print "char_data_bytes  ", repr(char_data_bytes), len(char_data_bytes)
+        #    print "char_kmer_bytes", ' '.join(["%8d"%ord(c) for c in char_kmer_bytes]), len(char_kmer_bytes)
         
         assert len(char_kmer_bytes) == self.kmer_bytes
-        #print '{:b}'.format(char_kmer_bytes)
-        #b = bitarray()
-        #conversionKeys    = {
-        #        'A': bitarray('00'),
-        #        'C': bitarray('01'),
-        #        'G': bitarray('10'),
-        #        'T': bitarray('11')
-        #    }
-        #b.frombytes(char_kmer_bytes)
-        #str_kmer = b.decode(conversionKeys)
-        ##str_kmer = b.decode(self.conversionKeys)
-        #print "char_kmer_bytes", ''.join(format(ord(x), '08b') for x in char_kmer_bytes)
-        #print "bytes          ", b.to01()
-        #print "str_kmer bit   ", ''.join(str_kmer)
         
-        #str_kmer = [ self.conversionKeys[char_kmer] for char_kmer in char_kmer_bytes ]
-        str_kmer = [ self.conversionKeys[ord(char_kmer)] for char_kmer in char_kmer_bytes ]
-        #print "str_kmer arr   ", ''.join(str_kmer)
-        
-        #if self.debug:
-        #    print "str_kmer B       ", str_kmer, len(str_kmer)
-        
-        #assert len(str_kmer) == self.kmer_bytes * 4, "len str_kmer %12d (%s) != kmer_bytes %12d" % ( len(str_kmer), repr(str_kmer), self.kmer_bytes * 4 )
-
-        assert len(str_kmer) * 4 == self.kmer_bytes * 4, "len str_kmer %12d (%s) != kmer_bytes %12d" % ( len(str_kmer) * 4, repr(str_kmer), self.kmer_bytes * 4 )
+        # method 1
+        #print "char_kmer_bytes", ' '.join([format(ord(x), '08b') for x in char_kmer_bytes])
+        #b = bitarray(endian='big')
+        #b = bitarray(endian='big')
+        b = bitarray(endian='little')
+        b.frombytes(char_kmer_bytes)
+        b.reverse()
+        #print "bytes          ", ' '.join([b.to01()[i:i+8] for i in range(0, len(b.to01()), 8)])
+        str_kmer = b.decode(self.conversionKeys)
+        #print "str_kmer        ", '  '.join([" ".join(str_kmer[i:i+4]) for i in range(0, len(str_kmer), 4)])
+        assert len(str_kmer) == self.kmer_bytes * 4, "len str_kmer %12d (%s) != kmer_bytes %12d" % ( len(str_kmer), repr(str_kmer), self.kmer_bytes * 4 )
+        str_kmer =          str_kmer[len(str_kmer)-self.kmer_size:]
         str_kmer = "".join( str_kmer )
-        str_kmer =          str_kmer[:self.kmer_size]
+        #print "str_kmer       ", str_kmer
+        #print
+        #sys.exit(0)
         
-        #if self.debug:
-        #    print "str_kmer A       ", str_kmer, len(str_kmer)
+
+#jellyfish dump ../chic.jf | head
+#>255
+#AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+#>16
+#ATGTTAATATGGGGGACAAAGAAAAATAAAA
+#>6
+#GTGGTATTTATATTAGAAATAGGTAGATAAA
+#>5
+#CTAGACGTGAGATTTCAAAAAAATGATTGTC
+#>5
+#ACTCAGTTTCAGCACTTAGAAAATTTTTCTA
+#
+#jellyfish dump ../fus12.jf | head
+#>255
+#AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+#>14
+#CATTATGATACATTTGATGCTCGTCATGTGA
+#>39
+#ATGTTAATATGGGGGACAAAGAAAAATAAAA
+#>20
+#GTGGTATTTATATTAGAAATAGGTAGATAAA
+#>33
+#CTAGACGTGAGATTTCAAAAAAATGATTGTC
+#
+#jellyfish dump ../tks.jf | head
+#>255
+#AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+#>19
+#ATGGCAAAATATTAGTTAAGCTTTTCCATTA
+#>42
+#GTAAGATCGTGGAGAAAGTGTCATGAAGAAA
+#>18
+#CAAGAGTGAAACTCCGAAAAGGGTTGTTCAC
+#>14
+#CCAAAACCATCACGACAACAACAACAACAAC
+#
+#jellyfish dump /tmp/merge.jf | head
+#>255
+#AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+#>19
+#ATGGCAAAATATTAGTTAAGCTTTTCCATTA
+#>42
+#GTAAGATCGTGGAGAAAGTGTCATGAAGAAA
+#>18
+#CAAGAGTGAAACTCCGAAAAGGGTTGTTCAC
+#>14
+#CATTATGATACATTTGATGCTCGTCATGTGA
+
+#char_kmer_bytes       60      245      159      240      242       12      144       14 8
+#char_kmer_bytes 00111100 11110101 10011111 11110000 11110010 00001100 10010000 00001110
+#bytes           00111100 10101111 11111001 00001111 01001111 00110000 00001001 01110000
+#str_kmer         A T T A  C C T T  T T C G  A A T T  G A T T  A T A A  A A C G  G T A A
+#str_kmer        ATTACCTTTTCGAATTGATTATAAAACGGTA
+
+#char_kmer_bytes       60      245      159      240      242       12      144       14 8
+#char_kmer_bytes 00111100 11110101 10011111 11110000 11110010 00001100 10010000 00001110
+#bytes           00001110 10010000 00001100 11110010 11110000 10011111 11110101 00111100
+#str_kmer         A A T C  C G A A  A A T A  T T A C  T T A A  C G T T  T T G G  A T T A
+#str_kmer        AATCCGAAAATATTACTTAACGTTTTGGATT
+
+#char_kmer_bytes       60      245      159      240      242       12      144       14 8
+#char_kmer_bytes 00111100 11110101 10011111 11110000 11110010 00001100 10010000 00001110
+#bytes           00001110 10010000 00001100 11110010 11110000 10011111 11110101 00111100
+#str_kmer         A A T G  G C A A  A A T A  T T A G  T T A A  G C T T  T T C C  A T T A
+#str_kmer        ATGGCAAAATATTAGTTAAGCTTTTCCATTA
+
+
+        # method 2
+        #str_kmer = [ self.conversionKeys[ord(char_kmer)] for char_kmer in char_kmer_bytes ]
+        #assert len(str_kmer) * 4 == self.kmer_bytes * 4, "len str_kmer %12d (%s) != kmer_bytes %12d" % ( len(str_kmer) * 4, repr(str_kmer), self.kmer_bytes * 4 )
+        #str_kmer = "".join( str_kmer )
+        #str_kmer =          str_kmer[:self.kmer_size]
         
-        assert len(str_kmer) == self.kmer_size
+        
+        
+        assert len(str_kmer) == self.kmer_size, "len(str_kmer) [%d] == kmer_size [%d]: %s" % (len(str_kmer), self.kmer_size, repr(str_kmer))
         
         return str_kmer
     
@@ -651,13 +720,14 @@ class reader(object):
             self.currPos += self.block_bytes
             self.currReg += 1
             
+            pos_before  = self.readbin.Tell()
             kmer, data  = self.readbin.Pair(self.kmer_bytes, self.data_bytes)
             
             if self.debug:
-                print "kmer             ", repr(kmer), len(kmer), self.kmer_bytes
-                print "data             ", repr(data), len(data), self.data_bytes
+                print "kmer             ", " ".join([ "%3d"%ord(k) for k in kmer ]), len(kmer), self.kmer_bytes
+                print "data             ", " ".join([ "%3d"%ord(d) for d in data ]), len(data), self.data_bytes
             
-            #print self.currReg, self.numRegs, self.currReg >= self.numRegs, self.hasFinishedComplete(), self.readbin.Tell(), self.jsonPos, ( ["%3d"%ord(x) for x in kmer], ["%3d"%ord(x) for x in data] )
+                print "block_bytes %d pos_before %d currPos %d currReg %d numRegs %d currReg >= numRegs %s hasFinishedComplete %s Tell %d jsonPos %d\n" % ( self.block_bytes, pos_before, self.currPos, self.currReg, self.numRegs, self.currReg >= self.numRegs, self.hasFinishedComplete(), self.readbin.Tell(), self.jsonPos )
 
             assert len(kmer) == self.kmer_bytes, "kmer length %d != kmer bytes %d %s" % (len(kmer), self.kmer_bytes, repr(kmer))
             assert len(data) == self.data_bytes, "data length %d != data bytes %d %s" % (len(data), self.data_byte , repr(data))
