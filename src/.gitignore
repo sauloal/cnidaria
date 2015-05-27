@@ -1,3 +1,3 @@
-src_obj/*
-_cnidariapy.so
-build/
+*.a
+*.pyc
+src_obj

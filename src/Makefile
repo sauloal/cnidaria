@@ -31,16 +31,11 @@ CPPS=$(CPPST:.lzz=.cpp)
 HPPS=$(CPPST:.lzz=.hpp)
 OPPS=$(OPPST:.lzz=.o  )
 
-
 CPP=g++
 
 DEBUG=-g -pg
 DEBUG=-g
 #DEBUG=
-
-JELLY_LIB=$(LIB_EXT)/Jellyfish/lib
-JELLY_LIB=$(LIB_EXT)/jelly
-
 
 CPP_OPTS=$(DEBUG) -std=c++11 -m64 -fPIC -mtune=native
 
@@ -55,25 +50,26 @@ CPP_OPTS=$(DEBUG) -std=c++11 -m64 -fPIC -mtune=native
 CPP_OPTS+=-Ofast
 #CPP_OPTS+=-O0    
 
-CPP_INCL=-I/usr/lib/x86_64-linux-gnu \
+#CPP_INCL=-I/usr/lib/x86_64-linux-gnu 
+CPP_INCL= \
+		-I$(LIB_EXT)/Jellyfish \
+		-I$(LIB_EXT)/Jellyfish/include \
+		-I$(LIB_EXT)/Jellyfish/include/jellyfish \
 		-I$(LIB_EXT)/rapidjson/include \
 		-I$(LIB_EXT)/threadpool \
-        -I$(JELLY_LIB) \
 		-I$(LIB_SRC) \
 		-I$(SRC_CPP) \
-		-I$HOME/include \
+		-I/home/aflit001/lib/include \
 		-I/usr/include/python2.7
-
-#		-I$(LIB_EXT)/Jellyfish \
-#		-I$(LIB_EXT)/Jellyfish/include \
-#		-I$(LIB_EXT)/Jellyfish/include/jellyfish \
 
 
 CPP_LIBS=-L/usr/lib/x86_64-linux-gnu -fopenmp -lboost_system -lboost_filesystem -lboost_thread -lpthread
+CPP_LIBS=-fopenmp -Wl,-rpath,'$$ORIGIN/static' static/*.so
 
+CPP_VARS=-DKMER_SIZE=$(KMER_SIZE)
+CPP_VARS=
 
 ifdef GEN_DEBUG
-CPP_VARS=-DKMER_SIZE=$(KMER_SIZE)
 CPP_VARS+= -DDEBUG
 endif
 
@@ -81,10 +77,15 @@ LDD_OPTS=
 
 
 
+CFLAGS=''
+LDFLAGS=''
+LD_LIBRARY_PATH=''
+LD_LIBRARY_PATH=$(PWD)/static/
+LIBRARY_PATH=''
+LIBRARY_PATH=$(PWD)/static/
 
 
-
-
+JELLY_LIB=$(LIB_EXT)/Jellyfish/lib
 
 J_SRC=  $(JELLY_LIB)/allocators_mmap.cc           \
         $(JELLY_LIB)/jsoncpp.cc                   \
@@ -92,6 +93,7 @@ J_SRC=  $(JELLY_LIB)/allocators_mmap.cc           \
         $(JELLY_LIB)/rectangular_binary_matrix.cc
 
 J_OBJ=$(J_SRC:.cc=.o  )
+
 
 HEADERS=$(LIB_SRC)/*.hpp $(LIB_SRC)/*.h $(LIB_SRC)/*.cpp
 
@@ -110,8 +112,11 @@ all: build
 endif
 
 clean: clean_swig
-	rm cnidaria core $(SRC_CPP)/* $(SRC_OBJ)/* $(JELLY_LIB)/*.o || true
-	rm -rf $(BUILD_DIR) || true
+	rm -v cnidaria core $(SRC_CPP)/* $(SRC_OBJ)/* $(JELLY_LIB)/*.o || true
+	rm -v $(BUILD_DIR)/cnidariapy.py  $(BUILD_DIR)/_cnidariapy.so  || true
+
+
+
 
 .PHONY: vars
 
@@ -129,13 +134,15 @@ vars:
 	echo HEADERS $(HEADERS)
 
 
+UNIFIED=unified.a
+COMPLETE=all.a
 
-
+$(UNIFIED): $(OPPS) $(J_OBJ)
+	ar crf $@ $^
 
 
 .PHONY: cpps
 cpps: $(CPPS) $(HPPS)
-
 
 $(SRC_CPP)/%.cpp $(SRC_CPP)/%.hpp: $(SRC_LZZ)/%.lzz
 	mkdir -p $(SRC_CPP) || true
@@ -143,19 +150,21 @@ $(SRC_CPP)/%.cpp $(SRC_CPP)/%.hpp: $(SRC_LZZ)/%.lzz
 
 $(SRC_OBJ)/%.o: $(SRC_CPP)/%.cpp $(SRC_CPP)/%.hpp $(HEADERS)
 	mkdir -p $(SRC_OBJ) || true
-	$(CPP) -c $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $< -o $@ $(CPP_LIBS) 2>&1
+	$(CPP) -c $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $< -o $@ 2>&1
 
 $(JELLY_LIB)/%.o: $(JELLY_LIB)/%.cc
-	$(CPP) -c $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $< -o $@ $(CPP_LIBS) 2>&1
+	$(CPP) -c $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $< -o $@ 2>&1
 
 $(JELLY_LIB)/%.o: $(JELLY_LIB)/%.cpp
-	$(CPP) -c $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $< -o $@ $(CPP_LIBS) 2>&1
+	$(CPP) -c $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $< -o $@ 2>&1
 
-cnidaria: $(OPPS) $(J_OBJ)
-	$(CPP)    $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $(LDD_OPTS)    -o $@      -static                           $(OPPS) $(J_OBJ) $(CPP_LIBS) 2>&1
+cnidaria: $(UNIFIED)
+	$(CPP) $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $(LDD_OPTS) -o $@ $(UNIFIED) $(CPP_LIBS) 2>&1
 
 
 
+$(COMPLETE): $(OPPS) $(J_OBJ) $(SRC_OBJ)/cnidariapy_wrap.o
+	ar crf $@ $^
 
 
 .PHONY: swig
@@ -167,12 +176,15 @@ clean_swig:
 $(SRC_CPP)/cnidariapy_wrap.cxx: $(LIB_SRC)/cnidariapy.i $(SRC_CPP)/cnidaria.cpp
 	swig -c++ -python -outdir $(SRC_CPP)/ -I$(SRC_CPP)/ -o $(SRC_CPP)/cnidariapy_wrap.cxx $(LIB_SRC)/cnidariapy.i
 
-$(SRC_OBJ)/cnidariapy_wrap.o: $(SRC_CPP)/cnidariapy_wrap.cxx $(OPPS) $(J_OBJ)
-	$(CPP) -c $< $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $(CPP_LIBS) -o $@ 2>&1
+$(SRC_OBJ)/cnidariapy_wrap.o: $(SRC_CPP)/cnidariapy_wrap.cxx
+	$(CPP) -c $< $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) -o $@ 1>&1
 
-_cnidariapy.so: $(SRC_OBJ)/cnidariapy_wrap.o
+#_cnidariapy.so: $(OPPS) $(J_OBJ) $(SRC_OBJ)/cnidariapy_wrap.o
+_cnidariapy.so: $(COMPLETE)
 	@#-fvisibility=hidden
-	$(CPP) -shared -Xlinker $(CPP_INCL) $(CPP_VARS) $(OPPS) $(J_OBJ) $< -o $@ $(CPP_LIBS)
+	@#$(CPP) -shared -Xlinker $(CPP_INCL) $(CPP_VARS) $^ -o $@ $(CPP_LIBS)
+	@#$(CPP) -shared -Wl,-Bsymbolic -Wl,-E -Wl,-soname,$@ $(CPP_INCL) $(CPP_VARS) $^ -o $@ $(CPP_LIBS)
+	$(CPP) -shared -Wl,-Bsymbolic -Wl,-E -Wl,-soname,$@ $(CPP_INCL) $(CPP_VARS) -Wl,--whole-archive $^ -Wl,--no-whole-archive -o $@ $(CPP_LIBS) $(CPP_INCL)
 
 cnidariapy.py: _cnidariapy.so
 	cp $(SRC_CPP)/cnidariapy.py cnidariapy.py
@@ -185,7 +197,6 @@ build: cnidariapy.py _cnidariapy.so
 	mkdir -p $(BUILD_DIR)
 	cp cnidariapy.py  $(BUILD_DIR)/cnidariapy.py 
 	cp _cnidariapy.so $(BUILD_DIR)/_cnidariapy.so
-
 
 
 
