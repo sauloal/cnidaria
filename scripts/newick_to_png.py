@@ -60,7 +60,8 @@ def add_file(infile, inlist=None, capt=None, ofp=None, output=None, ladderize=Tr
     if ofp:
         outfile = ofp + "." + extension
 
-    tree = Tree(infile, format=9)
+    #tree = Tree(infile, format=9)
+    tree = Tree(infile, format=5)
 
     #tree = Tree(open(infile, 'r').read())
 
