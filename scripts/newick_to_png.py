@@ -61,7 +61,11 @@ def add_file(infile, inlist=None, capt=None, ofp=None, output=None, ladderize=Tr
         outfile = ofp + "." + extension
 
     #tree = Tree(infile, format=9)
-    tree = Tree(infile, format=5)
+    try:
+        tree = Tree(infile, format=5)
+    except:
+        tree = Tree(infile, format=1)
+
 
     #tree = Tree(open(infile, 'r').read())
 
