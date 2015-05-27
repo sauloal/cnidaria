@@ -189,7 +189,10 @@ _cnidariapy.so: $(COMPLETE)
 cnidariapy.py: _cnidariapy.so
 	cp $(SRC_CPP)/cnidariapy.py cnidariapy.py
 
-
+.PHONY: jelly
+jelly:
+	$(MAKE) -C $(LIB_EXT)/Jellyfish
+	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static
 
 
 .PHONY: build
