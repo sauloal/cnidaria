@@ -1,0 +1,430 @@
+#test num	input file
+#RAW=/mnt/scratch/aflit001/nobackup/phylogenomics_raw	
+#RAW_EXTERNAL=%(RAW)s/external	
+#RAW_EXTERNAL_PLANTS=%(RAW_EXTERNAL)s/Plants	
+#RAW_EXTERNAL_ANIMALS=%(RAW_EXTERNAL)s/Animals	
+#RAW_EXTERNAL_INSECTS=%(RAW_EXTERNAL)s/Insects	
+#RAW_EXTERNAL_FUNGI=%(RAW_EXTERNAL)s/Fungi	
+#RAW_EXTERNAL_NEW=%(RAW_EXTERNAL)s/new
+
+#RAW_DENOVO=%(RAW)s/denovo	
+#RAW_RESEQ=%(RAW)s/reseq	
+#RAW_RNA=%(RAW)s/rna	
+	
+#_VERIFY=['test05', 'test10', 'test11']	
+#EXT=.%(kmer_size)s.jf	
+	
+	
+#PLANTS	
+test01	%(RAW_EXTERNAL_PLANTS)s/Arabidopsis_lyrata.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Arabidopsis_thaliana_TAIR10_genome.fas%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Citrus_sinensis.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Glycine_max.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Malus_domestica.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Nicotiana_benthamiana_Niben.genome.v0.4.4.scaffolds.nrcontigs.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Nicotiana_tabacum_tobacco_genome_sequences_assembly.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Oryza_brachyantha.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Oryza_sativa_build_5.00_IRGSPb5.fa%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Populus_trichocarpa.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/S_lycopersicum_chromosomes.2.40.fa%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Solanum_peruvianum_Speru_denovo.fa%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Solanum_tuberosum_PGSC_DM_v3_superscaffolds.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Spimpinellifolium_genome.contigs.fasta%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Vitis_vinifera_Genoscope_12X_2010_02_12_scaffolds.fa%(EXT)s
+test01	%(RAW_EXTERNAL_PLANTS)s/Zea_mays.fasta%(EXT)s
+	
+#3 PLANTS	
+test02	%(RAW_EXTERNAL_PLANTS)s/Arabidopsis_lyrata.fasta%(EXT)s
+test02	%(RAW_EXTERNAL_PLANTS)s/Arabidopsis_thaliana_TAIR10_genome.fas%(EXT)s
+test02	%(RAW_EXTERNAL_PLANTS)s/Citrus_sinensis.fasta%(EXT)s
+	
+# DENOVO	
+test03	%(RAW_DENOVO)s/sa.CLC-830MB-tryout2.fa%(EXT)s
+test03	%(RAW_DENOVO)s/sa.fa.bam.filtered.bam%(EXT)s
+test03	%(RAW_DENOVO)s/sa.fa%(EXT)s
+test03	%(RAW_DENOVO)s/sh.fa.bam.filtered.bam%(EXT)s
+test03	%(RAW_DENOVO)s/sh.fa%(EXT)s
+test03	%(RAW_DENOVO)s/sl.fa.bam.filtered.bam%(EXT)s
+test03	%(RAW_DENOVO)s/sl.fa%(EXT)s
+test03	%(RAW_DENOVO)s/sp.fa.bam.filtered.bam%(EXT)s
+test03	%(RAW_DENOVO)s/sp.fa%(EXT)s
+	
+#RESEQ	
+test04	%(RAW_RESEQ)s/RF_001_SZAXPI008746-45.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_002_SZAXPI009284-57.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_003_SZAXPI009285-62.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_004_SZAXPI009286-74.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_005_SZAXPI009287-75.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_006_SZAXPI009288-79.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_007_SZAXPI009289-84.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_008_SZAXPI009290-87.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_011_SZAXPI009291-88.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_012_SZAXPI009292-89.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_013_SZAXPI009293-90.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_014_SZAXPI009294-93.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_015_SZAXPI009295-94.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_016_SZAXPI009296-95.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_017_SZAXPI009297-102.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_018_SZAXPI009298-108.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_019_SZAXPI009299-109.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_020_SZAXPI009300-113.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_021_SZAXPI009301-123.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_022_SZAXPI009302-129.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_023_SZAXPI009303-133.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_024_SZAXPI009304-136.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_025_SZAXPI009305-140.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_026_SZAXPI009306-142.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_027_SZAXPI009307-158.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_028_SZAXPI009308-166.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_029_SZAXPI009309-169.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_030_SZAXPI009310-62.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_031_SZAXPI009311-74.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_032_SZAXPI009312-75.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_033_SZAXPI009313-79.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_034_SZAXPI009314-84.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_035_SZAXPI009315-87.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_036_SZAXPI009316-88.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_037_SZAXPI008747-46.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_038_SZAXPI009317-89.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_039_SZAXPI009318-90.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_040_SZAXPI009319-93.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_041_SZAXPI009320-94.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_042_SZAXPI009321-95.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_043_SZAXPI009322-102.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_044_SZAXPI009323-108.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_045_SZAXPI009324-109.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_046_SZAXPI008748-47.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_047_SZAXPI009326-113.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_049_SZAXPI009327-123.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_051_SZAXPI009328-129.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_052_SZAXPI009329-133.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_053_SZAXPI009330-136.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_054_SZAXPI009331-140.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_055_SZAXPI009332-142.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_056_SZAXPI009333-158.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_057_SZAXPI009334-166.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_058_SZAXPI009359-46.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_059_SZAXPI009335-169.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_060_SZAXPI009336-14.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_062_SZAXPI009337-15.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_063_SZAXPI009338-16.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_064_SZAXPI009339-17.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_065_SZAXPI009340-18.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_066_SZAXPI009341-19.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_067_SZAXPI009342-21.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_068_SZAXPI009343-22.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_069_SZAXPI009344-23.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_070_SZAXPI008749-56.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_071_SZAXPI009345-24.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_072_SZAXPI008752-75.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_073_SZAXPI009346-25.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_074_SZAXPI008753-79.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_075_SZAXPI009347-26.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_077_SZAXPI009348-27.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_078_SZAXPI009349-30.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_088_SZAXPI009350-31.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_089_SZAXPI009351-32.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_090_SZAXPI009352-35.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_091_SZAXPI009325-56.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_093_SZAXPI009353-36.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_094_SZAXPI008750-57.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_096_SZAXPI009354-37.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_097_SZAXPI009355-39.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_102_SZAXPI009356-41.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_103_SZAXPI009357-44.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_104_SZAXPI008751-74.cram%(EXT)s
+test04	%(RAW_RESEQ)s/RF_105_SZAXPI009358-45.cram%(EXT)s
+test04	%(RAW)s/ril/Spimpinelifolium_CGN14498.bam.filtered.bam.dedup.bam%(EXT)s
+	
+#DENOVO AND PLANTS	
+test05	test03
+test05	test04
+	
+#RNA	
+#test06	%(RAW_RNA)s/Antirrhinum_majus_EST_cAMwp.seq%(EXT)s
+test06	%(RAW_RNA)s/Bos_mutus_RNA.fa%(EXT)s
+#test06	%(RAW_RNA)s/Capsicum_annuum_EST_KS01.seq%(EXT)s
+#test06	%(RAW_RNA)s/Coffea_canephora_var_robusta_EST_cccwc22w.seq%(EXT)s
+#test06	%(RAW_RNA)s/Hedyotis_centranthoides_EST.seq%(EXT)s
+#test06	%(RAW_RNA)s/Hedyotis_terminalis_EST.seq%(EXT)s
+test06	%(RAW_RNA)s/ipomoea_batatas_mRNA_2008_08_15.seq.fasta%(EXT)s
+test06	%(RAW_RNA)s/nicotiana_benthamiana_mRNA_2008_08_25.seq.fasta%(EXT)s
+test06	%(RAW_RNA)s/nicotiana_sylvestris_mRNA_2008_08_25.seq.fasta%(EXT)s
+test06	%(RAW_RNA)s/nicotiana_tabacum_mRNA_2008_07_14.seq.fasta%(EXT)s
+test06	%(RAW_RNA)s/Nicotiana_tabacum_mRNA.fasta%(EXT)s
+#test06	%(RAW_RNA)s/Petunia_hybrida_EST_cPHA.seq%(EXT)s
+#test06	%(RAW_RNA)s/Solanum_cheesmaniae_EST.seq%(EXT)s
+#test06	%(RAW_RNA)s/Solanum_habrochaites_EST_cLHT.seq%(EXT)s
+#test06	%(RAW_RNA)s/Solanum_habrochaites_EST_LH_Ea.seq%(EXT)s
+#test06	%(RAW_RNA)s/Solanum_lycopersicoides_EST.seq%(EXT)s
+test06	%(RAW_RNA)s/solanum_lycopersicum_mRNA_2008_10_21.seq%(EXT)s
+#test06	%(RAW_RNA)s/Solanum_melongena_EST.seq%(EXT)s
+#test06	%(RAW_RNA)s/Solanum_pennellii_EST_cLPT.seq%(EXT)s
+test06	%(RAW_RNA)s/Solanum_peruvianum_CSH_transcriptome.fasta%(EXT)s
+#test06	%(RAW_RNA)s/Solanum_peruvianum_EST.seq%(EXT)s
+#test06	%(RAW_RNA)s/Solanum_pimpinellifolium_EST.seq%(EXT)s
+test06	%(RAW_RNA)s/tomato_species_2008_10_21.seq%(EXT)s
+	
+#ANIMALS	
+test07	%(RAW_EXTERNAL_ANIMALS)s/Bos_taurus.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Caenorhabditis_elegans.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Canis_familiaris.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Danio_rerio.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Equus_caballus.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Gallus_gallus.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Gorilla_gorilla.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/H_sapiens.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Macaca_fascicularis.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Macaca_mulatta.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Mus_musculus.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Pan_troglodytes.fasta%(EXT)s
+test07	%(RAW_EXTERNAL_ANIMALS)s/Rattus_norvegicus.fasta%(EXT)s
+	
+#FUNGI	
+test08	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_fumigatus_uid14003.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_nidulans_FGSC_A4_uid13961.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_niger_CBS_513_88_uid19263.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_oryzae_RIB40_uid28175.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Candida_albicans_uid14005.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Candida_dubliniensis_CD36_uid38659.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Candida_glabrata_CBS138_uid12376.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Cryptococcus_gattii_WM276.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Cryptococcus_neoformans_var_JEC21_uid10698.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Kluyveromyces_lactis_NRRL_Y-1140_uid12377.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Neurospora_crassa_uid132.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Saccharomyces_cerevisiae_uid128.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Schizosaccharomyces_pombe_uid127.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Yarrowia_lipolytica_CLIB122_uid12414.fasta%(EXT)s
+test08	%(RAW_EXTERNAL_FUNGI)s/Zygosaccharomyces_rouxii_CBS_732_uid39573.fasta%(EXT)s
+	
+#INSECTS	
+test09	%(RAW_EXTERNAL_INSECTS)s/Apis_mellifera.fasta%(EXT)s
+test09	%(RAW_EXTERNAL_INSECTS)s/Drosophila_melanogaster.fasta%(EXT)s
+	
+#FUNGI AND INSECTS	
+test11	test08
+test11	test09
+	
+#ALL	
+test10	test01
+test10	test05
+test10	test06
+test10	test07
+test10	test11
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#EXTENDED QUERY
+test12	%(RAW_EXTERNAL_PLANTS)s/Arabidopsis_lyrata.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Arabidopsis_thaliana_TAIR10_genome.fas%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Citrus_sinensis.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Glycine_max.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Malus_domestica.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Nicotiana_benthamiana_Niben.genome.v0.4.4.scaffolds.nrcontigs.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Nicotiana_tabacum_tobacco_genome_sequences_assembly.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Oryza_brachyantha.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Oryza_sativa_build_5.00_IRGSPb5.fa%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Populus_trichocarpa.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/S_lycopersicum_chromosomes.2.40.fa%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Solanum_peruvianum_Speru_denovo.fa%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Solanum_tuberosum_PGSC_DM_v3_superscaffolds.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Spimpinellifolium_genome.contigs.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Vitis_vinifera_Genoscope_12X_2010_02_12_scaffolds.fa%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Zea_mays.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Arabidopsis_lyrata.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Arabidopsis_thaliana_TAIR10_genome.fas%(EXT)s
+test12	%(RAW_EXTERNAL_PLANTS)s/Citrus_sinensis.fasta%(EXT)s
+
+test12	%(RAW_DENOVO)s/sa.CLC-830MB-tryout2.fa%(EXT)s
+test12	%(RAW_DENOVO)s/sa.fa.bam.filtered.bam%(EXT)s
+test12	%(RAW_DENOVO)s/sa.fa%(EXT)s
+test12	%(RAW_DENOVO)s/sh.fa.bam.filtered.bam%(EXT)s
+test12	%(RAW_DENOVO)s/sh.fa%(EXT)s
+test12	%(RAW_DENOVO)s/sl.fa.bam.filtered.bam%(EXT)s
+test12	%(RAW_DENOVO)s/sl.fa%(EXT)s
+test12	%(RAW_DENOVO)s/sp.fa.bam.filtered.bam%(EXT)s
+test12	%(RAW_DENOVO)s/sp.fa%(EXT)s
+
+test12	%(RAW_RESEQ)s/RF_001_SZAXPI008746-45.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_002_SZAXPI009284-57.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_003_SZAXPI009285-62.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_004_SZAXPI009286-74.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_005_SZAXPI009287-75.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_006_SZAXPI009288-79.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_007_SZAXPI009289-84.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_008_SZAXPI009290-87.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_011_SZAXPI009291-88.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_012_SZAXPI009292-89.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_013_SZAXPI009293-90.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_014_SZAXPI009294-93.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_015_SZAXPI009295-94.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_016_SZAXPI009296-95.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_017_SZAXPI009297-102.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_018_SZAXPI009298-108.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_019_SZAXPI009299-109.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_020_SZAXPI009300-113.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_021_SZAXPI009301-123.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_022_SZAXPI009302-129.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_023_SZAXPI009303-133.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_024_SZAXPI009304-136.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_025_SZAXPI009305-140.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_026_SZAXPI009306-142.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_027_SZAXPI009307-158.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_028_SZAXPI009308-166.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_029_SZAXPI009309-169.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_030_SZAXPI009310-62.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_031_SZAXPI009311-74.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_032_SZAXPI009312-75.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_033_SZAXPI009313-79.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_034_SZAXPI009314-84.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_035_SZAXPI009315-87.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_036_SZAXPI009316-88.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_037_SZAXPI008747-46.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_038_SZAXPI009317-89.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_039_SZAXPI009318-90.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_040_SZAXPI009319-93.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_041_SZAXPI009320-94.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_042_SZAXPI009321-95.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_043_SZAXPI009322-102.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_044_SZAXPI009323-108.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_045_SZAXPI009324-109.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_046_SZAXPI008748-47.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_047_SZAXPI009326-113.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_049_SZAXPI009327-123.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_051_SZAXPI009328-129.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_052_SZAXPI009329-133.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_053_SZAXPI009330-136.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_054_SZAXPI009331-140.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_055_SZAXPI009332-142.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_056_SZAXPI009333-158.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_057_SZAXPI009334-166.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_058_SZAXPI009359-46.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_059_SZAXPI009335-169.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_060_SZAXPI009336-14.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_062_SZAXPI009337-15.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_063_SZAXPI009338-16.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_064_SZAXPI009339-17.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_065_SZAXPI009340-18.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_066_SZAXPI009341-19.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_067_SZAXPI009342-21.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_068_SZAXPI009343-22.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_069_SZAXPI009344-23.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_070_SZAXPI008749-56.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_071_SZAXPI009345-24.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_072_SZAXPI008752-75.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_073_SZAXPI009346-25.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_074_SZAXPI008753-79.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_075_SZAXPI009347-26.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_077_SZAXPI009348-27.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_078_SZAXPI009349-30.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_088_SZAXPI009350-31.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_089_SZAXPI009351-32.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_090_SZAXPI009352-35.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_091_SZAXPI009325-56.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_093_SZAXPI009353-36.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_094_SZAXPI008750-57.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_096_SZAXPI009354-37.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_097_SZAXPI009355-39.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_102_SZAXPI009356-41.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_103_SZAXPI009357-44.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_104_SZAXPI008751-74.cram%(EXT)s
+test12	%(RAW_RESEQ)s/RF_105_SZAXPI009358-45.cram%(EXT)s
+test12	%(RAW)s/ril/Spimpinelifolium_CGN14498.bam.filtered.bam.dedup.bam%(EXT)s
+
+#test12	%(RAW_RNA)s/Antirrhinum_majus_EST_cAMwp.seq%(EXT)s
+test12	%(RAW_RNA)s/Bos_mutus_RNA.fa%(EXT)s
+#test12	%(RAW_RNA)s/Capsicum_annuum_EST_KS01.seq%(EXT)s
+#test12	%(RAW_RNA)s/Coffea_canephora_var_robusta_EST_cccwc22w.seq%(EXT)s
+#test12	%(RAW_RNA)s/Hedyotis_centranthoides_EST.seq%(EXT)s
+#test12	%(RAW_RNA)s/Hedyotis_terminalis_EST.seq%(EXT)s
+test12	%(RAW_RNA)s/ipomoea_batatas_mRNA_2008_08_15.seq.fasta%(EXT)s
+test12	%(RAW_RNA)s/nicotiana_benthamiana_mRNA_2008_08_25.seq.fasta%(EXT)s
+test12	%(RAW_RNA)s/nicotiana_sylvestris_mRNA_2008_08_25.seq.fasta%(EXT)s
+test12	%(RAW_RNA)s/nicotiana_tabacum_mRNA_2008_07_14.seq.fasta%(EXT)s
+test12	%(RAW_RNA)s/Nicotiana_tabacum_mRNA.fasta%(EXT)s
+#test12	%(RAW_RNA)s/Petunia_hybrida_EST_cPHA.seq%(EXT)s
+#test12	%(RAW_RNA)s/Solanum_cheesmaniae_EST.seq%(EXT)s
+#test12	%(RAW_RNA)s/Solanum_habrochaites_EST_cLHT.seq%(EXT)s
+#test12	%(RAW_RNA)s/Solanum_habrochaites_EST_LH_Ea.seq%(EXT)s
+#test12	%(RAW_RNA)s/Solanum_lycopersicoides_EST.seq%(EXT)s
+test12	%(RAW_RNA)s/solanum_lycopersicum_mRNA_2008_10_21.seq%(EXT)s
+#test12	%(RAW_RNA)s/Solanum_melongena_EST.seq%(EXT)s
+#test12	%(RAW_RNA)s/Solanum_pennellii_EST_cLPT.seq%(EXT)s
+test12	%(RAW_RNA)s/Solanum_peruvianum_CSH_transcriptome.fasta%(EXT)s
+#test12	%(RAW_RNA)s/Solanum_peruvianum_EST.seq%(EXT)s
+#test12	%(RAW_RNA)s/Solanum_pimpinellifolium_EST.seq%(EXT)s
+test12	%(RAW_RNA)s/tomato_species_2008_10_21.seq%(EXT)s
+
+test12	%(RAW_EXTERNAL_ANIMALS)s/Bos_taurus.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Caenorhabditis_elegans.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Canis_familiaris.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Danio_rerio.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Equus_caballus.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Gallus_gallus.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Gorilla_gorilla.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/H_sapiens.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Macaca_fascicularis.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Macaca_mulatta.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Mus_musculus.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Pan_troglodytes.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_ANIMALS)s/Rattus_norvegicus.fasta%(EXT)s
+
+test12	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_fumigatus_uid14003.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_nidulans_FGSC_A4_uid13961.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_niger_CBS_513_88_uid19263.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Aspergillus_oryzae_RIB40_uid28175.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Candida_albicans_uid14005.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Candida_dubliniensis_CD36_uid38659.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Candida_glabrata_CBS138_uid12376.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Cryptococcus_gattii_WM276.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Cryptococcus_neoformans_var_JEC21_uid10698.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Kluyveromyces_lactis_NRRL_Y-1140_uid12377.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Neurospora_crassa_uid132.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Saccharomyces_cerevisiae_uid128.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Schizosaccharomyces_pombe_uid127.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Yarrowia_lipolytica_CLIB122_uid12414.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_FUNGI)s/Zygosaccharomyces_rouxii_CBS_732_uid39573.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_INSECTS)s/Apis_mellifera.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_INSECTS)s/Drosophila_melanogaster.fasta%(EXT)s
+
+test12	%(RAW_EXTERNAL_NEW)s/Acyrthosiphon_pisum.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Anas_platyrhynchos.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Apis_dorsata.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Apis_florea.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Bombyx_mori.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Columba_livia.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Corvus_brachyrhynchos.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Corvus_cornix_cornix.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_ananassae.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_erecta.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_grimshawi.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_mojavensis.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_persimilis.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_pseudoobscura.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_sechellia.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_simulans.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_virilis.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_willistoni.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Drosophila_yakuba.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Falco_cherrug.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Falco_peregrinus.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Geospiza_fortis.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Meleagris_gallopavo.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Melopsittacus_undulatus.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Nasonia_vitripennis.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Serinus_canaria.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Struthio_camelus_australis.fasta%(EXT)s
+test12	%(RAW_EXTERNAL_NEW)s/Tribolium_castaneum.fasta%(EXT)s
+

@@ -1,0 +1,632 @@
+// header_w.cpp
+//
+
+#include "header_w.hpp"
+#define LZZ_INLINE inline
+namespace cnidaria
+{
+  cnidaria_header_rw::cnidaria_header_rw (string_t basenamel)
+    : cnidaria_header_r (basenamel), lastHash (0)
+                                                                                                                 {}
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_header (header_data & hda, std::ofstream & outfile, string_t format)
+                                                                                                            {
+                if ( format == FMT_COMPLETE_BEGIN ) {
+                    baseInt zero = 0;
+                    outfile.write( reinterpret_cast<const char *>(&zero), sizeof(baseInt) );
+                    outfile.flush();
+                    return;
+                }
+
+                std::cout << "exporting to stream. saving" << std::endl;
+
+                json_doc_t   doc;
+                json_allo_t &a = doc.GetAllocator();
+                json_val_t   o( rapidjson::kObjectType );
+
+                json_val_t filetype;
+                filetype.SetString( format.c_str(), format.size() );
+
+                json_val_t infilenames_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < hda.infiles->size(); ++k1 ) {
+                    json_val_t st;
+                    st.SetString( (*hda.infiles)[k1].c_str(), (*hda.infiles)[k1].size() );
+                    infilenames_j.PushBack( st, a );
+                }
+
+                json_val_t srcfilenames_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < hda.srcfiles->size(); ++k1 ) {
+                    json_val_t st;
+                    st.SetString( (*hda.srcfiles)[k1].c_str(), (*hda.srcfiles)[k1].size() );
+                    srcfilenames_j.PushBack( st, a );
+                }
+
+                json_val_t num_kmer_total_spp_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < hda.num_kmer_total_spp->size(); ++k1 ) {
+                    num_kmer_total_spp_j.PushBack( (uint64_t) (*hda.num_kmer_total_spp)[k1], a );
+                }
+
+                json_val_t num_kmer_valid_spp_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < hda.num_kmer_valid_spp->size(); ++k1 ) {
+                    num_kmer_valid_spp_j.PushBack( (uint64_t) (*hda.num_kmer_valid_spp)[k1], a );
+                }
+
+                json_val_t j_matrices_j( rapidjson::kArrayType );
+                for ( baseInt k1 = 0; k1 < hda.j_matrices->size(); ++k1 ) {
+                    uint64_t      r       = (*hda.j_matrices)[k1].r;
+                    uint64_t      c       = (*hda.j_matrices)[k1].c;
+                    baseint_vec_t columns = (*hda.j_matrices)[k1].columns;
+                    uint64_t      l       = columns.size();
+
+                    json_val_t    columns_j( rapidjson::kArrayType );
+
+                    for ( baseInt k2 = 0; k2 < l; ++k2 ) {
+                        columns_j.PushBack( (uint64_t)columns[k2], a );
+                    }
+
+                    json_val_t    d( rapidjson::kObjectType );
+
+                    d.AddMember( "r"      , (uint64_t)r        , a );
+                    d.AddMember( "c"      , (uint64_t)c        , a );
+                    d.AddMember( "l"      , (uint64_t)l        , a );
+                    d.AddMember( "columns",           columns_j, a );
+
+                    j_matrices_j.PushBack( d, a );
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                o.AddMember( "num_infiles"       , (uint64_t) hda.infiles->size()   , a );
+                o.AddMember( "num_srcfiles"      , (uint64_t) hda.srcfiles->size()  , a );
+                                o.AddMember( "num_combinations"  , (uint64_t) hda.hash_table->size(), a );
+                                o.AddMember( "complete_registers", (uint64_t) hda.complete_registers, a );
+                                o.AddMember( "min_val"           , (uint64_t) hda.min_val           , a );
+                                o.AddMember( "max_val"           , (uint64_t) hda.max_val           , a );
+                                o.AddMember( "save_every"        , (uint64_t) hda.save_every        , a );
+                                o.AddMember( "num_pieces"        , (uint64_t) hda.num_pieces        , a );
+                                o.AddMember( "piece_num"         , (uint64_t) hda.piece_num         , a );
+                                o.AddMember( "kmer_size"         , (uint64_t) hda.kmer_size         , a );
+                o.AddMember( "kmer_bytes"        , (uint64_t) hda.kmer_bytes        , a );
+                                o.AddMember( "data_bytes"        , (uint64_t) hda.data_bytes        , a );
+                                o.AddMember( "block_bytes"       , (uint64_t) hda.block_bytes       , a );
+
+                                o.AddMember( "j_offset"          , (uint64_t) hda.j_offset          , a );
+                                o.AddMember( "j_size"            , (uint64_t) hda.j_size            , a );
+                o.AddMember( "j_matrices_size"   , (uint64_t) hda.j_matrices->size(), a );
+                                o.AddMember( "j_matrices"        ,            j_matrices_j          , a );
+
+
+                                o.AddMember( "version"           , (uint_t  ) __CNIDARIA_VERSION__  , a );
+                o.AddMember( "filetype"          ,            filetype              , a );
+                                o.AddMember( "in_filenames"      ,            infilenames_j         , a );
+                                o.AddMember( "src_filenames"     ,            srcfilenames_j        , a );
+                o.AddMember( "num_kmer_total_spp",            num_kmer_total_spp_j  , a );
+                o.AddMember( "num_kmer_valid_spp",            num_kmer_valid_spp_j  , a );
+
+
+                if ( format == FMT_JMATRIX ) {
+                    json_val_t l1_j( rapidjson::kArrayType );
+                    for ( auto&    it01: (*hda.matrix) ) {
+
+                    json_val_t l2_j( rapidjson::kArrayType );
+                    for ( auto&    it02: it01         ) {
+
+                    json_val_t l3_j( rapidjson::kArrayType );
+                    for ( baseInt& it03: it02         ) {
+                        l3_j.PushBack( (uint64_t) it03, a );
+                    }
+                        l2_j.PushBack( l3_j, a );
+                    }
+                        l1_j.PushBack( l2_j, a );
+                    }
+
+                    o.AddMember( "matrix",            l1_j , a );
+                }
+
+
+                doc.Swap( o );
+
+                json_str_buff_t   buff;
+                json_writer_fil_t writer(buff);
+                doc.Accept(writer);
+
+                baseInt           json_size    = buff.GetSize();
+
+
+                if ( format == FMT_JMATRIX ) {
+
+                } else {
+                    outfile.write( reinterpret_cast<const char *>(&json_size         ), sizeof(baseInt) );
+                }
+
+                outfile   << buff.GetString();
+
+                outfile.flush();
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_header_complete_count (header_data & hda, std::ofstream & outfile)
+                                                                                               {
+                if ( ! outfile.good() ) {
+                    std::cout << "\n"
+                              << "error saving header complete count Error: " << std::strerror(errno) << "\n"
+                              << "error saving header complete count good : " << outfile.good()       << "\n"
+                              << "error saving header complete count fail : " << outfile.fail()       << "\n"
+                              << "error saving header complete count bad  : " << outfile.bad()        << "\n"
+                              << "error saving header complete count eof  : " << outfile.eof()        << std::endl;
+                    exit(1);
+                }
+
+                outfile.flush();
+
+                if ( ! outfile.good() ) {
+                    std::cout << "\n"
+                              << "error saving header complete count after flushing Error: " << std::strerror(errno) << "\n"
+                              << "error saving header complete count after flushing good : " << outfile.good()       << "\n"
+                              << "error saving header complete count after flushing fail : " << outfile.fail()       << "\n"
+                              << "error saving header complete count after flushing bad  : " << outfile.bad()        << "\n"
+                              << "error saving header complete count after flushing eof  : " << outfile.eof()        << std::endl;
+                    exit(1);
+                }
+
+                pos_type complete_num_pos = 0;
+
+                try {
+                    complete_num_pos = outfile.tellp();
+                    std::cout << "format complete begin. tell       " << complete_num_pos << std::endl;
+                } catch( std::ios_base::failure& e) {
+                    std::cerr << "Failed to acquire position of output file. Error: " << e.what() << std::endl;
+                    exit(1);
+                }
+
+                std::cout << "saving header" << std::endl;
+                save_header( hda, outfile, FMT_COMPLETE );
+                std::cout << "header saved" << std::endl;
+                std::cout << "end of file position: " << outfile.tellp() << std::endl;
+
+                try {
+                    std::cout << "seeking begining of file" << std::endl;
+                    outfile.seekp(0, std::ios_base::beg);
+                } catch( std::ios_base::failure& e) {
+                    std::cerr << "unable to seek position 0. Error: " << e.what() << std::endl;
+                    exit(1);
+                }
+
+                pos_type newp = outfile.tellp();
+
+                std::cout << "format complete begin. new tell   " << newp << std::endl;
+
+                if ( newp != 0 ) {
+                    std::cout << "error in seeking position 0 seek position 0" << newp << std::endl;
+                    exit(1);
+                }
+
+                outfile.write( reinterpret_cast<const char *>(&complete_num_pos), sizeof(baseInt) );
+                outfile.flush();
+
+                std::cout << "format complete begin. after tell " << outfile.tellp() << std::endl;
+                std::cout << "finished saving header for complete file" << std::endl;
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_summary (header_data & hda, string_t filename)
+                                                                                               {
+                if ( filename=="" ) { filename=basename; };
+
+                std::ofstream outfile_;
+
+                outfile_.open( filename + EXT_SUMMARY, std::ifstream::binary );
+                if (!outfile_.good()) {
+                    std::cout << "error opening "        << filename << "\n"
+                              << "error opening Error: " << std::strerror(errno) << "\n"
+                              << "error opening good : " << outfile_.good()      << "\n"
+                              << "error opening fail : " << outfile_.fail()      << "\n"
+                              << "error opening bad  : " << outfile_.bad()       << "\n"
+                              << "error opening eof  : " << outfile_.eof()       << std::endl;
+
+                    exit(1);
+                }
+
+                save_summary( hda, outfile_ );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_matrix (header_data & hda, string_t filename)
+                                                                                               {
+                if ( filename=="" ) { filename=basename; };
+
+                std::ofstream outfile_;
+
+                outfile_.open( filename + EXT_MATRIX, std::ifstream::binary );
+                if (!outfile_.good()) {
+                    std::cout << "error opening "        << filename << "\n"
+                              << "error opening Error: " << std::strerror(errno) << "\n"
+                              << "error opening good : " << outfile_.good()      << "\n"
+                              << "error opening fail : " << outfile_.fail()      << "\n"
+                              << "error opening bad  : " << outfile_.bad()       << "\n"
+                              << "error opening eof  : " << outfile_.eof()       << std::endl;
+
+                    exit(1);
+                }
+
+                save_matrix( hda, outfile_ );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_json_matrix (header_data & hda, string_t filename)
+                                                                                               {
+                if ( filename=="" ) { filename=basename; };
+
+                                std::ofstream outfile_;
+                                outfile_.open( filename + EXT_JMATRIX, std::ifstream::binary );
+
+                if (!outfile_.good()) {
+                    std::cout << "error opening "        << filename << "\n"
+                              << "error opening Error: " << std::strerror(errno) << "\n"
+                              << "error opening good : " << outfile_.good()      << "\n"
+                              << "error opening fail : " << outfile_.fail()      << "\n"
+                              << "error opening bad  : " << outfile_.bad()       << "\n"
+                              << "error opening eof  : " << outfile_.eof()       << std::endl;
+
+                    exit(1);
+                }
+
+                save_json_matrix( hda, outfile_ );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_summary (header_data & hda, std::ofstream & outfile)
+                                                                                               {
+                save_header_summary(  hda, outfile );
+                                serialize_hash_table( hda, outfile );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_matrix (header_data & hda, std::ofstream & outfile)
+                                                                                               {
+                save_header_matrix( hda, outfile );
+                                serialize_matrix(   hda, outfile );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_json_matrix (header_data & hda, std::ofstream & outfile)
+                                                                                               {
+                save_header_json_matrix( hda, outfile );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_header_complete (header_data & hda, std::ofstream & outfile)
+                                                                                               {
+                save_header( hda, outfile, FMT_COMPLETE_BEGIN );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_header_summary (header_data & hda, std::ofstream & outfile)
+                                                                                               {
+                save_header( hda, outfile, FMT_SUMMARY );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_header_matrix (header_data & hda, std::ofstream & outfile)
+                                                                                               {
+                save_header( hda, outfile, FMT_MATRIX );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::save_header_json_matrix (header_data & hda, std::ofstream & outfile)
+                                                                                               {
+                save_header( hda, outfile, FMT_JMATRIX );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::serialize_hash_table (header_data & hda, std::ofstream & outfile)
+                                                                                                           {
+                baseInt so               = sizeof( baseInt );
+                                baseInt num_combinations = hda.hash_table->size();
+
+
+
+
+                std::string s1;
+
+                uint64_t     c = 0;
+
+                progressBar progress("save db", 0, num_combinations);
+
+                for ( auto it01 = hda.hash_table->begin(); it01 != hda.hash_table->end(); ++it01 ) {
+                    const auto&     key = it01->first;
+                    const uint64_t& val = it01->second;
+
+                    bytes1.clear();
+
+                    boost::to_block_range(key, std::back_inserter(bytes1));
+
+
+
+
+
+
+
+
+                    outfile.write( reinterpret_cast<const char *>(&bytes1[0]), bytes1.size() );
+                    outfile.write( reinterpret_cast<const char *>(&val      ), so            );
+
+                    progress.print( c );
+
+                    ++c;
+                }
+
+                                outfile.write( reinterpret_cast<const char *>(&num_combinations), so );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::deserialize_hash_table (header_data & hda, std::ifstream & infile)
+                                                                                                           {
+                baseInt so          = sizeof( baseInt );
+                                baseInt val         = 0;
+                                baseInt c           = 0;
+                baseInt num_infiles = hda.infiles->size();
+
+
+
+
+                hda.hash_table->reserve( hda.num_combinations );
+
+                CNIDARIA_VAL_TYPE b1        = CNIDARIA_VAL_TYPE( num_infiles );
+                                baseInt           num_bytes = b1.num_blocks();
+
+
+                bytes1.clear();
+                bytes1.resize( num_bytes );
+
+
+
+
+
+
+
+
+                progressBar progress("load db", 0, hda.num_combinations);
+                bool reached_end = false;
+
+                while ( infile.good() ) {
+                    infile.read( reinterpret_cast<char *>(&bytes1[0]), num_bytes );
+                    infile.read( reinterpret_cast<char *>(&val      ), so        );
+
+                                        boost::from_block_range( bytes1.begin(), bytes1.end(), b1 );
+
+
+
+
+                                        (*hda.hash_table)[ b1 ] = val;
+
+                                        if ( hda.hash_table->size() == 0 ) {
+                                                std::cout << "initializing hash" << std::endl;
+                                                progress.updateStartTime();
+                                                std::cout << "hash initialized"  << std::endl;
+                                        }
+
+                                        progress.print( c++ );
+
+                                        if ( c == hda.num_combinations ) {
+                                                reached_end = true;
+                                                break;
+                                        }
+
+
+                                        if ( !infile.good() && !reached_end ) {
+                                                std::cout       << "\n"
+                                                                        << "error deserialize hash table Error: " << std::strerror(errno) << "\n"
+                                                                        << "error deserialize hash table good : " << infile.good()       << "\n"
+                                                                        << "error deserialize hash table fail : " << infile.fail()       << "\n"
+                                                                        << "error deserialize hash table bad  : " << infile.bad()        << "\n"
+                                                                        << "error deserialize hash table eof  : " << infile.eof()        << std::endl;
+                                                exit(1);
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                }
+
+                        baseInt ls = 0;
+                                infile.read( (char*)&ls, so );
+
+                                std::cout << "num registers " << ls << std::endl;
+
+                                if ( ls != hda.num_combinations ) {
+                                        std::cout << "wrong number of registers. database size: " << hda.num_combinations << " registers end: " << ls << std::endl;
+                                        exit(1);
+                                }
+
+                                if ( c  != hda.num_combinations ) {
+                                        std::cout << "wrong number of registers. database size: " << hda.num_combinations << " registers count: " << c  << std::endl;
+                                        exit(1);
+                                }
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::serialize_matrix (header_data & hda, std::ofstream & outfile)
+                                                                                               {
+                baseInt so  = sizeof( baseInt );
+                baseInt len = 0;
+
+                for ( auto&    it01: (*hda.matrix) ) {
+                for ( auto&    it02: it01          ) {
+                for ( baseInt& it03: it02          ) {
+                    outfile.write( reinterpret_cast<const char *>(&it03), so );
+                    ++len;
+                }
+                }
+                }
+
+                outfile.write( reinterpret_cast<const char *>(&len), so );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::serialize_complete_register (header_data & hda, std::ofstream & outfile, register_data const & d)
+                                                                                                                   {
+
+
+                bytes1.clear();
+                boost::to_block_range(d.key, std::back_inserter(bytes1));
+
+
+
+                                if ( d.minH == 0 ) {
+                                        lastHash = d.minH;
+                                }
+
+                                if ( lastHash > d.minH ) {
+                                        std::cout << "problem serializing complete register. hash is out of order. last hash " << lastHash << " > current hash " << d.minH << std::endl;
+                                        exit(1);
+                                }
+
+                outfile.write( reinterpret_cast<const char *>( d.minMer.data() ), d.kmer_bytes   );
+                outfile.write( reinterpret_cast<const char *>( &bytes1[0]      ), bytes1.size()  );
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::deserialize_complete_register (header_data & hda, std::ifstream & infile, register_data & d)
+                                                                                                            {
+                baseInt num_infiles = hda.infiles->size();
+
+                hda.hash_table->reserve( hda.num_combinations );
+
+                CNIDARIA_VAL_TYPE b1        = CNIDARIA_VAL_TYPE( num_infiles );
+                                baseInt           num_bytes = b1.num_blocks();
+
+
+                bytes1.clear();
+                bytes1.resize( num_bytes );
+
+                if ( infile.good() ) {
+                    d.minMer.template read<1>(infile);
+
+                    infile.read( reinterpret_cast<char *>(&bytes1[0]), num_bytes );
+                    if ( infile.good() ) {
+                        boost::from_block_range( bytes1.begin(), bytes1.end(), b1 );
+                    }
+                }
+  }
+}
+namespace cnidaria
+{
+  void cnidaria_header_rw::copy_complete_registers (header_data & hda, pos_type json_pos, std::ifstream & infile, std::ofstream & oufile, baseInt fileCount, baseInt numFiles)
+                                                                                                                                                                         {
+                baseInt           num_infiles   = hda.infiles->size();
+                CNIDARIA_VAL_TYPE b1            = CNIDARIA_VAL_TYPE( num_infiles );
+                baseInt           kmer_bytes    = hda.kmer_bytes;
+                baseInt           data_bytes    = hda.data_bytes;
+                baseInt           block_bytes   = hda.block_bytes;
+                pos_type          data_size     = (pos_type)json_pos  - (pos_type)sizeof(baseInt);
+                baseInt           num_registers = data_size / block_bytes;
+
+                const_char_str_t run_name = (boost::format("copy complete registers %04d/%04d") % (fileCount+1) % numFiles).str().c_str();
+
+                std::cout << run_name << " :: num files " << num_infiles << " kmer_bytes " << kmer_bytes << " data_bytes " << data_bytes << " block_bytes " << block_bytes << " data_size " << data_size << " num registers " << num_registers << std::endl;
+
+                if ( data_size % block_bytes != 0 ) {
+                    std::cout << run_name << " :: data size mismatch :: data size: " << data_size << " block size " << block_bytes << " remainder " << (data_size % block_bytes) << std::endl;
+                    exit(1);
+                }
+
+                if ( num_registers != hda.complete_registers ) {
+                    std::cout << run_name << " :: num registers mismatch :: theoretical: " << hda.complete_registers << " found " << num_registers << std::endl;
+                    exit(1);
+                }
+
+
+                progressBar progress(run_name, 0, num_registers);
+                                progress.setTwoLines( false );
+
+                char    data[block_bytes];
+                                bool    reached_end = false;
+                baseInt count       = 0;
+                while ( count != num_registers ) {
+                    infile.read(  reinterpret_cast<char *>(&data), block_bytes );
+                    oufile.write( reinterpret_cast<char *>(&data), block_bytes );
+                    ++count;
+
+                    progress.print( count );
+
+                    if ( count == num_registers ) {
+                        std::cout << run_name << " :: breaking" << std::endl;
+                                                reached_end = true;
+                        break;
+                    }
+                }
+
+
+                                if ( !infile.good() && !reached_end ) {
+                                        std::cout << "outfile did not reach end when copying complete registers\n"
+                                                          << "outfile did not reach end when copying complete registers num registers: " << num_registers        << "\n"
+                                                          << "outfile did not reach end when copying complete registers count        : " << count                << "\n"
+                                                          << "outfile did not reach end when copying complete registers block_bytes  : " << block_bytes          << "\n"
+                                                          << "outfile did not reach end when copying complete registers Error        : " << std::strerror(errno) << "\n"
+                                                          << "outfile did not reach end when copying complete registers good         : " << infile.good()        << "\n"
+                                                          << "outfile did not reach end when copying complete registers fail         : " << infile.fail()        << "\n"
+                                                          << "outfile did not reach end when copying complete registers bad          : " << infile.bad()         << "\n"
+                                                          << "outfile did not reach end when copying complete registers eof          : " << infile.eof()         << std::endl;
+
+                                        exit(1);
+                                }
+
+                pos_type currPos = infile.tellg();
+                if ( currPos != json_pos ) {
+                    std::cout << run_name << " :: end of file mismatch :: curr pos: " << currPos << " theoretical end of file: " << json_pos << " remainder " << (currPos - json_pos) << std::endl;
+                    exit(1);
+                }
+
+                oufile.flush();
+  }
+}
+#undef LZZ_INLINE

@@ -1,0 +1,297 @@
+#
+# FILENAMES TO SPECIES NAMES CONVERSION TABLE
+#
+# MACRO:A:EXTS:.bam.11.jf
+# MACRO:A:EXTS:.cram.11.jf
+# MACRO:A:EXTS:.11.jf
+#
+# MACRO:A:EXTS:.bam.15.jf
+# MACRO:A:EXTS:.cram.15.jf
+# MACRO:A:EXTS:.15.jf
+#
+# MACRO:A:EXTS:.bam.17.jf
+# MACRO:A:EXTS:.cram.17.jf
+# MACRO:A:EXTS:.17.jf
+#
+# MACRO:A:EXTS:.bam.21.jf
+# MACRO:A:EXTS:.cram.21.jf
+# MACRO:A:EXTS:.21.jf
+#
+# MACRO:A:EXTS:.bam.31.jf
+# MACRO:A:EXTS:.cram.31.jf
+# MACRO:A:EXTS:.31.jf
+#
+# MACRO:A:EXTS:.bam.jf
+# MACRO:A:EXTS:.cram.jf
+# MACRO:A:EXTS:.jf
+
+# DENOVO
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sa.CLC-830MB-tryout2.fa	Solanum arcanum denovo fasta CLC 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sa.fa.bam.filtered	Solanum arcanum raw
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sa.fa	Solanum arcanum denovo fasta APLG
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sh.fa.bam.filtered	Solanum habrochaites raw
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sh.fa	Solanum habrochaites denovo fasta APLG
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sl.fa.bam.filtered	Solanum lycopersicum raw
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sl.fa	Solanum lycopersicum denovo APLG
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sp.fa.bam.filtered	Solanum pennellii raw
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/denovo/sp.fa	Solanum pennellii denovo APLG
+
+# RESEQ
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_001_SZAXPI008746-45	S.lyc LA2706 Moneymaker
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_002_SZAXPI009284-57	S.lyc LA2838A Alisa Craig
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_003_SZAXPI009285-62	S.lyc PI406760 Gardeners delight
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_004_SZAXPI009286-74	S.lyc LA1090 Rutgers
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_005_SZAXPI009287-75	S.lyc EA00325 Galina
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_006_SZAXPI009288-79	S.lyc EA00488 Taxi
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_007_SZAXPI009289-84	S.lyc EA00375 Katinka Cherry
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_008_SZAXPI009290-87	S.lyc EA00371 John's big orange
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_011_SZAXPI009291-88	S.lyc LA2463 Allround
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_012_SZAXPI009292-89	S.lyc LYC1969 Sonata
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_013_SZAXPI009293-90	S.lyc LYC3897 Cross Country
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_014_SZAXPI009294-93	S.lyc LYC3476 Iidi
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_015_SZAXPI009295-94	S.lyc TR00003 Momatero
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_016_SZAXPI009296-95	S.lyc LYC11 Rote Beere
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_017_SZAXPI009297-102	S.lyc LYC3340 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_018_SZAXPI009298-108	S.lyc EA01155 Dana
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_019_SZAXPI009299-109	S.lyc EA01049 Large Pink
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_020_SZAXPI009300-113	S.lyc LYC3153 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_021_SZAXPI009301-123	S.lyc EA03222 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_022_SZAXPI009302-129	S.lyc PI129097 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_023_SZAXPI009303-133	S.lyc PI272654 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_024_SZAXPI009304-136	S.lyc EA00990 Jersey devil
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_025_SZAXPI009305-140	S.cor LA0118 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_026_SZAXPI009306-142	S.lyc EA00157 Polish Joe
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_027_SZAXPI009307-158	S.lyc EA02054 Cal J Tm VF
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_028_SZAXPI009308-166	S.lyc PI303721 The Dutchman
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_029_SZAXPI009309-169	S.lyc LA4451 Black Cherry
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_030_SZAXPI009310-62	S.lyc V710029 Anto
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_031_SZAXPI009311-74	S.lyc PC11029 Winter Tipe
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_032_SZAXPI009312-75	S.lyc PI093302 Chang Li
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_033_SZAXPI009313-79	S.lyc EA00892 Belmonte
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_034_SZAXPI009314-84	S.lyc EA01088 Tiffen Mennonite
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_035_SZAXPI009315-87	S.lyc PI203232 Wheatleys Frost Resistant
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_036_SZAXPI009316-88	S.lyc PI311117 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_037_SZAXPI008747-46	S.lyc LA1324 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_038_SZAXPI009317-89	S.lyc PI158760 Chih Mu Tao Se
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_039_SZAXPI009318-90	S.lyc LA0113 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_040_SZAXPI009319-93	S.lyc LYC1410 ES 58 Heinz
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_041_SZAXPI009320-94	S.lyc PI169588 Dolmalik
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_042_SZAXPI009321-95	S.lyc LYC2962 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_043_SZAXPI009322-102	S.lyc LYC2910 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_044_SZAXPI009323-108	S.pim LYC2798 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_045_SZAXPI009324-109	S.lyc LYC2740 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_046_SZAXPI008748-47	S.pim LA1584 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_047_SZAXPI009326-113	S.pim LA1578 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_049_SZAXPI009327-123	S.per LA1278 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_051_SZAXPI009328-129	S.chm LA2663 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_052_SZAXPI009329-133	S.chm LA2695 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_053_SZAXPI009330-136	S.che LA0483 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_054_SZAXPI009331-140	S.lyc CGN15820 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_055_SZAXPI009332-142	S.che LA1401 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_056_SZAXPI009333-158	S.neo LA2133 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_057_SZAXPI009334-166	S.neo LA0735 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_058_SZAXPI009359-46	S.arc LA2157 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_059_SZAXPI009335-169	S.arc LA2172 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_060_SZAXPI009336-14	S.per LA1954 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_062_SZAXPI009337-15	S.hua LA1983 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_063_SZAXPI009338-16	S.hua LA1365 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_064_SZAXPI009339-17	S.chi CGN15532 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_065_SZAXPI009340-18	S.chi CGN15530 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_066_SZAXPI009341-19	S.hab CGN15791 F glabratum
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_067_SZAXPI009342-21	S.hab PI134418 F glabratum
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_068_SZAXPI009343-22	S.hab CGN15792 F glabratum
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_069_SZAXPI009344-23	S.hab LA1718 F glabratum
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_070_SZAXPI008749-56	S.hab LA1777 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_071_SZAXPI009345-24	S.hab LA0407 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_072_SZAXPI008752-75	S.hab LYC4 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_073_SZAXPI009346-25	S.spp LA1272 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_074_SZAXPI008753-79	S.pen LA0716 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_075_SZAXPI009347-26	S.hua LA1364 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_077_SZAXPI009348-27	S.lyc TR00018 Large Red Cherry
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_078_SZAXPI009349-30	S.lyc EA00940 Porter
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_088_SZAXPI009350-31	S.lyc TR00019 Bloody Butcher
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_089_SZAXPI009351-32	S.lyc EA01019 Brandywine
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_090_SZAXPI009352-35	S.lyc TR00020 Dixie Golden Giant
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_091_SZAXPI009325-56	S.lyc EA01037 Giant Belgium
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_093_SZAXPI009353-36	S.lyc TR00021 Kentucky Beefsteak
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_094_SZAXPI008750-57	S.lyc TR00022 Marmande
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_096_SZAXPI009354-37	S.lyc TR00023 Thessaloniki
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_097_SZAXPI009355-39	S.lyc EA01640 Watermelon beefsteak
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_102_SZAXPI009356-41	S.lyc LA4133 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_103_SZAXPI009357-44	S.lyc LA1421 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_104_SZAXPI008751-74	S.gal LA1044 
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/reseq/RF_105_SZAXPI009358-45	S.lyc LA1479 
+
+# RIL	
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/601	RIL 601
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/603	RIL 603
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/608	RIL 608
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/609	RIL 609
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/610	RIL 610
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/611	RIL 611
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/612	RIL 612
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/614	RIL 614
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/615	RIL 615
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/618	RIL 618
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/619	RIL 619
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/622	RIL 622
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/623	RIL 623
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/624	RIL 624
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/625	RIL 625
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/626	RIL 626
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/630	RIL 630
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/631	RIL 631
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/634	RIL 634
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/639	RIL 639
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/643	RIL 643
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/644	RIL 644
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/646	RIL 646
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/648	RIL 648
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/649	RIL 649
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/651	RIL 651
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/653	RIL 653
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/654	RIL 654
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/656	RIL 656
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/658	RIL 658
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/659	RIL 659
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/660	RIL 660
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/665	RIL 665
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/666	RIL 666
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/667	RIL 667
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/668	RIL 668
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/669	RIL 669
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/670	RIL 670
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/674	RIL 674
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/675	RIL 675
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/676	RIL 676
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/678	RIL 678
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/679	RIL 679
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/682	RIL 682
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/684	RIL 684
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/685	RIL 685
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/688	RIL 688
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/691	RIL 691
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/692	RIL 692
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/693	RIL 693
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/694	RIL 694
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/696	RIL 696
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/697	RIL 697
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/701	RIL 701
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/702	RIL 702
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/705	RIL 705
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/706	RIL 706
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/707	RIL 707
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/710	RIL 710
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/711	RIL 711
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/ril/Spimpinelifolium_CGN14498.bam.filtered.bam.dedup	Spimpinelifolium CGN14498 raw
+	
+# ANIMALS
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Bos_taurus.fasta	Bos taurus
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Caenorhabditis_elegans.fasta	Caenorhabditis elegans
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Canis_familiaris.fasta	Canis familiaris
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Canis_lupus_familiaris.fasta	Canis lupus familiaris
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Danio_rerio.fasta	Danio rerio
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Equus_caballus.fasta	Equus caballus
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Gallus_gallus.fasta	Gallus gallus
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Gorilla_gorilla.fasta	Gorilla gorilla
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/H_sapiens.fasta	Homo sapiens
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Macaca_fascicularis.fasta	Macaca fascicularis
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Macaca_mulatta.fasta	Macaca mulatta
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Mus_musculus.fasta	Mus musculus
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Pan_troglodytes.fasta	Pan troglodytes
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Animals/Rattus_norvegicus.fasta	Rattus norvegicus
+
+# FUNGI
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_fumigatus_uid14003.fasta	Aspergillus fumigatus uid14003
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_nidulans_FGSC_A4_uid13961.fasta	Aspergillus nidulans FGSC A4 uid13961
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_niger_CBS_513_88_uid19263.fasta	Aspergillus niger CBS 513 88 uid19263
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Aspergillus_oryzae_RIB40_uid28175.fasta	Aspergillus oryzae RIB40 uid28175
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_albicans_uid14005.fasta	Candida albicans uid14005
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_dubliniensis_CD36_uid38659.fasta	Candida dubliniensis CD36 uid38659
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_glabrata_CBS138_uid12376.fasta	Candida glabrata CBS138 uid12376
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Candida_glabrata.fasta	Candida glabrata
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Cryptococcus_gattii_WM276.fasta	Cryptococcus gattii WM276
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Cryptococcus_neoformans_var_JEC21_uid10698.fasta	Cryptococcus neoformans var JEC21 uid10698
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Kluyveromyces_lactis_NRRL_Y-1140_uid12377.fasta	Kluyveromyces lactis NRRL Y-1140 uid12377
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Neurospora_crassa_uid132.fasta	Neurospora crassa uid132
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Saccharomyces_cerevisiae_uid128.fasta	Saccharomyces cerevisiae uid128
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Schizosaccharomyces_pombe_uid127.fasta	Schizosaccharomyces pombe uid127
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Yarrowia_lipolytica_CLIB122_uid12414.fasta	Yarrowia lipolytica CLIB122 uid12414
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Fungi/Zygosaccharomyces_rouxii_CBS_732_uid39573.fasta	Zygosaccharomyces rouxii CBS 732 uid39573
+	
+# INSECTS
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Insects/Apis_mellifera.fasta	Apis mellifera
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Insects/Drosophila_melanogaster.fasta	Drosophila melanogaster
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Malus_domestica.fasta	Malus domestica
+
+# PLANTS
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_lyrata.fasta	Arabidopsis lyrata
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Arabidopsis_thaliana_TAIR10_genome.fas	Arabidopsis thaliana TAIR10
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Citrus_sinensis.fasta	Citrus sinensis
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Glycine_max.fasta	Glycine max
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Nicotiana_benthamiana_Niben.genome.v0.4.4.scaffolds.nrcontigs.fasta	Nicotiana benthamiana Niben v0.4.4
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Nicotiana_tabacum_tobacco_genome_sequences_assembly.fasta	Nicotiana tabacum tobacco
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Oryza_brachyantha.fasta	Oryza brachyantha
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Oryza_sativa_build_5.00_IRGSPb5.fa	Oryza sativa v5.00
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Populus_trichocarpa.fasta	Populus trichocarpa
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/S_lycopersicum_chromosomes.2.40.fa	S lycopersicum v2.40
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Solanum_peruvianum_Speru_denovo.fa	Solanum peruvianum
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Solanum_tuberosum_PGSC_DM_v3_superscaffolds.fasta	Solanum tuberosum DM v3
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Spimpinellifolium_genome.contigs.fasta	Solanum pimpinellifolium
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Vitis_vinifera_Genoscope_12X_2010_02_12_scaffolds.fa	Vitis vinifera
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/Plants/Zea_mays.fasta	Zea mays
+	
+# RNA
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Antirrhinum_majus_EST_cAMwp.seq	Antirrhinum majus EST cAMwp
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Bos_mutus_RNA.fa	Bos mutus RNA
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Capsicum_annuum_EST_KS01.seq	Capsicum annuum EST KS01
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Coffea_canephora_var_robusta_EST_cccwc22w.seq	Coffea canephora var robusta EST
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Hedyotis_centranthoides_EST.seq	Hedyotis centranthoides EST
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Hedyotis_terminalis_EST.seq	Hedyotis terminalis EST
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/ipomoea_batatas_mRNA_2008_08_15.seq.fasta	Ipomoea batatas mRNA 2008
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/nicotiana_benthamiana_mRNA_2008_08_25.seq.fasta	Nicotiana benthamiana mRNA
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/nicotiana_sylvestris_mRNA_2008_08_25.seq.fasta	Nicotiana sylvestris mRNA
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/nicotiana_tabacum_mRNA_2008_07_14.seq.fasta	Nicotiana tabacum mRNA 2008
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Nicotiana_tabacum_mRNA.fasta	Nicotiana tabacum mRNA
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Petunia_hybrida_EST_cPHA.seq	Petunia hybrida EST
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_cheesmaniae_EST.seq	Solanum cheesmaniae EST
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_habrochaites_EST_cLHT.seq	Solanum habrochaites EST cLHT
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_habrochaites_EST_LH_Ea.seq	Solanum habrochaites EST LH Ea
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_lycopersicoides_EST.seq	Solanum lycopersicoides EST
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/solanum_lycopersicum_mRNA_2008_10_21.seq	Solanum lycopersicum mRNA
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_peruvianum_CSH_transcriptome.fasta	Solanum peruvianum CSH RNAseq
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_melongena_EST.seq	Solanum melongena EST
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_pennellii_EST_cLPT.seq	Solanum pennellii EST cLPT
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_peruvianum_EST.seq	Solanum peruvianum EST
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/Solanum_pimpinellifolium_EST.seq	Solanum pimpinellifolium EST
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/rna/tomato_species_2008_10_21.seq	Tomato species
+
+# NEW
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Acyrthosiphon_pisum.fasta	Acyrthosiphon pisum
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Anas_platyrhynchos.fasta	Anas platyrhynchos
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Apis_dorsata.fasta	Apis dorsata
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Apis_florea.fasta	Apis florea
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Bombyx_mori.fasta	Bombyx mori
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Columba_livia.fasta	Columba livia
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Corvus_brachyrhynchos.fasta	Corvus brachyrhynchos
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Corvus_cornix_cornix.fasta	Corvus cornix cornix
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_ananassae.fasta	Drosophila ananassae
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_erecta.fasta	Drosophila erecta
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_grimshawi.fasta	Drosophila grimshawi
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_mojavensis.fasta	Drosophila mojavensis
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_persimilis.fasta	Drosophila persimilis
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_pseudoobscura.fasta	Drosophila pseudoobscura
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_sechellia.fasta	Drosophila sechellia
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_simulans.fasta	Drosophila simulans
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_virilis.fasta	Drosophila virilis
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_willistoni.fasta	Drosophila willistoni
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Drosophila_yakuba.fasta	Drosophila yakuba
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Falco_cherrug.fasta	Falco cherrug
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Falco_peregrinus.fasta	Falco peregrinus
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Geospiza_fortis.fasta	Geospiza fortis
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Meleagris_gallopavo.fasta	Meleagris gallopavo
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Melopsittacus_undulatus.fasta	Melopsittacus undulatus
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Nasonia_vitripennis.fasta	Nasonia vitripennis
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Serinus_canaria.fasta	Serinus canaria
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Struthio_camelus_australis.fasta	Struthio camelus australis
+/mnt/scratch/aflit001/nobackup/phylogenomics_raw/external/new/Tribolium_castaneum.fasta	Tribolium castaneum

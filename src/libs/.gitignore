@@ -4,7 +4,16 @@
 #*.Plo
 *.lo
 *.la
+*.o
+*.log
 .dirstamp
 */.deps/*
 */.libs/*
 jellyfish-2.1.3/bin
+rapidjson/example/
+rapidjson/test/
+threadpool/libs/threadpool/example/mergesort/mergesort.cpp
+threadpool/libs/threadpool/quickstart/quickstart.cpp
+threadpool/libs/threadpool/test/
+threadpool/libs/threadpool/tutorial/tutorial.cpp
+
