@@ -399,7 +399,7 @@ class reader(object):
             self.next            = self.nextMatrix
         
         elif self.filetype == "cnidaria/json_matrix"  :
-            self.getSize         = self.getSizeMatrix
+            self.getSize         = self.getSizeBytesMatrix
             self.getAll          = self.getAllJsonMatrix
             self.next            = self.nextJsonMatrix
         
