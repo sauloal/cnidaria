@@ -1,5 +1,8 @@
 KMER_SIZE=21
 #GEN_DEBUG=false
+#GEN_SHARED=false
+
+
 
 SRC_LZZ=src_lzz
 SRC_CPP=src_cpp
@@ -20,6 +23,7 @@ cnidaria.lzz
 ifdef GEN_DEBUG
 SRCS+= cnidaria_debug.lzz
 endif
+
 
 
 
@@ -63,9 +67,15 @@ CPP_INCL= \
 		-I/usr/include/python2.7
 
 
+
+ifdef GEN_SHARED
 CPP_LIBS=-L/usr/lib/x86_64-linux-gnu -fopenmp -lboost_system -lboost_filesystem -lboost_thread -lpthread
+else
 CPP_LIBS=-fopenmp -Wl,-rpath,'$$ORIGIN/static' static/*.so 
 #-Wl,--dynamic-linker=static/ld-2.19.so 
+endif
+
+
 
 CPP_VARS=-DKMER_SIZE=$(KMER_SIZE)
 CPP_VARS=
@@ -80,10 +90,13 @@ LDD_OPTS=
 
 CFLAGS=''
 LDFLAGS=''
+ifdef GEN_SHARED
 LD_LIBRARY_PATH=''
 LD_LIBRARY_PATH=$(PWD)/static/
 LIBRARY_PATH=''
 LIBRARY_PATH=$(PWD)/static/
+endif
+
 
 
 JELLY_LIB=$(LIB_EXT)/Jellyfish/lib
@@ -164,8 +177,12 @@ cnidaria: $(UNIFIED)
 
 
 
+
+
 $(COMPLETE): $(OPPS) $(J_OBJ) $(SRC_OBJ)/cnidariapy_wrap.o
 	ar crf $@ $^
+
+
 
 
 .PHONY: swig
