@@ -1,8 +1,18 @@
-language: cpp
+language:
+    - cpp
+    - python
+
+python:
+    - "2.7"
 
 compiler: gcc
 
 sudo: required
+
+env:
+    matrix:
+        - TEST_TARGET='DOWNLOAD'
+        - TEST_TARGET='ANALYSIS'
 
 before_install:
   - sudo apt-add-repository ppa:boost-latest -y
@@ -25,4 +35,4 @@ install:
 
 script:
   - scripts/cnidaria.py -h
-  - make test
+  - .travis.sh
