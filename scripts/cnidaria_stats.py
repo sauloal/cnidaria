@@ -497,9 +497,18 @@ def dissi2dissimatrix(dissi, stats):
 
 
 def fixTitles( titles, stats ):
-    print sorted(stats.speciesPosition.keys())
-    print titles
-    for fname in stats.speciesPosition:
+    print "tree species"
+    print "\t",
+    print "\n\t".join( sorted(stats.speciesPosition.keys()) )
+    print
+    print "file names"
+    print "\t",
+    print "\n\t".join( [ "%s:%s" % (x, titles[x]) for x in sorted(titles) ] )
+    print
+    foundnames = []
+
+    for fname in sorted(stats.speciesPosition):
+        found = False
         for tname in titles:
             if tname in fname:
                 fnewname = titles[ tname ]
@@ -508,6 +517,13 @@ def fixTitles( titles, stats ):
                 stats.speciesNames[          pos      ] = fnewname
                 stats.speciesPosition[       fnewname ] = pos
                 del stats.speciesPosition[   fname    ]
+                found = True
+                break
+
+        if found:
+            continue
+
+        print "tree name", fname, "not present to rename"
 
 
 def exportMatrices(infile, matrices, stats):
