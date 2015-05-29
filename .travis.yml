@@ -9,11 +9,6 @@ compiler: gcc
 
 sudo: required
 
-env:
-    matrix:
-        - TEST_TARGET='DOWNLOAD'
-        - TEST_TARGET='ANALYSIS'
-
 before_install:
   - sudo apt-add-repository ppa:boost-latest -y
   - sudo apt-add-repository ppa:mapnik/boost-backports-1-54 -y
@@ -35,4 +30,6 @@ install:
 
 script:
   - scripts/cnidaria.py -h
-  - .travis.sh
+  - make -c test out/Makefile
+  - make -c test out/test/test.json
+
