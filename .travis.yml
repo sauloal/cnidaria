@@ -22,7 +22,6 @@ before_install:
 
 install:
   - GEN_SHARED=true make cnidaria
-  - make jellyfish
 
 script:
   - ./cnidaria.py -h

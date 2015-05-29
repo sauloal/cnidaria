@@ -6,9 +6,8 @@ clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C test clean
     
-
 cnidaria:
-	$(MAKE) -C src
+	$(MAKE) -C src build
 
 jellyfish:
 	$(MAKE) -C src jelly
