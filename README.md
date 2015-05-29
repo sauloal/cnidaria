@@ -22,3 +22,4 @@ Contact: sauloal@gmail.com
 
 Supplementary information: Supplementary data are available at 
 
+Manua: https://sauloal.github.io/cnidaria/
