@@ -2,5 +2,6 @@
 easy_install --user ete2
 easy_install --user hcluster
 easy_install --user bitarray
+easy_install --user simplejson
 
 
