@@ -30,6 +30,6 @@ install:
 
 script:
   - scripts/cnidaria.py -h
-  - make -c test out/Makefile
-  - make -c test out/test/test.json
+  - make -C test out/Makefile
+  - make -C test out/test/test.json
 
