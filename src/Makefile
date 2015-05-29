@@ -64,7 +64,8 @@ CPP_INCL= \
 
 
 CPP_LIBS=-L/usr/lib/x86_64-linux-gnu -fopenmp -lboost_system -lboost_filesystem -lboost_thread -lpthread
-CPP_LIBS=-fopenmp -Wl,-rpath,'$$ORIGIN/static' static/*.so
+CPP_LIBS=-fopenmp -Wl,-rpath,'$$ORIGIN/static' static/*.so 
+#-Wl,--dynamic-linker=static/ld-2.19.so 
 
 CPP_VARS=-DKMER_SIZE=$(KMER_SIZE)
 CPP_VARS=
