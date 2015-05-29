@@ -21,14 +21,9 @@ before_install:
   - sed -i 's/TIME_UTC/TIME_UTC_/' src/libs/threadpool/boost/./threadpool/./detail/../task_adaptors.hpp
 
 install:
-  - cd src
-  - make clean
-  - make all
-  - cd libs/jellyfish-2.1.3
-  - ./configure
-  - make
-  - cd ../..
-  - cd ../scripts
+  - GEN_SHARED=true make cnidaria
+  - make jellyfish
 
 script:
   - ./cnidaria.py -h
+  - make test

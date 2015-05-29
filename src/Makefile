@@ -120,9 +120,9 @@ HEADERS=$(LIB_SRC)/*.hpp $(LIB_SRC)/*.h $(LIB_SRC)/*.cpp
 .PHONY: all clean
 
 ifdef GEN_DEBUG
-all: cnidaria build
+all: cnidaria build jelly
 else
-all: build
+all: build jelly
 endif
 
 clean: clean_swig
@@ -207,10 +207,14 @@ _cnidariapy.so: $(COMPLETE)
 cnidariapy.py: _cnidariapy.so
 	cp $(SRC_CPP)/cnidariapy.py cnidariapy.py
 
+
+
 .PHONY: jelly
 jelly:
 	$(MAKE) -C $(LIB_EXT)/Jellyfish
 	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static
+
+
 
 
 .PHONY: build
@@ -225,10 +229,15 @@ build: cnidariapy.py _cnidariapy.so
 run: cnidaria
 	./cnidaria | tee cnidaria.log
 
+
+
+
 .PHONY: python
 python:
 	rm -rf build/ || true
 	python setup.py build
+
+
 
 
 #.PHONY: jelly
