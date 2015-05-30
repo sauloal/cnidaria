@@ -31,6 +31,6 @@ install:
 script:
   - scripts/cnidaria.py -h
   - make -C test fastas
-  - make -C test jfs
+  - SAMPLEDATA=true make -C test jfs
   - make -C test json
 

@@ -68,9 +68,13 @@ fastas: $(INFA)
 $(INFA): 
 	cd $(DATAFOLDER) && tar xvf $(INXZ) --keep-newer-files
 
+ifdef SAMPLEDATA
+$(DATAFOLDER)/%.fasta.$(KMER_SIZE).jf: $(DATAFOLDER)/%.fasta
+	test -f $@ || ( cd $(DATAFOLDER) && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) -t 5 -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(head 100000 $?) && mv $@.tmp $@ )
+else
 $(DATAFOLDER)/%.fasta.$(KMER_SIZE).jf: $(DATAFOLDER)/%.fasta
 	test -f $@ || ( cd $(DATAFOLDER) && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) -t 5 -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
-
+endif
 
 $(OUT_MAKE): $(FILE_LIST) $(DEF_FILE)
 	../scripts/gen_mkfile.py $(FILE_LIST) $(DEF_FILE) $(OUT_DIR) $(KMER_SIZE) $(NUM_PIECES)
