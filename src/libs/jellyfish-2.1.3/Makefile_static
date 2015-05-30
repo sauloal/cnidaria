@@ -7,3 +7,8 @@ bin/jellyfish_exe:
 	ln -s jellyfish bin/jellyfish_exe
 	cp -ar .libs/* bin/.libs/
 
+.PHONY: config
+
+config:
+	@#$(MAKE) clean
+	./configure
