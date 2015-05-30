@@ -4,6 +4,8 @@ CNIDARIA: fast, reference-free phylogenomic clustering
 
 Manual & Wiki: https://github.com/sauloal/cnidaria/wiki
 
+Instalation: INSTALL.md
+
 Motivation: Identification of biological specimens is a major requirement 
 for a range of applications. Reference-free methods analyse unprocessed 
 sequencing data without relying on prior knowledge, but these do not scale 
@@ -16,10 +18,8 @@ transcriptomic datasets from 4 kingdoms, achieving 100% accuracy at
 supra-species level and 78% accuracy for species level.
 
 Availability and Implementation: Cnidaria is written in C++ and Python and 
-is available at http://www.ab.wur.nl/cnidaria.
+is available at http://www.ab.wur.nl/cnidaria
 
 Contact: sauloal@gmail.com
 
-Supplementary information: Supplementary data are available at 
-
-Manua: https://sauloal.github.io/cnidaria/
+Manual: https://sauloal.github.io/cnidaria/
