@@ -1,0 +1,17 @@
+*.fasta
+./Aspergillus_fumigatus_uid14003
+./Aspergillus_nidulans_FGSC_A4_uid13961
+./Aspergillus_niger_CBS_513_88_uid19263
+./Aspergillus_oryzae_RIB40_uid28175
+./Candida_dubliniensis_CD36_uid38659
+./Candida_glabrata_CBS138_uid12376
+./Candida_glabrata
+./Cryptococcus_gattii_WM276
+./Cryptococcus_neoformans_var_JEC21_uid10698
+./Kluyveromyces_lactis_NRRL_Y-1140_uid12377
+./Neurospora_crassa_uid132
+./Saccharomyces_cerevisiae_uid128
+./Schizosaccharomyces_pombe_uid127
+./Yarrowia_lipolytica_CLIB122_uid12414
+./Zygosaccharomyces_rouxii_CBS_732_uid39573
+

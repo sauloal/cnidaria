@@ -20,6 +20,8 @@ OUT_FILE=$(OUT_DIR)/test/test.json
 
 INSH=$(wildcard $(DATAFOLDER)/*.sh)
 
+INXZ=$(DATAFOLDER)/datafa.tar.xz
+
 INFA=$(patsubst %.sh,%.fasta,$(INSH))
 
 INJF=$(patsubst %.sh,%.fasta.$(KMER_SIZE).jf,$(INSH))
@@ -51,12 +53,23 @@ print:
 	@echo INJF       $(INJF)
 
 
-$(DATAFOLDER)/%.fasta: $(DATAFOLDER)/%.sh
-	cd $(DATAFOLDER) && bash $? && test -e $@
+.PHONY: json makefile fastas jfs
 
+json: $(OUT_FILE)
+
+jfs: $(INJF)
+
+fastas: $(INFA)
+
+
+#$(DATAFOLDER)/%.fasta: $(DATAFOLDER)/%.sh
+#	test -f $@ || ( cd $(DATAFOLDER) && bash $? && test -e $@ )
+
+fastas: 
+	cd $(DATAFOLDER) && tar xvf $(INXZ) --keep-newer-files
 
 $(DATAFOLDER)/%.fasta.$(KMER_SIZE).jf: $(DATAFOLDER)/%.fasta
-	cd $(DATAFOLDER) && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) -t 5 -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ 
+	test -f $@ || ( cd $(DATAFOLDER) && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) -t 5 -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
 
 
 $(OUT_MAKE): $(FILE_LIST) $(DEF_FILE)
