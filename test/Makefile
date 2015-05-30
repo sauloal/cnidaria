@@ -65,7 +65,7 @@ fastas: $(INFA)
 #$(DATAFOLDER)/%.fasta: $(DATAFOLDER)/%.sh
 #	test -f $@ || ( cd $(DATAFOLDER) && bash $? && test -e $@ )
 
-fastas: 
+$(INFA): 
 	cd $(DATAFOLDER) && tar xvf $(INXZ) --keep-newer-files
 
 $(DATAFOLDER)/%.fasta.$(KMER_SIZE).jf: $(DATAFOLDER)/%.fasta
