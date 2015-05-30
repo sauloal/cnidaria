@@ -1,22 +1,16 @@
 #!/bin/bash
 
-#find . -name "*.fa" -o -name "*.fasta" -o -name "*.fas" -o -name "*.seq" | sort | xargs -P 5 -n 1 ./fasta2jf.sh
+#find . -name "*.fa" -o -name "*.fasta" -o -name "*.fas" -o -name "*.seq" | sort | xargs -P 5 -n 1 jf_from_fasta.sh
 
 
 set -xeu
 
 INFILE=$1
 
-source jopts
+SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source ${SCRIPT_PATH}/jf_opts
 
 JF=$INFILE.$MER_SIZE.jf
-#JELLYFISH=/home/aflit001/dev/phylogenomics2/jellyfish
-#MER_SIZE=31
-#HASH_SIZE=100000
-#COUNTER_LEN=1
-#OUT_COUNTER_LEN=1
-
-source jopts
 
 if [[ ! -f "${JF}" ]]; then
     echo "CONVERTING $INFILE TO ${JF}"

@@ -9,6 +9,7 @@
 .dirstamp
 */.deps/*
 */.libs/*
+compat.sh
 jellyfish-2.1.3/bin
 rapidjson/example/
 rapidjson/test/

@@ -1,21 +1,15 @@
 #!/bin/bash
 
-#find . -name '*.bam' | sort | xargs -P 5 -n 1 ./bam2jf.sh
+#find . -name '*.cram' | sort | xargs -P 5 -n 1 jf_from_cram.sh
 
 set -xeu
 
 INFILE=$1
 
-source jopts
+SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source ${SCRIPT_PATH}/jf_opts
 
 JF=$INFILE.$MER_SIZE.jf
-#JELLYFISH=/home/aflit001/dev/phylogenomics2/jellyfish
-#MER_SIZE=31
-#HASH_SIZE=4G
-#COUNTER_LEN=1
-#OUT_COUNTER_LEN=1
-
-source jopts
 
 if [[ ! -f "${JF}" ]]; then
     echo "CONVERTING $INFILE TO ${JF}"
