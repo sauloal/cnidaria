@@ -9,6 +9,11 @@ NUM_PIECES=1
 
 JELLYFISH=$(CURR_DIR)/../src/libs/Jellyfish/bin/jellyfish
 HASH_SIZE=1G
+
+ifdef SAMPLEDATA
+HASH_SIZE=512M
+endif
+
 COUNTER_LEN=7
 OUT_COUNTER_LEN=1
 #JCMD="${JELLYFISH} count -m ${MER_SIZE} -s ${HASH_SIZE} -t 5 -F 300 --disk --counter-len=${COUNTER_LEN} --out-counter-len=${OUT_COUNTER_LEN} --canonical"
