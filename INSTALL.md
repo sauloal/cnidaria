@@ -1,8 +1,15 @@
 #Before running
+#Install system requirements (requires root access)
 <pre>
 sudo bash INSTALL.1.python_system_requirements
+</pre>
+
+#Install python requirements
+<pre>
 bash      INSTALL.2.python_requirements
 </pre>
+
+
 
 #Running
 ##Environment
@@ -19,13 +26,15 @@ echo "export PATH=$PWD/scripts:$PATH" >> ~/.bashrc
 </pre>
     
 
-#Compiling
-##For compiling (if necessary) - Ubuntu 14+
+
+#Compiling (only if necessary - requires root access)
+##Before compiling
+### Ubuntu 14+
 <pre>
 sudo bash INSTALL.3.system_compile_requirements
 </pre>
 
-##For compiling (if necessary) - Ubuntu 12
+### Ubuntu 12
 <pre>
 sudo bash INSTALL.3.system_compile_requirements_ubuntu_12.04
 </pre>

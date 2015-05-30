@@ -1,6 +1,7 @@
 #intall system wide libraries
 apt-get update
-apt-get install -y python python-setuptools python-numpy python-pandas python-matplotlib python-cogent python-imaging python-qt4 python-pip python-lxml
+apt-get install -y python python-setuptools python-qt4 python-pip python-lxml
+apt-get install -y python python-numpy python-pandas python-matplotlib python-cogent python-imaging
 #python-mpi4py
 
 
