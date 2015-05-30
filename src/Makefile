@@ -211,6 +211,7 @@ cnidariapy.py: _cnidariapy.so
 
 .PHONY: jelly
 jelly:
+    cd $(LIB_EXT)/Jellyfish && ./configure
 	$(MAKE) -C $(LIB_EXT)/Jellyfish
 	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static
 

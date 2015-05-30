@@ -14,6 +14,13 @@ ifdef SAMPLEDATA
 HASH_SIZE=512M
 endif
 
+ifdef NOIMAGE
+DOIMAGE="--no-gen-image"
+else
+DOIMAGE=""
+endif
+
+
 COUNTER_LEN=7
 OUT_COUNTER_LEN=1
 #JCMD="${JELLYFISH} count -m ${MER_SIZE} -s ${HASH_SIZE} -t 5 -F 300 --disk --counter-len=${COUNTER_LEN} --out-counter-len=${OUT_COUNTER_LEN} --canonical"
@@ -82,9 +89,9 @@ $(DATAFOLDER)/%.fasta.$(KMER_SIZE).jf: $(DATAFOLDER)/%.fasta
 	test -f $@ || ( cd $(DATAFOLDER) && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) -t 5 -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
 endif
 
-$(OUT_MAKE): $(FILE_LIST) $(DEF_FILE)
-	../scripts/gen_mkfile.py $(FILE_LIST) $(DEF_FILE) $(OUT_DIR) $(KMER_SIZE) $(NUM_PIECES)
 
+$(OUT_MAKE): $(FILE_LIST) $(DEF_FILE)
+	../scripts/gen_mkfile.py $(FILE_LIST) $(DEF_FILE) $(OUT_DIR) $(KMER_SIZE) $(NUM_PIECES) $(DOIMAGE)
 
 $(OUT_FILE): $(OUT_MAKE) $(INJF)
 	$(MAKE) -C $(OUT_DIR)/test

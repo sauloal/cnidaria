@@ -40,6 +40,7 @@ def main():
     parser.add_argument('-nm'    , '-nomerge' , '--do-not-merge'    , dest='do_merge'       ,                                              action='store_false', help='Do not merge')
     parser.add_argument('-ec'    , '-complete', '--export-complete' , dest='export_complete',                                              action='store_true' , help='Export COMPLETE database')
     parser.add_argument('-nem'   , '-nomatrix', '--no-export-matrix', dest='export_matrix'  ,                                              action='store_false', help='DO NOT Export MATRIX database')
+    parser.add_argument('-nimg'  , '-noimage' , '--no-gen-image'    , dest='gen_image'      ,                                              action='store_false', help='DO NOT Generage PNG images')
 
     args = parser.parse_args()
     
@@ -262,7 +263,7 @@ def gen_global( args ):
         print "creating project", proj_name
         p_out_dir = os.path.join(out_dir, proj_name)
         infiles   = projs[ proj_name ]
-        gen_local( file_list, kmer_size, num_pieces, p_out_dir, defs, proj_name, infiles, cnidaria_opts, export_complete )
+        gen_local( file_list, kmer_size, num_pieces, p_out_dir, defs, proj_name, infiles, cnidaria_opts, export_complete, args )
     
 def sort_projs(defs, projs):
     ordered   = []
@@ -296,7 +297,7 @@ def sort_projs(defs, projs):
     print  "oredered", ordered
     return ordered
 
-def gen_local( file_list, kmer_size, num_pieces, out_dir, defs, proj_name, infiles, cnidaria_opts, export_complete ):
+def gen_local( file_list, kmer_size, num_pieces, out_dir, defs, proj_name, infiles, cnidaria_opts, export_complete, args ):
     out_file   = os.path.join(    out_dir, "Makefile" )
 
     if not os.path.exists(out_dir):
@@ -369,8 +370,13 @@ INFILES=%(infiles)s
 
 
 
+    if args.gen_image:
+        makefile.append("all: %(out_ok)s %(all_csv)s %(out_png)s\n\n" % gdata )
 
-    makefile.append("all: %(out_ok)s %(all_csv)s %(out_png)s\n\n" % gdata )
+    else:
+        makefile.append("all: %(out_ok)s %(all_csv)s\n\n" % gdata )
+
+
 
     makefile.append("clean:\n\trm %(out_dir)s/test* %(all_csv)s || true\n\n" % gdata )
 
