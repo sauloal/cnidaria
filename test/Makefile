@@ -17,7 +17,7 @@ endif
 ifdef NOIMAGE
 DOIMAGE="--no-gen-image"
 else
-DOIMAGE=""
+DOIMAGE=
 endif
 
 
@@ -65,9 +65,11 @@ print:
 	@echo INJF       $(INJF)
 
 
-.PHONY: json makefile fastas jfs
+.PHONY: json makefile fastas maker jfs
 
 json: $(OUT_FILE)
+
+maker: $(OUT_MAKE)
 
 jfs: $(INJF)
 

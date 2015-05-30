@@ -26,11 +26,12 @@ before_install:
   - sed -i 's/TIME_UTC/TIME_UTC_/' src/libs/threadpool/boost/./threadpool/./detail/../task_adaptors.hpp
 
 install:
-  - GEN_SHARED=true NOIMAGE=true make cnidaria
+  - GEN_SHARED=true make cnidaria
 
 script:
   - scripts/cnidaria.py -h
   - make -C test fastas
-  - SAMPLEDATA=true make -C test jfs
+  - SAMPLEDATA=true NOIMAGE=true make -C test jfs
+  - SAMPLEDATA=true NOIMAGE=true make -C test maker
   - make -C test/out/test/ $PWD/test/out/test/test.all.csv
 
