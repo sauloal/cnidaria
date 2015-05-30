@@ -77,6 +77,8 @@ fastas: $(INFA)
 #$(DATAFOLDER)/%.fasta: $(DATAFOLDER)/%.sh
 #	test -f $@ || ( cd $(DATAFOLDER) && bash $? && test -e $@ )
 
+
+
 $(INFA): 
 	cd $(DATAFOLDER) && tar xvf $(INXZ) --keep-newer-files
 
