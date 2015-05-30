@@ -33,9 +33,9 @@ def main():
     parser.add_argument('kmer_size' , type=int, help='kmer size'             )
     parser.add_argument('num_pieces', type=int, help='number of pieces'      )
     
-    parser.add_argument('-thr'   ,              '--threads'         , dest='num_threads'    , default=1            , type=int , nargs='?', help='Number of threads. Not compatible with COMPLETE')
-    parser.add_argument('-min'   ,              '--minval'          , dest='minVal'         , default=2            , type=int , nargs='?', help='Minimum number of shared species to start counting')
-    parser.add_argument('-se'    ,              '--save-every'      , dest='save_every'     , default=1            , type=int , nargs='?', help='Count every N k-mers. Speeds analysis while skipping data')
+    parser.add_argument('-thr'   ,              '--threads'         , dest='num_threads'    , default=1            , type=int , nargs='?',                       help='Number of threads. Not compatible with COMPLETE')
+    parser.add_argument('-min'   ,              '--minval'          , dest='minVal'         , default=2            , type=int , nargs='?',                       help='Minimum number of shared species to start counting')
+    parser.add_argument('-se'    ,              '--save-every'      , dest='save_every'     , default=1            , type=int , nargs='?',                       help='Count every N k-mers. Speeds analysis while skipping data')
     parser.add_argument('-me'    , '-merge'   , '--merge-only'      , dest='merge_only'     ,                                              action='store_true' , help='Merge only')
     parser.add_argument('-nm'    , '-nomerge' , '--do-not-merge'    , dest='do_merge'       ,                                              action='store_false', help='Do not merge')
     parser.add_argument('-ec'    , '-complete', '--export-complete' , dest='export_complete',                                              action='store_true' , help='Export COMPLETE database')
@@ -189,15 +189,15 @@ def gen_global( args ):
         "verify_csvs_exe"   : os.path.join( EXE_DIR, "verify_csvs.py"   ),
         "cnidaria_stats_exe": os.path.join( EXE_DIR, "cnidaria_stats.py"),
 
-        "file_list"        : file_list ,  #"/home/aflit001/dev/phylogenomics4/analysis/data/filelist.csv",
-        "def_file"         : def_file  ,  #"/home/aflit001/dev/phylogenomics4/analysis/data/filelist.csv",
-        "kmer_size"        : kmer_size ,
-        "num_pieces"       : num_pieces,
-        "out_dir"          : out_dir   ,  #"/home/aflit001/nobackup/phylogenomics_tmp",
+        "file_list"         : file_list ,  #"/home/aflit001/dev/phylogenomics4/analysis/data/filelist.csv",
+        "def_file"          : def_file  ,  #"/home/aflit001/dev/phylogenomics4/analysis/data/filelist.csv",
+        "kmer_size"         : kmer_size ,
+        "num_pieces"        : num_pieces,
+        "out_dir"           : out_dir   ,  #"/home/aflit001/nobackup/phylogenomics_tmp",
 
-        "_reqs"            : {},
-        "_verify"          : [],
-        "_projs"           : {},
+        "_reqs"             : {},
+        "_verify"           : [],
+        "_projs"            : {},
     }
 
     if not os.path.exists( defs["cnidaria_exe"] ):
