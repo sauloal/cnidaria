@@ -1,4 +1,9 @@
 #install python libraries
+#globally (preferred method)
+set -xeu
+
+sudo apt-get install -y python-numpy python-pandas python-matplotlib python-cogent
+
 easy_install --user ete2
 easy_install --user hcluster
 easy_install --user bitarray

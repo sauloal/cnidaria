@@ -1,10 +1,10 @@
 numpy
 cogent
-matplotlib
 pandas
 hcluster
 simplejson
 ete2
 bitarray
-imaging
-PyQt
+matplotlib
+#imaging
+#PyQt4
