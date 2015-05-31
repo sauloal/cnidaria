@@ -1,5 +1,5 @@
 #Summary:
-##To the impatient:
+##For the impatient:
 <pre>
 	bash INSTALL.1.python_system_requirements
 	bash INSTALL.2.python_requirements_globally
@@ -12,7 +12,7 @@
 <pre>
 bash INSTALL.3.system_compile_requirements_ubuntu_12.04
 bash INSTALL.4.compile
-<pre>
+</pre>
 
 ##To recompile on Ubuntu 14 (if you feel adventurous):
 <pre>
@@ -21,7 +21,7 @@ bash INSTALL.4.compile
 </pre>
 
 
-#For the pacient:
+#For the patient:
 ##Before running
 ###Install system requirements (compulsory: requires root access)
 <pre>
