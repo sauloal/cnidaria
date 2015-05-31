@@ -1,0 +1,3 @@
+[console_scripts]
+ete = ete2.tools.ete:main
+

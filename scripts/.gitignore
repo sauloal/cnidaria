@@ -1,2 +1,10 @@
 *.pyc
 *.pyo
+venv/lib/python2.7/site-packages/matplotlib/tests/*
+venv/lib/python2.7/site-packages/matplotlib/mpl-data/sample_data/*
+venv/lib/python2.7/site-packages/matplotlib/tests/baseline_images/test_axes/*
+venv/lib/python2.7/site-packages/mpl_toolkits/tests/*
+venv/lib/python2.7/site-packages/pandas/io/tests/*
+venv/lib/python2.7/site-packages/pandas/tests/*
+venv/lib/python2.7/site-packages/simplejson/tests/*
+venv/lib/python2.7/site-packages/wheel/test/*
