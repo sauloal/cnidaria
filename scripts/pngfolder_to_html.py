@@ -1,7 +1,13 @@
 #!/usr/bin/python
 import sys, os
 import math
-import Image
+
+import reloader
+
+try:
+	import Image
+except ImportError:
+	import PIL.Image as Image
 
 numcols     = 3
 numrows     = 2

@@ -8,10 +8,18 @@ import tempfile
 import reloader
 
 from   ete2 import Tree
-import Image
-import ImageFont
-import ImageDraw
-import ImageMath
+try:
+	import Image
+	import ImageFont
+	import ImageDraw
+	import ImageMath
+except ImportError:
+	import PIL
+	import PIL.Image     as Image
+	import PIL.ImageFont as ImageFont
+	import PIL.ImageDraw as ImageDraw
+	import PIL.ImageMath as ImageMath
+
 
 #ls trees/*.tree | xargs -I{} -P 20 bash -c 'echo {};  ./newick_to_png.py {} pimp_problems.lst; ./newick_to_png.py {} cherry.lst;'
 
