@@ -2,13 +2,16 @@
 
 import sys
 import os
+import math
+import tempfile
+
+import reloader
+
 from   ete2 import Tree
 import Image
 import ImageFont
 import ImageDraw
 import ImageMath
-import math
-import tempfile
 
 #ls trees/*.tree | xargs -I{} -P 20 bash -c 'echo {};  ./newick_to_png.py {} pimp_problems.lst; ./newick_to_png.py {} cherry.lst;'
 
