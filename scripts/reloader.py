@@ -15,7 +15,7 @@ print "site-package dir:", pack_dir
 
 #http://stackoverflow.com/questions/6543847/setting-ld-library-path-from-inside-python
 if 'LD_LIBRARY_PATH' not in os.environ:
-    print "NO LD IN ENV. RESTARTING", os.environ
+    #print "NO LD IN ENV. RESTARTING", os.environ
     os.environ['LD_LIBRARY_PATH'] = venv_dir
     try:
         os.execv(exe, sys.argv)
@@ -24,7 +24,7 @@ if 'LD_LIBRARY_PATH' not in os.environ:
         print 'Failed re-exec:', exc
         sys.exit(1)
 else:
-    print "LD PRESENT IN ENV. RESUMING", os.environ
+    print "LD PRESENT IN ENV. RESUMING", os.environ['LD_LIBRARY_PATH']
 
 
 sys.path.insert( 0, venv_dir )
