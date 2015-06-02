@@ -28,8 +28,6 @@ from cogent.phylo         import distance, nj, least_squares, maximum_likelihood
 from cogent.cluster.UPGMA import upgma
 from cogent.draw          import dendrogram
 
-sys.exit(0)
-
 
 
 ###############
