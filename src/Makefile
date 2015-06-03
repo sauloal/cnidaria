@@ -71,7 +71,7 @@ CPP_INCL= \
 ifdef GEN_SHARED
 CPP_LIBS=-L/usr/lib/x86_64-linux-gnu -fopenmp -lboost_system -lboost_filesystem -lboost_thread -lpthread
 else
-CPP_LIBS=-fopenmp -Wl,-rpath,'$$ORIGIN/static' static/*.so 
+CPP_LIBS=-fopenmp -Wl,-rpath,'$$ORIGIN/static' static/*.so -static-libgcc
 #-Wl,--dynamic-linker=static/ld-2.19.so 
 endif
 
