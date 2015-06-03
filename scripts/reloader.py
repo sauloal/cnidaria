@@ -1,7 +1,7 @@
 import os
 import sys
 
-GCC_VER      = sys.environ.get('GCC_VER', '4.8')
+GCC_VER      = os.environ.get('GCC_VER', '4.8')
 exe          = sys.argv[0]
 exe_path_abs = os.path.abspath( exe )
 exe_dir      = os.path.dirname( exe_path_abs )
@@ -13,6 +13,7 @@ print "exe path        :", exe
 print "exe abs path    :", exe_path_abs
 print "exe dir         :", exe_dir
 print "venv dir        :", venv_dir
+print "venv dir c      :", venv_dir_c
 print "site-package dir:", pack_dir
 
 #http://stackoverflow.com/questions/6543847/setting-ld-library-path-from-inside-python
