@@ -1,10 +1,12 @@
 import os
 import sys
 
+GCC_VER      = sys.environ.get('GCC_VER', '4.8')
 exe          = sys.argv[0]
 exe_path_abs = os.path.abspath( exe )
 exe_dir      = os.path.dirname( exe_path_abs )
 venv_dir     = os.path.join( exe_dir , 'venv'     , 'lib'           )
+venv_dir_c   = os.path.join( venv_dir, 'libc'+GCC_VER               )
 pack_dir     = os.path.join( venv_dir, 'python2.7', 'site-packages' )
 
 print "exe path        :", exe
@@ -24,7 +26,7 @@ if 'LD_LIBRARY_PATH' not in os.environ:
         print 'Failed re-exec:', exc
         sys.exit(1)
 else:
-    print "LD PRESENT IN ENV. RESUMING", os.environ['LD_LIBRARY_PATH']
+    print "LD PRESENT IN ENV. RESUMING"#, os.environ['LD_LIBRARY_PATH']
 
 
 sys.path.insert( 0, venv_dir )

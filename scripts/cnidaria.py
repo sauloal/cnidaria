@@ -7,7 +7,7 @@ import argparse
 basedir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(basedir, 'build'))
 
-print sys.path
+#print sys.path
 #import reloader
 
 print basedir
