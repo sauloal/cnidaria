@@ -6,6 +6,7 @@ import math
 import tempfile
 
 import reloader
+reloader.add_venv()
 
 from   ete2 import Tree
 try:

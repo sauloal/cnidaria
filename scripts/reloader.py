@@ -16,22 +16,27 @@ print "venv dir        :", venv_dir
 print "venv dir c      :", venv_dir_c
 print "site-package dir:", pack_dir
 
-#http://stackoverflow.com/questions/6543847/setting-ld-library-path-from-inside-python
-if 'LD_LIBRARY_PATH' not in os.environ:
-    #print "NO LD IN ENV. RESTARTING", os.environ
-    os.environ['LD_LIBRARY_PATH'] = venv_dir
-    try:
-        os.execv(exe, sys.argv)
+def add_ld():
+    #http://stackoverflow.com/questions/6543847/setting-ld-library-path-from-inside-python
+    if 'LD_LIBRARY_PATH' not in os.environ:
+        #print "NO LD IN ENV. RESTARTING", os.environ
+        os.environ['LD_LIBRARY_PATH'] = "%s:%s" % (venv_dir, venv_dic_c)
+        try:
+            os.execv(exe, sys.argv)
 
-    except Exception, exc:
-        print 'Failed re-exec:', exc
-        sys.exit(1)
-else:
-    print "LD PRESENT IN ENV. RESUMING"#, os.environ['LD_LIBRARY_PATH']
+        except Exception, exc:
+            print 'Failed re-exec:', exc
+            sys.exit(1)
+    else:
+        print "LD PRESENT IN ENV. RESUMING"#, os.environ['LD_LIBRARY_PATH']
 
 
-sys.path.insert( 0, venv_dir )
-sys.path.insert( 0, pack_dir )
-#os.environ['LD_LIBRARY_PATH'] = venv_dir + ":" + os.environ['LD_LIBRARY_PATH'] if 'LD_LIBRARY_PATH' in os.environ else venv_dir
-#print os.environ
+def add_venv():
+    sys.path.insert( 0, venv_dir )
+    sys.path.insert( 0, pack_dir )
+    #os.environ['LD_LIBRARY_PATH'] = venv_dir + ":" + os.environ['LD_LIBRARY_PATH'] if 'LD_LIBRARY_PATH' in os.environ else venv_dir
+    #print os.environ
 
+def add_all():
+    add_ld()
+    add_venv()

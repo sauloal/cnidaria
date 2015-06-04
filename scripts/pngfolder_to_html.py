@@ -3,6 +3,7 @@ import sys, os
 import math
 
 import reloader
+reloader.add_venv()
 
 try:
 	import Image
@@ -60,6 +61,10 @@ def getCommonSuffix( names ):
 
 
 def main(infiles):
+    if len(infiles) == 0:
+        print "no input files given"
+        sys.exit(1)
+
     cp = os.path.commonprefix( infiles )
     cs = getCommonSuffix(      infiles )
 

@@ -5,7 +5,7 @@ import copy
 import math
 
 import reloader
-
+reloader.add_venv()
 
 import cnidaria_reader
 from read_titles import readFilesTitles
