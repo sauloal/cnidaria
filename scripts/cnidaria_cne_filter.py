@@ -14,6 +14,9 @@ import math
 import argparse
 from time import time
 
+import reloader
+reloader.add_venv()
+
 from bitarray import bitarray
 import cnidaria_reader
 from read_titles import readFilesTitles
