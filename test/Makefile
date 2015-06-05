@@ -11,7 +11,7 @@ JELLYFISH=$(CURR_DIR)/../src/libs/Jellyfish/bin/jellyfish
 HASH_SIZE=1G
 
 ifdef SAMPLEDATA
-HASH_SIZE=512M
+HASH_SIZE=256M
 endif
 
 ifdef NOIMAGE
@@ -86,7 +86,7 @@ $(INFA):
 
 ifdef SAMPLEDATA
 $(DATAFOLDER)/%.fasta.$(KMER_SIZE).jf: $(DATAFOLDER)/%.fasta
-	head -100000 $? > $?.head.fa
+	head -10000 $? > $?.head.fa
 	test -f $@ || ( cd $(DATAFOLDER) && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) -t 5 -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $?.head.fa && mv $@.tmp $@ )
 else
 $(DATAFOLDER)/%.fasta.$(KMER_SIZE).jf: $(DATAFOLDER)/%.fasta
