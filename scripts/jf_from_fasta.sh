@@ -22,7 +22,7 @@ if [[ ! -f "${JF}" ]]; then
     fi
 
     #${JELLYFISH} count -m ${MER_SIZE} -s ${HASH_SIZE} --counter-len=${COUNTER_LEN} --out-counter-len=${OUT_COUNTER_LEN} --canonical -o ${TMP} ${INFILE} && mv ${TMP} ${JF}
-    ${JCMD} -o ${TMP} --timing=${JF}.timming ${INFILE} && mv ${TMP} ${JF}
+    ${JCMD} -o ${TMP} --timing=${JF}.timming ${INFILE} && mv ${TMP} ${JF} && ${JELLYFISH} stats --output=${JF}.stats ${JF}
 
 else
     echo "INFILE $INFILE ALREADY CONVERTED TO ${JF}"

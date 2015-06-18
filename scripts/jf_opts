@@ -1,6 +1,5 @@
-JELLYFISH=${SCRIPT_PATH}/libs/Jellyfish/bin/jellyfish
+JELLYFISH=${SCRIPT_PATH}/../src/libs/Jellyfish/bin/jellyfish
 COUNTCHARS=${SCRIPT_PATH}/countChars
-SAMTOOLS=/home/aflit001/dev/samtools/samtools-1.1/samtools
 SAMTOOLS=`which samtools`
 
 KSIZE=21

@@ -32,7 +32,7 @@ if [[ ! -f "${JF}" ]]; then
     #$SAMTOOLS view -h $INFILE | grep -v ^@ | awk '{print ">"$1"\n"$10"\n"}' > $FA &
 
     #${JELLYFISH} count -m ${MER_SIZE} -s ${HASH_SIZE} --disk --counter-len=${COUNTER_LEN} --out-counter-len=${OUT_COUNTER_LEN} --canonical -o ${TMP} ${FQ} && mv ${TMP} ${JF}
-    ${JCMD} -o ${TMP} --timing=${JF}.timming <($SAMTOOLS view -h $INFILE | grep -v ^@ | awk '{print ">"$1"\n"$10"\n"}') && mv ${TMP} ${JF}
+    ${JCMD} -o ${TMP} --timing=${JF}.timming <($SAMTOOLS view -h $INFILE | grep -v ^@ | awk '{print ">"$1"\n"$10"\n"}') && mv ${TMP} ${JF} && ${JELLYFISH} stats --output=${JF}.stats ${JF}
 
     #rm ${FA}
 
