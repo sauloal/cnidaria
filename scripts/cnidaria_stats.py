@@ -5,7 +5,7 @@ import copy
 import math
 
 import reloader
-reloader.add_all()
+reloader.add_all(add_lib=False, add_c=False)
 
 import cnidaria_reader
 from read_titles import readFilesTitles
