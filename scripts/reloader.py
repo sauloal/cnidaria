@@ -54,7 +54,6 @@ def add_ld(add_lib=True, add_c=True, add_png=True, add_stds=True, add_ldl=True):
 
     try:
         print "new ld library path:", os.environ['LD_LIBRARY_PATH']
-        sys.exit(0)
         os.execv(exe, sys.argv)
 
     except Exception, exc:
