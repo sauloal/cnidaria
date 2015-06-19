@@ -20,7 +20,7 @@ def add_ld():
     #http://stackoverflow.com/questions/6543847/setting-ld-library-path-from-inside-python
     if 'LD_LIBRARY_PATH' not in os.environ:
         #print "NO LD IN ENV. RESTARTING", os.environ
-        os.environ['LD_LIBRARY_PATH'] = "%s" % ":".join("/lib","/lib64","/usr/lib","/usr/lib64","/usr/local/lib","/usr/local/lib",venv_dir, venv_dic_c)
+        os.environ['LD_LIBRARY_PATH'] = "%s" % ":".join("/lib","/lib64","/usr/lib","/usr/lib64","/usr/local/lib","/usr/local/lib",venv_dir, venv_dir_c)
         try:
             os.execv(exe, sys.argv)
 
