@@ -1,0 +1,7 @@
+out
+*.fq.gz
+*.jf
+*.timming
+*.swp
+filelist.csv
+test_def.csv
