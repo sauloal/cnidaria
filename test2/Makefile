@@ -1,7 +1,9 @@
 KMER_SIZE=21
 NUM_PIECES=1
 HASH_SIZE=1G
-LOWER_COUNT=2
+JELLY_THREADS=5
+LOWER_COUNT_FA=1
+LOWER_COUNT_FQ=2
 
 ifdef SAMPLEDATA
 HASH_SIZE=256M
@@ -85,21 +87,42 @@ fastas: $(INFA)
 ifdef SAMPLEDATA
 $(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fq.gz
 	gunzip -k $? | head -40000 | gzip -1 > $(DATAFOLDER)/$*/head.fq.gz
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT) -t 5 -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming head.fq.gz && mv $@.tmp $@ )
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd head.fq.gz) && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fastq.gz
+	gunzip -k $? | head -40000 | gzip -1 > $(DATAFOLDER)/$*/head.fastq.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd head.fastq.gz) && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fasta
+	head -40000 $? | gzip -1 > $(DATAFOLDER)/$*/head.fasta.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FA) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd head.fasta.gz) && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fa
+	head -40000 $? | gzip -1 > $(DATAFOLDER)/$*/head.fa.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd head.fa.gz) && mv $@.tmp $@ )
+
+
+
 else
 $(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fq.gz
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT) -t 5 -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd $?) && mv $@.tmp $@ )
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd $?) && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fastq.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd $?) && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fasta
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FA) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fa
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FA) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
+
 endif
 
 
 
-$(FILE_LIST): $(INJF)
+$(OUT_MAKE): $(INJF)
 	echo $(INJF) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'dn=`dirname {}`; bn=`basename $$dn`; echo -e "{}\t$$bn"' > $@.tmp && mv $@.tmp $@
-
-$(DEF_FILE): $(INJF)
 	echo $(INJF) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'echo -e "test\t{}"' > $@.tmp && mv $@.tmp $@
-
-$(OUT_MAKE): $(FILE_LIST) $(DEF_FILE)
 	../scripts/gen_mkfile.py $(FILE_LIST) $(DEF_FILE) $(OUT_DIR) $(KMER_SIZE) $(NUM_PIECES) $(DOIMAGE)
 
 $(OUT_FILE): $(OUT_MAKE) $(INJF)
