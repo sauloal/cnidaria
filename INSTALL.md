@@ -1,4 +1,8 @@
 #Summary:
+Cnidaria comes pre-compiled. No installation or compilation required.
+
+If you want to do so:
+
 ##For the impatient:
 <pre>
 	bash INSTALL.1.python_system_requirements
