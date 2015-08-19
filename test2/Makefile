@@ -121,8 +121,8 @@ endif
 
 
 $(OUT_MAKE): $(INJF)
-	echo $(INJF) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'dn=`dirname {}`; bn=`basename $$dn`; echo -e "{}\t$$bn"' > $@.tmp && mv $@.tmp $@
-	echo $(INJF) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'echo -e "test\t{}"' > $@.tmp && mv $@.tmp $@
+	echo $(INJF) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'dn=`dirname {}`; bn=`basename $$dn`; echo -e "{}\t$$bn"' > $(FILE_LIST).tmp && mv $(FILE_LIST).tmp $(FILE_LIST)
+	echo $(INJF) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'echo -e "test\t{}"' > $(DEF_FILE).tmp && mv $(DEF_FILE).tmp $(DEF_FILE)
 	../scripts/gen_mkfile.py $(FILE_LIST) $(DEF_FILE) $(OUT_DIR) $(KMER_SIZE) $(NUM_PIECES) $(DOIMAGE)
 
 $(OUT_FILE): $(OUT_MAKE) $(INJF)
