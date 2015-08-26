@@ -88,8 +88,8 @@ def jaccard_dissimilarity(                    totalX, totalY, countX, countY, va
 
 
 methods_available = {
-    "jaccard_dissimilarity_sqrt": jaccard_dissimilarity_sqrt,
-    "jaccard_dissimilarity"     : jaccard_dissimilarity,
+    #"jaccard_dissimilarity_sqrt": jaccard_dissimilarity_sqrt,
+    "jaccard_dissimilarity"     : jaccard_dissimilarity
 }
     
 def attachMethodName( methodName,  func ):
@@ -529,7 +529,7 @@ def fixTitles( titles, stats ):
 def exportMatrices(infile, matrices, stats):
     trees = [
                 [ "nj"   , nj.nj ],
-                [ "upgma", upgma ]
+                #[ "upgma", upgma ]
                 #[ "ml", maximum_likelihood. ], # http://pycogent.org/cookbook/using_likelihood_to_perform_evolutionary_analyses.html
             ]
     

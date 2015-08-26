@@ -83,7 +83,12 @@ class cnidaria(object):
                 fn     = files[piece_num-1]
                 e      = os.path.exists(fn)
                 exists = exists and e
-                print "piece %d output file %s: " % (piece_num, fn), ("" if e else "does not"), "exists"
+                print "piece %d (    required) output file %s: " % (piece_num, fn), ("" if e else "does not"), "exists"
+            else:
+                fn     = files[piece_num-1]
+                e      = os.path.exists(fn)
+                exists = exists and e
+                print "piece %d (not required) output file %s: " % (piece_num, fn), ("" if e else "does not"), "exists"
         
         if not exists:
             print "piece num %d does not exists exists. running" % piece_num
@@ -129,14 +134,19 @@ class cnidaria(object):
             if self.num_pieces == 1:
                 print "one piece. no merging needed"
                 if self.export_complete:
+                    print "symlinking %s to %s" % (self.srcfiles_complete[0], self.ofiles[0])
                     os.symlink( self.srcfiles_complete[0], self.ofiles[0] )
 
                 if self.export_matrix:
+                    print "symlinking %s to %s" % (self.srcfiles_matrix[0] , self.ofiles[1])
                     os.symlink( self.srcfiles_matrix[0] , self.ofiles[1] )
-                    os.symlink( self.srcfiles_matrixj[0], self.ofiles[2] )
+
+                print "symlinking %s to %s" % (self.srcfiles_matrixj[0], self.ofiles[2])
+                os.symlink( self.srcfiles_matrixj[0], self.ofiles[2] )
                 
 
             else:
+                print "more than one piece. merging"
                 print self.out_file, self.srcfiles_complete, self.srcfiles_matrix, self.srcfiles_matrixj
                 cnidariapy.merge_data(self.out_file, self.srcfiles_complete, self.srcfiles_matrix, self.srcfiles_matrixj, self.export_complete, self.export_matrix)
 

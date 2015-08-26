@@ -1,50 +1,83 @@
-KMER_SIZE=21
-NUM_PIECES=1
-HASH_SIZE=1G
-JELLY_THREADS=5
-LOWER_COUNT_FA=1
-LOWER_COUNT_FQ=2
+####
+# ENVIRONMENT VARIABLES
+####
+NUM_SAMPLE_ROWS       ?= 40000
+OUT_BASE              ?= out
+OUT_FOLDER            ?= test
 
-ifdef SAMPLEDATA
-HASH_SIZE=256M
+CNIDARIA_NUM_PIECES   ?= 1
+CNIDARIA_EXTRA_FILES  ?=
+
+JELLY_KMER_SIZE       ?= 21
+JELLY_HASH_SIZE       ?= 1G
+JELLY_LOWER_COUNT_FA  ?= 1
+JELLY_LOWER_COUNT_FQ  ?= 2
+JELLY_THREADS         ?= 5
+JELLY_COUNTER_LEN     ?= 7
+JELLY_OUT_COUNTER_LEN ?= 1
+JELLY_NUM_FILES       ?= 300
+
+
+# CREATE FULL DATABASE (SLOW)
+ifdef CNIDARIA_GENDB
+DODB="--export-complete"
+else
+DODB=
 endif
 
-ifdef NOIMAGE
+# SAMPLE THE DATA
+ifdef SAMPLEDATA
+JELLY_HASH_SIZE=256M
+endif
+
+# DO NOT EXPORT IMAGES
+ifdef CNIDARIA_NOIMAGE
 DOIMAGE="--no-gen-image"
 else
 DOIMAGE=
 endif
 
 
+
+
+####
+# PROGRAMS
+####
+COMPRESS=pigz -k1
+DECOMPRESS=pigz -kdc
+
+
+
+####
+# WORK VARIABLES
+####
 CURR_DIR_N=$(abspath $(lastword $(MAKEFILE_LIST)))
 CURR_DIR=$(patsubst %/,%,$(dir $(CURR_DIR_N)))
 
 DATAFOLDER=$(CURR_DIR)/data
 
-FILE_LIST=$(CURR_DIR)/filelist.csv
-DEF_FILE=$(CURR_DIR)/test_def.csv
+FILE_LIST=$(CURR_DIR)/$(OUT_FOLDER)_filelist.csv
+DEF_FILE=$(CURR_DIR)/$(OUT_FOLDER)_def.csv
 
-OUT_DIR=$(CURR_DIR)/out
+OUT_DIR=$(CURR_DIR)/$(OUT_BASE)/$(OUT_FOLDER)
 
 JELLYFISH=$(CURR_DIR)/../src/libs/Jellyfish/bin/jellyfish
 
-COUNTER_LEN=7
-OUT_COUNTER_LEN=1
-#JCMD="${JELLYFISH} count -m ${MER_SIZE} -s ${HASH_SIZE} -t 5 -F 300 --disk --counter-len=${COUNTER_LEN} --out-counter-len=${OUT_COUNTER_LEN} --canonical"
-#ulimit -Sn 4096
-
-
 OUT_MAKE=$(OUT_DIR)/Makefile
-OUT_FILE=$(OUT_DIR)/test/test.json
+OUT_FILE=$(OUT_DIR)/$(OUT_FOLDER)/$(OUT_FOLDER).json
 
 INFOLDERS=$(wildcard $(DATAFOLDER)/*)
 
-INJF=$(patsubst %,%/$(KMER_SIZE).jf,$(INFOLDERS))
-
+INJF=$(patsubst %,%/$(JELLY_KMER_SIZE).jf,$(INFOLDERS))
 
 SHELL:=/bin/bash
 
+
+
  
+####
+# RULES
+####
 all: $(OUT_FILE)
 
 
@@ -54,18 +87,72 @@ clean:
 
 
 print:
-	@echo CURR_DIR   $(CURR_DIR)
-	@echo DATAFOLDER $(DATAFOLDER)
-	@echo FILE_LIST  $(FILE_LIST)
-	@echo DEF_FILE   $(DEF_FILE)
-	@echo OUT_DIR    $(OUT_DIR)
-	@echo KMER_SIZE  $(KMER_SIZE)
-	@echo NUM_PIECES $(NUM_PIECES)
-	@echo OUT_MAKE   $(OUT_MAKE)
-	@echo OUT_FILE   $(OUT_FILE)
-	@echo INFOLDERS  $(INFOLDERS)
+	@echo "JELLY_KMER_SIZE       $(JELLY_KMER_SIZE)"
+	@echo "JELLY_HASH_SIZE       $(JELLY_HASH_SIZE)"
+	@echo "JELLY_LOWER_COUNT_FA  $(JELLY_LOWER_COUNT_FA)"
+	@echo "JELLY_LOWER_COUNT_FQ  $(JELLY_LOWER_COUNT_FQ)"
+	@echo "JELLY_THREADS         $(JELLY_THREADS)"
+	@echo "JELLY_COUNTER_LEN     $(JELLY_COUNTER_LEN)"
+	@echo "JELLY_OUT_COUNTER_LEN $(JELLY_OUT_COUNTER_LEN)"
+	@echo "JELLY_NUM_FILES       $(JELLY_NUM_FILES)"
 	@echo
-	@echo INJF       $(INJF)
+	@echo "CNIDARIA_NUM_PIECES   $(CNIDARIA_NUM_PIECES)"
+	@echo "CNIDARIA_EXTRA_FILES  $(CNIDARIA_EXTRA_FILES)"
+
+ifdef CNIDARIA_NOIMAGE
+	@echo "CNIDARIA_NOIMAGE      true"
+else
+	@echo "CNIDARIA_NOIMAGE      false"
+endif
+
+
+ifdef CNIDARIA_GENDB
+	@echo "CNIDARIA_NOIMAGE      true"
+else
+	@echo "CNIDARIA_NOIMAGE      false"
+endif
+
+
+ifdef SAMPLEDATA
+	@echo
+	@echo "NUM_SAMPLE_ROWS       $(NUM_SAMPLE_ROWS)"
+endif
+
+	@echo
+	@echo "CURR_DIR              $(CURR_DIR)"
+	@echo "DATAFOLDER            $(DATAFOLDER)"
+	@echo "FILE_LIST             $(FILE_LIST)"
+	@echo "DEF_FILE              $(DEF_FILE)"
+	@echo "OUT_MAKE              $(OUT_MAKE)"
+	@echo "OUT_BASE              $(OUT_BASE)"
+	@echo "OUT_FILE              $(OUT_FILE)"
+	@echo "OUT_DIR               $(OUT_DIR)"
+	@echo "OUT_FOLDER            $(OUT_FOLDER)"
+	@echo
+	@echo "INFOLDERS             $(INFOLDERS)"
+	@echo
+	@echo "INJF                  $(INJF)"
+
+
+vars:
+	@echo "NUM_SAMPLE_ROWS       ?= 40000 - number of rows to sample if sampling, must be multiple of 4"
+	@echo "OUT_BASE              ?= out   - base path for output"
+	@echo "OUT_FOLDER            ?= test  - project name"
+	@echo "SAMPLEDATA                     - sample the data"
+	@echo 
+	@echo "CNIDARIA_NUM_PIECES   ?= 1     - number of pieces for cnidaria to multithread"
+	@echo "CNIDARIA_NOIMAGE               - do not export images"
+	@echo "CNIDARIA_GENDB                 - create full database [slow]"
+	@echo "CNIDARIA_EXTRA_FILES           - add extra files to cnidaria"
+	@echo 
+	@echo "JELLY_KMER_SIZE       ?= 21    - kmer size"
+	@echo "JELLY_HASH_SIZE       ?= 1G    - hash size"
+	@echo "JELLY_LOWER_COUNT_FA  ?= 1     - lower count for fastA files"
+	@echo "JELLY_LOWER_COUNT_FQ  ?= 2     - lower count for fastQ files"
+	@echo "JELLY_THREADS         ?= 5     - number of threads"
+	@echo "JELLY_COUNTER_LEN     ?= 7     - counter len"
+	@echo "JELLY_OUT_COUNTER_LEN ?= 1     - out counter len"
+	@echo "JELLY_NUM_FILES       ?= 300   - number of disk files"
 
 
 .PHONY: json makefile fastas maker jfs
@@ -76,8 +163,6 @@ maker: $(OUT_MAKE)
 
 jfs: $(INJF)
 
-fastas: $(INFA)
-
 
 #$(DATAFOLDER)/%.fasta: $(DATAFOLDER)/%.sh
 #	test -f $@ || ( cd $(DATAFOLDER) && bash $? && test -e $@ )
@@ -85,46 +170,64 @@ fastas: $(INFA)
 
 
 ifdef SAMPLEDATA
-$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fq.gz
-	gunzip -k $? | head -40000 | gzip -1 > $(DATAFOLDER)/$*/head.fq.gz
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd head.fq.gz) && mv $@.tmp $@ )
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fq.gz
+	$(DECOMPRESS) $? | head -$(NUM_SAMPLE_ROWS) | $(COMPRESS) > $(DATAFOLDER)/$*/head.fqh.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) head.fqh.gz) && mv $@.tmp $@ )
 
-$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fastq.gz
-	gunzip -k $? | head -40000 | gzip -1 > $(DATAFOLDER)/$*/head.fastq.gz
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd head.fastq.gz) && mv $@.tmp $@ )
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fastq.gz
+	$(DECOMPRESS) $? | head -$(NUM_SAMPLE_ROWS) | $(COMPRESS) > $(DATAFOLDER)/$*/head.fqh.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) head.fqh.gz) && mv $@.tmp $@ )
 
-$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fasta
-	head -40000 $? | gzip -1 > $(DATAFOLDER)/$*/head.fasta.gz
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FA) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd head.fasta.gz) && mv $@.tmp $@ )
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fasta.gz
+	$(DECOMPRESS) $? | head -$(NUM_SAMPLE_ROWS) | $(COMPRESS) > $(DATAFOLDER)/$*/head.fah.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) head.fah.gz) && mv $@.tmp $@ )
 
-$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fa
-	head -40000 $? | gzip -1 > $(DATAFOLDER)/$*/head.fa.gz
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd head.fa.gz) && mv $@.tmp $@ )
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fa.gz
+	$(DECOMPRESS) $? | head -$(NUM_SAMPLE_ROWS) | $(COMPRESS) > $(DATAFOLDER)/$*/head.fah.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd head.fah.gz) && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fasta
+	head -$(NUM_SAMPLE_ROWS) $? | $(COMPRESS) > $(DATAFOLDER)/$*/head.fah.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) head.fah.gz) && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fa
+	head -$(NUM_SAMPLE_ROWS) $? | $(COMPRESS) > $(DATAFOLDER)/$*/head.fah.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) head.fah.gz) && mv $@.tmp $@ )
 
 
 
 else
-$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fq.gz
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd $?) && mv $@.tmp $@ )
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fq.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) $?) && mv $@.tmp $@ )
 
-$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fastq.gz
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <(pigz -kcd $?) && mv $@.tmp $@ )
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fastq.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) $?) && mv $@.tmp $@ )
 
-$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fasta
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FA) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fasta.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) $?) && mv $@.tmp $@ )
 
-$(DATAFOLDER)/%/$(KMER_SIZE).jf: $(DATAFOLDER)/%/*.fa
-	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && ${JELLYFISH} count -m $(KMER_SIZE) -s $(HASH_SIZE) --lower-count=$(LOWER_COUNT_FA) -t $(JELLY_THREADS) -F 300 --disk --counter-len=$(COUNTER_LEN) --out-counter-len=$(OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fa.gz
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) $?) && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fasta
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
+
+$(DATAFOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATAFOLDER)/%/*.fa
+	test -f $@ || ( cd $(DATAFOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
+
+
 
 endif
 
 
 
+
+
 $(OUT_MAKE): $(INJF)
-	echo $(INJF) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'dn=`dirname {}`; bn=`basename $$dn`; echo -e "{}\t$$bn"' > $(FILE_LIST).tmp && mv $(FILE_LIST).tmp $(FILE_LIST)
-	echo $(INJF) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'echo -e "test\t{}"' > $(DEF_FILE).tmp && mv $(DEF_FILE).tmp $(DEF_FILE)
-	../scripts/gen_mkfile.py $(FILE_LIST) $(DEF_FILE) $(OUT_DIR) $(KMER_SIZE) $(NUM_PIECES) $(DOIMAGE)
+	echo $(INJF) $(CNIDARIA_EXTRA_FILES) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'dn=`dirname {}`; bn=`basename $$dn`; echo -e "{}\t$$bn"' > $(FILE_LIST).tmp && mv $(FILE_LIST).tmp $(FILE_LIST)
+	echo $(INJF) $(CNIDARIA_EXTRA_FILES) | tr " " "\n" | xargs -n1 -L1 -I{} bash -c 'echo -e "$(OUT_FOLDER)\t{}"' > $(DEF_FILE).tmp && mv $(DEF_FILE).tmp $(DEF_FILE)
+	$(CURR_DIR)/../scripts/gen_mkfile.py $(FILE_LIST) $(DEF_FILE) $(OUT_DIR) $(JELLY_KMER_SIZE) $(CNIDARIA_NUM_PIECES) $(DOIMAGE) $(DODB)
 
 $(OUT_FILE): $(OUT_MAKE) $(INJF)
-	$(MAKE) -C $(OUT_DIR)/test
+	$(MAKE) -C $(OUT_DIR)/$(OUT_FOLDER)
 
