@@ -20,7 +20,7 @@ JELLY_NUM_FILES       ?= 300
 
 # CREATE FULL DATABASE (SLOW)
 ifdef CNIDARIA_GENDB
-DODB="--export-complete"
+DODB=--export-complete
 else
 DODB=
 endif
@@ -134,7 +134,10 @@ endif
 	@echo "INJF                  $(INJF)"
 
 
-vars:
+help:
+	@echo all, clean, print, help, json, maker, jfs
+	@echo 
+	@echo 
 	@echo "NUM_SAMPLE_ROWS       ?= 40000 - number of rows to sample if sampling, must be multiple of 4"
 	@echo "OUT_BASE              ?= out   - base path for output"
 	@echo "OUT_FOLDER            ?= test  - project name"

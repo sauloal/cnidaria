@@ -3,6 +3,6 @@ out
 *.jf
 *.timming
 *.swp
-filelist.csv
-test_def.csv
+*_filelist.csv
+*_def.csv
 data/
