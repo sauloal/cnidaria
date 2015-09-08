@@ -1,0 +1,106 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>
+      Cnidaria report visualization
+    </title>
+
+    <!--<link rel="stylesheet" href="stats_report.template.css">-->
+    <style>
+%(css)s
+    </style>
+
+    <!--<script type="text/javascript" src="https://www.google.com/jsapi"></script>-->
+
+    <script type="text/javascript" id="js_main">
+%(js)s
+    </script>
+    <!--<script type="text/javascript" id="js_main" src="stats_report.template.js"></script>-->
+
+
+    <script type="text/javascript" id="js_b64">%(b64)s</script>
+    
+    <script type="text/javascript" id="js_inflate">%(inflate)s</script>
+    <!--<script type="text/javascript" id="js_inflate">#(lzma)s</script>-->
+    
+<!--    <script type="text/javascript" id="js_raphael">#(raphael)s</script>-->
+<!--    <script type="text/javascript" id="js_jsphylo">#(jsphylo)s</script>-->
+<!--    <script type="text/javascript" id="js_math">#(math)s</script>-->
+    
+    <script type="text/javascript" id="js_d3">%(d3)s</script>
+    
+    <script type="text/javascript" id="js_d3_layout">%(d3layout)s</script>
+<!--    <script type="text/javascript" id="js_d3phylogram">$(d3phylogram)s</script>-->
+    
+    <script type="text/javascript" id="js_d3phylonator">%(d3phylonator)s</script>
+    <!--<script type="text/javascript" id="js_main" src="stats_report.template.d3.phylonator.js"></script>-->
+    
+    <script type="text/javascript" id="js_newick">%(newick)s</script>
+    
+    
+    
+    <script type="text/javascript" id="js_data">
+      var gdata = {};
+      
+      gdata['base64Data'] = "%(data)s";
+    </script>
+
+    <script type="text/javascript" id="js_init">
+      function loadData() {
+        console.log("loading data");
+        console.log("loading data :: converting to binary");
+        gdata['compressData'] = atob(gdata['base64Data']).split('').map(function(e) {
+            return e.charCodeAt(0);
+        });
+
+        delete gdata['base64Data'];
+
+        console.log("loading data :: uncompressing");
+        gdata['output']  = new Zlib.Inflate(gdata['compressData']).decompress();
+        delete gdata['compressData'];
+
+        gdata['out16' ]  = new Uint16Array(gdata['output']);
+        delete gdata['output'];
+
+        gdata['strData'] = "";
+
+        var QUANTUM = 32768;
+        for (var i = 0, len = gdata['out16'].length; i < len; i += QUANTUM) {
+          gdata['strData'] += String.fromCharCode.apply(null, gdata['out16'].subarray(i, Math.min(i + QUANTUM, len)));
+        }
+        delete gdata['out16'];
+
+        
+        console.log("loading data :: storing");
+        window.dataall = JSON.parse(gdata['strData']);
+        delete gdata['strData'];
+        
+        delete gdata;
+        delete window.gdata;
+        
+        var js_data = document.getElementById("js_data");
+        js_data.parentNode.removeChild( js_data );
+        
+        console.log("loading data :: loading UI");
+        onLoad();
+      }
+    </script>
+    <script type="text/javascript" id="js_google">
+      //google.load('visualization', '1', {packages: ['corechart']});
+      //google.setOnLoadCallback(loadData);
+    </script>
+
+  </head>
+  <body onload="loadData()">
+    <div id="header"></div>
+    <br/>
+    <br/>
+    <div id="chart_div"></div>
+    <br/>
+    <br/>
+    <div id="footer">
+      <small>Saulo Aflitos - 2015 - Plant Research International (PRI) - Wageningen University and Reseach Centre (WUR)</small></br>
+      <small>Report Created on: %(now)s</small>
+    </div>
+  </body>
+</html>
