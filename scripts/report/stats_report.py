@@ -6,6 +6,7 @@ import simplejson as json
 from datetime import datetime as dt
 import zlib
 import base64
+import argparse
 
 from read_titles import readFilesTitles
 
@@ -30,7 +31,6 @@ from read_titles import readFilesTitles
 #8.4M test10_21_kmer_stats_report.html
 # 18M test10_31.json
 #7.4M test10_31_kmer_stats_report.html
-
 
 
 
@@ -95,21 +95,32 @@ def fixTitles( titles, data ):
 def addtrees( data, trees ):
 	print "adding trees"
 	data["trees"] = {}
-	bn = os.path.commonprefix( trees )
-	for treefile in trees:
-		treename = treefile.replace( bn, '' )
-		fn, ext  = os.path.splitext(treename)
-		ext      = ext[1:]
-		grps     = fn.split('.')
-		print "adding trees", treefile, "to", treename, ext, grps[0], grps[1]
-		#data["trees"][treename] = trees[treefile]
-		if ext     not in data["trees"]:
-			data["trees"][ext] = {}
-		if grps[0] not in data["trees"][ext]:
-			data["trees"][ext][grps[0]] = {}
-		data["trees"][ext][grps[0]][grps[1]] = trees[treefile]
 	
+	bn = os.path.commonprefix( trees )
 
+	for treefile in trees:
+		if len(trees) > 1:
+			treename = treefile.replace( bn, '' )
+		else:
+			treename = treefile
+			
+		fn, ext   = os.path.splitext(treename)
+		#ext      = ext[1:]
+		grps      = fn.split('.')
+		scale     = grps[-2]
+		distance  = grps[-1]
+		algorithm = ext[1:]
+		print "adding trees", treefile, "to", treename, 'scale', scale, 'distance', distance, 'algorithm', algorithm
+		#data["trees"][treename] = trees[treefile]
+
+		if algorithm not in data["trees"]:
+			data["trees"][algorithm] = {}
+
+		if distance not in data["trees"][algorithm]:
+			data["trees"][algorithm][distance] = {}
+
+		data["trees"][algorithm][distance][scale] = trees[treefile]
+	
 def makehtml(nname, gdata):
 	#https://google-developers.appspot.com/chart/interactive/docs/gallery/candlestickchart
 
@@ -141,21 +152,21 @@ def makehtml(nname, gdata):
 	print "saving html"
 	open(nname + '_' + REPORT_NAME + '.html', 'w').write( html )
 
-def main(infiles):
-	in_json = infiles[0]
+def main(in_json , in_csv, in_trees):
 	titles  = None
 	trees   = None
 	
-	if len(infiles) > 1:
-		in_csv  = infiles[1]
+	if in_csv is not None:
 		print "loading titles", in_csv
+		if not os.path.exists(in_csv):
+			print "title CSV %s does not exists" % in_csv
+			sys.exit(1)
 		titles  = readFilesTitles(in_csv)
 
-	if len(infiles) > 2:
+	if in_trees is not None:
 		trees    = {}
-		intrees  = infiles[2:]
-		print "loading trees", intrees
-		for tree in intrees:
+		print "loading trees", in_trees
+		for tree in in_trees:
 			if not os.path.exists(tree):
 				print "tree %s does not exists" % tree
 				sys.exit(1)
@@ -181,4 +192,18 @@ def main(infiles):
 	print "finished"
 
 if __name__ == '__main__':
-	main(sys.argv[1:])
+	parser = argparse.ArgumentParser(description='Create HTML report')
+	
+	parser.add_argument('infile', type=str, 
+					   help='input json file')
+	parser.add_argument('--title', dest='title',
+						default=None,
+						help='CSV containing row titles')
+	parser.add_argument('--trees', dest='trees',
+						action='append',
+						default=None,
+						help='Tree files')
+	
+	args = parser.parse_args()
+	
+	main(args.infile, args.title, args.trees)

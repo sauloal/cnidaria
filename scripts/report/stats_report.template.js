@@ -404,8 +404,11 @@ function showtree(dbname, algo, scale, method, col, distSppName) {
       node.length = parseFloat(node.length.toFixed(4));
       
       if (col) {
-        var nname = node.name.replace(/_/g, ' ');
-        var i     = window.dataall[dbname]['in_filenames'].indexOf(nname);
+        var nname1 = node.name;
+        var nname2 = node.name.replace(/_/g, ' ');
+        var i1     = window.dataall[dbname]['in_filenames'].indexOf(nname1);
+        var i2     = window.dataall[dbname]['in_filenames'].indexOf(nname2);
+        var i      = i1 == -1 ? i2 : i1;
         //var vals  = window.dataall[dbname][col           ];
         if ( i == -1 ) {
           console.log("error converting '" + node.name + "' to '" + nname + "' not in ", window.dataall[dbname]['in_filenames']);
