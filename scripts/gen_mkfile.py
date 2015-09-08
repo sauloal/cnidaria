@@ -167,7 +167,8 @@ def verify_args( args ):
         cnidaria_opts += ' --export-complete'
 
     if not args.export_matrix:
-        cnidaria_opts += ' --no-export-matrix'
+        #cnidaria_opts += ' --no-export-matrix'
+        pass
 
     if DRY_RUN:
         cnidaria_opts += ' --dry-run'
