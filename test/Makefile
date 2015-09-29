@@ -47,12 +47,12 @@ endif
 PIGZ:=$(shell which pigz &>/dev/null)
 ifdef PIGZ
     $(info USING PIGZ $(PIGZ))
-    COMPRESS=pigz -k1
-    DECOMPRESS=pigz -kdc
+    COMPRESS=pigz --keep -1
+    DECOMPRESS=pigz --keep --stdout --decompress
 else
     $(info USING GZIP $(PIGZ))
-    COMPRESS=gzip -1
-    DECOMPRESS=gunzip -kdc
+    COMPRESS=gzip --stdout -1
+    DECOMPRESS=gunzip --keep --stdout
 endif
 
 
