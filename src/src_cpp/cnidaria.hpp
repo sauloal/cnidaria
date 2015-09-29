@@ -38,6 +38,7 @@
 
 #define LZZ_INLINE inline
 int fact (int n);
+void version ();
 namespace cnidaria
 {
   void openoutfile (std::ofstream & outfile_, string_t filename);

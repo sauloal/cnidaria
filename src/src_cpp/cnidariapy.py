@@ -174,6 +174,10 @@ def fact(*args):
   return _cnidariapy.fact(*args)
 fact = _cnidariapy.fact
 
+def version():
+  return _cnidariapy.version()
+version = _cnidariapy.version
+
 def openoutfile(*args):
   return _cnidariapy.openoutfile(*args)
 openoutfile = _cnidariapy.openoutfile

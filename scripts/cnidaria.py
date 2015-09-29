@@ -14,6 +14,8 @@ print basedir
 import cnidariapy
 
 print cnidariapy.fact(3)
+cnidariapy.version()
+
 
 #for i in `seq 1 20`; do
 #    echo $i

@@ -1,3 +1,0 @@
-set -xeu
-
-make cnidaria jellyfish run

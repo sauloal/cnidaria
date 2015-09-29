@@ -83,6 +83,18 @@ namespace cnidaria
 }
 namespace cnidaria
 {
+  void cnidaria_db::set_complete_registers (baseInt cr)
+                                                                        { complete_registers = cr;
+  }
+}
+namespace cnidaria
+{
+  baseInt cnidaria_db::get_complete_registers ()
+                                                                                    { return complete_registers;
+  }
+}
+namespace cnidaria
+{
   void cnidaria_db::set_export_summary (bool s)
                                                { export_summary  = s;
   }
@@ -1003,6 +1015,12 @@ namespace cnidaria
 }
 namespace cnidaria
 {
+  baseInt merge_jfs::get_complete_registers ()
+                                                                                 { return hash_table.get_complete_registers();
+  }
+}
+namespace cnidaria
+{
   void merge_jfs::set_save_every (baseInt pe)
                                                                      { save_every = pe;
   }
@@ -1041,6 +1059,18 @@ namespace cnidaria
 {
   void merge_jfs::set_max_val (baseInt ma)
                                                                      { hash_table.set_max_val( ma );
+  }
+}
+namespace cnidaria
+{
+  void merge_jfs::set_complete_registers (baseInt cr)
+                                                                                 { hash_table.set_complete_registers( cr );
+  }
+}
+namespace cnidaria
+{
+  void merge_jfs::append_complete_registers (baseInt cr)
+                                                                                 { hash_table.set_complete_registers( get_complete_registers() + cr );
   }
 }
 namespace cnidaria
@@ -1182,6 +1212,7 @@ namespace cnidaria
   void merge_jfs::run (boost::recursive_mutex * g_guard_s)
                                                                      {
                 updateHeaderData();
+
                 std::cout << "starting phylogenomics with " << num_threads << " threads" << std::endl;
                 std::cout << "starting " << num_threads << " threads" << std::endl;
 
@@ -1213,9 +1244,13 @@ namespace cnidaria
                     );
                 }
 
-                std::cout << "waiting for threads" << std::endl;
+                std::cout << "waiting for sub threads" << std::endl;
                 tp.wait();
-                std::cout << "threads finished" << std::endl;
+                std::cout << "sub threads finished"
+                                          << "gCounter "               << gCounter << std::endl;
+
+
+                                append_complete_registers(gCounter);
   }
 }
 namespace cnidaria
@@ -1234,8 +1269,8 @@ namespace cnidaria
 
 
 
-                baseInt num_threadsL   =   this->num_pieces * this->num_threads;
-                baseInt thread_numL    = ( this->piece_num  * this->num_threads ) + thread_num;
+                baseInt     num_threadsL   =   this->num_pieces * this->num_threads;
+                baseInt     thread_numL    = ( this->piece_num  * this->num_threads ) + thread_num;
 
                 string_t    name           = (boost::format("merge jfs pc %3d/%3d thr %3d/%3d") % (piece_num+1) % this->num_pieces % (thread_num + 1) % this->num_threads).str();
 

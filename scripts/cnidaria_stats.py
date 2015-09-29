@@ -28,100 +28,14 @@ from cogent.phylo         import distance, nj, least_squares, maximum_likelihood
 from cogent.cluster.UPGMA import upgma
 from cogent.draw          import dendrogram
 
+print " cnidaria stats : importing stats"
+import stats
+
+methods_to_apply = [ "jaccard_dissimilarity" ]
+
+stats.init( methods_to_apply )
 
 
-###############
-# DISTANCE METHODS
-###############
-#//Rand Index
-#//          exclusive A + exclusive B
-#//  ----------------------------------------
-#//  exclusive A + 2x shared AB + exclusive B
-#//
-#//Jaccard Index
-#//                shared AB
-#//  -------------------------------------
-#//  exclusive A + shared AB + exclusive B
-#//
-#//Fowlkes_mallows and Mallows
-#//      shared AB
-#//--------------------------------------------------------
-#//sqrt(( shared AB * unique A ) * ( shared AB * unique B))
-#//
-#//Mirkin Metric
-#//2 * ( unique A + unique B )
-#//
-#//Wallace
-#//WAB =      Shared AB
-#//      --------------------
-#//      Unique A + Shared AB
-#//WBA =      Shared AB
-#//      --------------------
-#//      Unique B + Shared AB
-
-
-#    1  0
-# 1  a  b
-# 0  c  d
-# n = a + b + c + d
-
-
-def jaccard_coefficient(        totalX, totalY, countX, countY, val):
-    #M11 / (M01 + M10 + M11)
-    try:
-        r  = ( float( val ) / (( countX + countY ) - val ) )
-    except ZeroDivisionError:
-        print "jaccard_coefficient: DIVISION BY ZERO"
-        print totalX, totalY, countX, countY, val
-        sys.exit(0)
-    return r
-
-def jaccard_dissimilarity_sqrt(               totalX, totalY, countX, countY, val, exclusiveXCount, exclusiveXTotal, exclusiveYCount, exclusiveYTotal, differenceExclusiveXYCount, sumSharedXY, differenceCountXY, differenceExclusiveXYTotal):
-    #sqrt( 1-Jindex )
-    r  = math.sqrt( jaccard_dissimilarity(    totalX, totalY, countX, countY, val, exclusiveXCount, exclusiveXTotal, exclusiveYCount, exclusiveYTotal, differenceExclusiveXYCount, sumSharedXY, differenceCountXY, differenceExclusiveXYTotal ) )
-    return r
-
-def jaccard_dissimilarity(                    totalX, totalY, countX, countY, val, exclusiveXCount, exclusiveXTotal, exclusiveYCount, exclusiveYTotal, differenceExclusiveXYCount, sumSharedXY, differenceCountXY, differenceExclusiveXYTotal):
-    #sqrt( 1-Jindex )
-    r  = 1 - jaccard_coefficient( totalX, totalY, countX, countY, val )
-    return r
-
-
-methods_available = {
-    #"jaccard_dissimilarity_sqrt": jaccard_dissimilarity_sqrt,
-    "jaccard_dissimilarity"     : jaccard_dissimilarity
-}
-    
-def attachMethodName( methodName,  func ):
-    print "attaching method", methodName
-    if methodName not in methods_available:
-        print "unknown method:", methodName
-        sys.exit(1)
-        
-    def ffunc(dissi, x, y, totalX, totalY, countX, countY, val):
-        #print "running attached function", methodName
-        exclusiveXCount            = ( countX - val    )
-        exclusiveYCount            = ( countY - val    )
-        
-        exclusiveXTotal            = ( totalX - val    )
-        exclusiveYTotal            = ( totalY - val    )
-        
-        differenceExclusiveXYCount = exclusiveXCount + exclusiveYCount
-        sumSharedXY                = ( totalX - countX ) + ( totalY - countY )
-        
-        differenceCountXY          = ( countX + countY )
-        differenceExclusiveXYTotal = ( totalX + totalY )
-        
-        r = func(                               totalX, totalY, countX, countY, val, exclusiveXCount, exclusiveXTotal, exclusiveYCount, exclusiveYTotal, differenceExclusiveXYCount, sumSharedXY, differenceCountXY, differenceExclusiveXYTotal)
-        
-        #print "dissi method %-30s x %3d y %3d r %.5f totalX %12d totalY %12d countX %12d countY %12d val %12d" % ( methodName, x, y, r, totalX, totalY, countX, countY, val )
-        dissi[ methodName ][x][y] += r
-    
-    return ffunc
-
-for methodName in methods_available.keys():
-    methods_available[ methodName ] = attachMethodName( methodName, methods_available[ methodName ] )
-    
 
 
 ###############
@@ -139,6 +53,7 @@ class statsfh(object):
         
         self.filetype                           = self.jfinst.getKey( "filetype"           )
         self.speciesNames                       = self.jfinst.getKey( "in_filenames"       )
+        self.num_kmers                          = self.jfinst.getKey( "in_filenames"       )
         self.speciesPosition                    = {}
         
         self.speciesCount                       = {}
@@ -363,21 +278,21 @@ class statsfh(object):
         #sys.exit(0)
 
 
-def calcDistance(stats, methods=methods_available.keys(), matrixValue="Valid", matrixType="Raw"):
+def calcDistance(statistics, methods=stats.methods_enabled.keys(), matrixValue="Valid", matrixType="Raw"):
     #part, maxNameLen, diss, data
     print "CALCULATING DISTANCE ... creating empty ... MATRIX VALUE", matrixValue,"... MATRIX TYPE", matrixType
-    assert(matrixType in stats.matrix)
+    assert(matrixType in statistics.matrix)
 
-    names        = stats.speciesNames
-    data         = stats.matrix[matrixType]
-    analysisName = stats.scaleType
-    numSpps      = stats.numSpps
+    names        = statistics.speciesNames
+    data         = statistics.matrix[matrixType]
+    analysisName = statistics.scaleType
+    numSpps      = statistics.numSpps
     dissi        = {}
 
 
     print "CALCULATING DISTANCE ... creating empty"
     for methodName in methods:
-        print "CALCULATING DISTANCE ... creating empty ... METHOD",methodName
+        print "CALCULATING DISTANCE ... creating empty ... METHOD", methodName
         dissi[ methodName ] = [ None ] * numSpps
                 
         for x in xrange( numSpps ):
@@ -389,20 +304,20 @@ def calcDistance(stats, methods=methods_available.keys(), matrixValue="Valid", m
     #print dissi
 
     print "CALCULATING DISTANCE ... converting"
-    print "CALCULATING DISTANCE ... converting ... ANALYSIS",analysisName,"... MATRIX VALUE", matrixValue,"... MATRIX TYPE", matrixType
+    print "CALCULATING DISTANCE ... converting ... ANALYSIS", analysisName, "... MATRIX VALUE", matrixValue, "... MATRIX TYPE", matrixType
 
     for x in xrange( numSpps ):
-        totalX   = stats.speciesCount["Total"    ][matrixType][ x ]
-        countX   = stats.speciesCount[matrixValue][matrixType][ x ]
+        totalX   = statistics.speciesCount["Total"    ][matrixType][ x ]
+        countX   = statistics.speciesCount[matrixValue][matrixType][ x ]
         
         for y in xrange( numSpps ):
-            totalY   = stats.speciesCount["Total"    ][matrixType][ y ]
-            countY   = stats.speciesCount[matrixValue][matrixType][ y ]
+            totalY   = statistics.speciesCount["Total"    ][matrixType][ y ]
+            countY   = statistics.speciesCount[matrixValue][matrixType][ y ]
 
-            val      = stats.matrix[matrixType][x][y]
+            val      = statistics.matrix[matrixType][x][y]
             
             for methodName in methods:
-                methodFunc = methods_available[methodName]
+                methodFunc = stats.methods_enabled[methodName]
                 methodFunc(dissi, x, y, totalX, totalY, countX, countY, val)
     
     return dissi
@@ -496,10 +411,10 @@ def dissi2dissimatrix(dissi, stats):
 
 
 
-def fixTitles( titles, stats ):
+def fixTitles( titles, statistics ):
     print "tree species"
     print "\t",
-    print "\n\t".join( sorted(stats.speciesPosition.keys()) )
+    print "\n\t".join( sorted(statistics.speciesPosition.keys()) )
     print
     print "file names"
     print "\t",
@@ -507,16 +422,16 @@ def fixTitles( titles, stats ):
     print
     foundnames = []
 
-    for fname in sorted(stats.speciesPosition):
+    for fname in sorted(statistics.speciesPosition):
         found = False
         for tname in titles:
             if tname in fname:
                 fnewname = titles[ tname ]
                 print " renaming", fname, "to", fnewname
-                pos = stats.speciesPosition[ fname    ]
-                stats.speciesNames[          pos      ] = fnewname
-                stats.speciesPosition[       fnewname ] = pos
-                del stats.speciesPosition[   fname    ]
+                pos = statistics.speciesPosition[ fname    ]
+                statistics.speciesNames[          pos      ] = fnewname
+                statistics.speciesPosition[       fnewname ] = pos
+                del statistics.speciesPosition[   fname    ]
                 found = True
                 break
 
@@ -580,7 +495,7 @@ def exportMatrices(infile, matrices, stats):
 
 
 
-def processBin( infile, filetitles=None, ignore_file=None, scaleType=statsfh.SCALE_NONE, methods=methods_available.keys(), matrixType="Raw" ):
+def processBin( infile, filetitles=None, ignore_file=None, scaleType=statsfh.SCALE_NONE, methods=stats.methods_enabled.keys(), matrixType="Raw" ):
     if not os.path.exists(infile):
         print "input file %s does not exists" % infile
         sys.exit(1)
@@ -597,7 +512,7 @@ def processBin( infile, filetitles=None, ignore_file=None, scaleType=statsfh.SCA
 
 
     print "READING FILE"
-    stats = statsfh(infile, scaleType=scaleType, ignore_file=ignore_file)
+    statistics = statsfh(infile, scaleType=scaleType, ignore_file=ignore_file)
     print "READING FILE ... done"
 
 
@@ -605,31 +520,31 @@ def processBin( infile, filetitles=None, ignore_file=None, scaleType=statsfh.SCA
     print "PRINTING DISTANCE"
     if filetitles is not None:
         titles = readFilesTitles(filetitles)
-        fixTitles( titles, stats )
+        fixTitles( titles, statistics )
 
-    stats.saveCSV()
+    statistics.saveCSV()
 
 
     
     print "CALCULATING DISTANCE"
-    dissi = calcDistance( stats, methods=methods, matrixType=matrixType )
+    dissi = calcDistance( statistics, methods=methods, matrixType=matrixType )
     print "CALCULATING DISTANCE ... done"
     
     
 
-    printDissi( stats, dissi, infile )
+    printDissi( statistics, dissi, infile )
     print "PRINTING DISTANCE .. done"
 
 
 
     print "CONVERTING MATRIX"
-    matrices = dissi2dissimatrix(dissi, stats)
+    matrices = dissi2dissimatrix(dissi, statistics)
     print "CONVERTING MATRIX ... done"
 
 
     
     print "EXPORTING NJ"
-    exportMatrices(infile, matrices, stats)
+    exportMatrices(infile, matrices, statistics)
     print "EXPORTING NJ ... done"
 
 
@@ -662,7 +577,7 @@ def main():
         print "no ignore file given"
 
 
-    methods = methods_available.keys()
+    methods = stats.methods_enabled.keys()
 
 
     processBin( infile, filetitles=filetitles, ignore_file=ignore_file, scaleType=statsfh.SCALE_NONE       , methods=methods )

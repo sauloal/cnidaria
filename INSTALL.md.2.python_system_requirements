@@ -1,0 +1,10 @@
+#install system wide libraries
+set -xeu
+
+sudo apt-get update && \
+sudo apt-get install -y python python-setuptools python-pip python-lxml && \
+sudo apt-get install -y python-imaging python-qt4
+
+#python-mpi4py
+
+

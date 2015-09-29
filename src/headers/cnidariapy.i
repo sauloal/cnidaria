@@ -12,6 +12,7 @@ namespace std {
 /* Includes the header in the wrapper code */
 #include "shared.hpp"
 #include "cnidaria.hpp"
+
 using namespace cnidaria;
 %}
 

@@ -1,7 +1,0 @@
-#intall system wide libraries
-set -xeu
-
-sudo apt-get update &&
-sudo apt-get install -y libboost-all-dev swig libc6-i386 lib32stdc++6 make g++
-
-

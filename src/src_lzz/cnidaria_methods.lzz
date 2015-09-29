@@ -139,7 +139,9 @@ namespace cnidaria {
                 std::cout << " set to " << max_val_i << " min val " << min_val_i << "\n";
             }
             
-            
+            void    set_complete_registers( baseInt cr )                { complete_registers = cr;   }
+			baseInt get_complete_registers()                            { return complete_registers; }
+
             void set_export_summary(  bool s ) { export_summary  = s; }
             void set_export_matrix(   bool s ) { export_matrix   = s; }
             void set_export_complete( header_data &hda, bool s, string_t filename="" ) { if ( filename=="" ) { filename=basename; }; if ( s ) { enable_complete( hda, filename ); } else { disable_complete(); }; }
@@ -871,6 +873,7 @@ namespace cnidaria {
                 updateHeaderData();
             }
 
+			baseInt get_complete_registers()                         { return hash_table.get_complete_registers();                                                                                            }
             void set_save_every(      baseInt pe )                   { save_every = pe;                                                                                                                       }
             void set_num_pieces(      baseInt np )                   { num_pieces = np;                                                                                                                       }
             void set_piece_num(       baseInt pn )                   { piece_num  = pn;                                                                                                                       }
@@ -878,6 +881,8 @@ namespace cnidaria {
             void set_max_val(         double  ma )                   { hash_table.set_max_val( ma );                                                                                                          }
             void set_min_val(         baseInt mi )                   { hash_table.set_min_val( mi );                                                                                                          }
             void set_max_val(         baseInt ma )                   { hash_table.set_max_val( ma );                                                                                                          }
+			void set_complete_registers(   baseInt cr )              { hash_table.set_complete_registers( cr );                                                                                               }
+			void append_complete_registers(baseInt cr )              { hash_table.set_complete_registers( get_complete_registers() + cr );                                                                    }
             void set_export_summary(  bool s )                       {                                                           hash_table.set_export_summary(       s           ); export_summary  = s;     }
             void set_export_matrix(   bool s )                       {                                                           hash_table.set_export_matrix(        s           ); export_matrix   = s;     }
             void set_export_complete( bool s, string_t filename="" ) { updateHeaderData(); if(filename==""){filename=basename;}; hash_table.set_export_complete( hda, s, filename ); export_complete = s;     }
@@ -919,6 +924,7 @@ namespace cnidaria {
 
             void run( boost::recursive_mutex *g_guard_s=NULL )       {
                 updateHeaderData();
+				
                 std::cout << "starting phylogenomics with " << num_threads << " threads" << std::endl;
                 std::cout << "starting " << num_threads << " threads" << std::endl;
                 
@@ -950,9 +956,13 @@ namespace cnidaria {
                     );
                 }
                 
-                std::cout << "waiting for threads" << std::endl;
+                std::cout << "waiting for sub threads" << std::endl;
                 tp.wait();
-                std::cout << "threads finished" << std::endl;
+                std::cout << "sub threads finished"
+				          << "gCounter "               << gCounter << std::endl;
+				
+				//hda.complete_registers = gCounter;
+				append_complete_registers(gCounter);
             }
             
             void run_process( const baseInt thread_num, boost::recursive_mutex *g_guard_s, boost::recursive_mutex *g_guard_m, boost::recursive_mutex *g_guard_e ) {
@@ -968,8 +978,8 @@ namespace cnidaria {
                  thread  =  4 * 10 +  5 =  45
                  thread  =  9 * 10 + 10 = 100
                 */
-                baseInt num_threadsL   =   this->num_pieces * this->num_threads;
-                baseInt thread_numL    = ( this->piece_num  * this->num_threads ) + thread_num;
+                baseInt     num_threadsL   =   this->num_pieces * this->num_threads;
+                baseInt     thread_numL    = ( this->piece_num  * this->num_threads ) + thread_num;
                 
                 string_t    name           = (boost::format("merge jfs pc %3d/%3d thr %3d/%3d") % (piece_num+1) % this->num_pieces % (thread_num + 1) % this->num_threads).str();
 

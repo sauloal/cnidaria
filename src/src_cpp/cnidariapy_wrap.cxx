@@ -4870,6 +4870,7 @@ SWIGINTERN void std_vector_Sl_std_string_Sg__append(std::vector< std::string > *
 /* Includes the header in the wrapper code */
 #include "shared.hpp"
 #include "cnidaria.hpp"
+
 using namespace cnidaria;
 
 
@@ -7921,6 +7922,18 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_version(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":version")) SWIG_fail;
+  version();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_openoutfile(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::ofstream *arg1 = 0 ;
@@ -9439,6 +9452,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_intPair", _wrap_delete_intPair, METH_VARARGS, NULL},
 	 { (char *)"intPair_swigregister", intPair_swigregister, METH_VARARGS, NULL},
 	 { (char *)"fact", _wrap_fact, METH_VARARGS, NULL},
+	 { (char *)"version", _wrap_version, METH_VARARGS, NULL},
 	 { (char *)"openoutfile", _wrap_openoutfile, METH_VARARGS, NULL},
 	 { (char *)"openinfile", _wrap_openinfile, METH_VARARGS, NULL},
 	 { (char *)"merge_complete", _wrap_merge_complete, METH_VARARGS, NULL},

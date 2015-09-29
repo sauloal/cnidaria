@@ -16,6 +16,12 @@ int fact (int n)
         return n * fact(n-1);
     }
 }
+void version ()
+               {
+   std::cout   << "cnidaria version: " << __CNIDARIA_VERSION__ << "\n"
+               << "build date      : " << "Sep 29 2015"        << "\n"
+               << "build time      : " << "19:35:57"           << std::endl;
+}
 namespace cnidaria
 {
   void openoutfile (std::ofstream & outfile_, string_t filename)
@@ -234,8 +240,9 @@ namespace cnidaria
             exit(1);
         }
 
-        hda_g.num_pieces = 1;
-        hda_g.piece_num  = 0;
+        hda_g.num_pieces         = 1;
+        hda_g.piece_num          = 0;
+        hda_g.complete_registers = num_registers;
         hda_g.print();
 
         std::cout << " finished merging successfully. saving header" << std::endl;
@@ -479,8 +486,9 @@ namespace cnidaria
             exit(1);
         }
 
-        hda_g.num_pieces = 1;
-        hda_g.piece_num  = 0;
+        hda_g.num_pieces         = 1;
+        hda_g.piece_num          = 0;
+        hda_g.complete_registers = num_registers;
         hda_g.print();
 
         std::cout << " finished merging successfully. saving header" << std::endl;
@@ -543,6 +551,7 @@ namespace cnidaria
         baseint_vec_t       num_kmer_total_spp;
         baseint_vec_t       num_kmer_valid_spp;
         j_matrix_s_vec_t    j_matrices;
+        baseInt             sumRegisters  =  0;
 
 
         hda.infiles            = &infiles;
@@ -591,7 +600,7 @@ namespace cnidaria
         std::cout << "opening out file " << out_file + EXT_MATRIX << std::endl;
         openoutfile( oufile_, out_file + EXT_MATRIX );
 
-        cnidaria_header_rw                   hd_g = cnidaria_header_rw ();
+        cnidaria_header_rw          hd_g = cnidaria_header_rw ();
         header_data                 hda_g;
 
         string_vec_t                infiles_g;
@@ -621,7 +630,7 @@ namespace cnidaria
             std::cout << " parsing in file " << std::endl;
 
             header_data hda;
-            cnidaria_header_rw                 hd = cnidaria_header_rw ();
+            cnidaria_header_rw        hd = cnidaria_header_rw ();
 
             string_vec_t              infiles;
             string_vec_t              srcfiles;
@@ -782,7 +791,7 @@ namespace cnidaria
 {
   piece_data::piece_data (string_vec_t & srcfiles_, string_t & out_file_, baseInt num_threads_, baseInt minVal_, baseInt save_every_, bool export_complete_, bool export_summary_, bool export_matrix_, baseInt num_pieces_, baseInt piece_num_)
     : srcfiles (srcfiles_), out_file (out_file_), num_threads (num_threads_), minVal (minVal_), save_every (save_every_), export_complete (export_complete_), export_summary (export_summary_), export_matrix (export_matrix_), num_pieces (num_pieces_), piece_num (piece_num_)
-                                                    {
+                {
                     merger = new merge_jfs( srcfiles_, out_file_ );
                     locker = new boost::recursive_mutex;
   }
@@ -805,6 +814,11 @@ namespace cnidaria
         std::cout << "waiting for threads" << std::endl;
         tp.wait();
         std::cout << "threads finished" << std::endl;
+        std::cout << "sent all pieces"  << std::endl;
+        for ( baseInt piece_num = 0; piece_num < data.size(); ++piece_num ) {
+            std::cout   << "piece"    << piece_num << " = "
+                        << "gCounter" << data[piece_num].merger->get_complete_registers() << std::endl;
+        }
   }
 }
 namespace cnidaria
@@ -827,7 +841,7 @@ namespace cnidaria
 
         data.merger->run( data.locker );
 
-        std::cout << "saving" << std::endl;
+        std::cout   << "piece sent gCounter: " << data.merger->get_complete_registers() << std::endl;
   }
 }
 namespace cnidaria
@@ -837,6 +851,9 @@ namespace cnidaria
         piece_data d    = piece_data( srcfiles, out_file, num_threads, minVal, save_every, export_complete, export_summary, export_matrix, num_pieces, piece_num );
 
         send_piece( d );
+
+        std::cout   << "saving" << std::endl;
+        std::cout   << "data sent gCounter: " << d.merger->get_complete_registers() << std::endl;
 
         d.merger->save_all( out_file );
   }

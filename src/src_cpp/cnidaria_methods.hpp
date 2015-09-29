@@ -50,6 +50,8 @@ namespace cnidaria
     void set_max_val (double ma);
     void set_min_val (baseInt mi);
     void set_max_val (baseInt ma);
+    void set_complete_registers (baseInt cr);
+    baseInt get_complete_registers ();
     void set_export_summary (bool s);
     void set_export_matrix (bool s);
     void set_export_complete (header_data & hda, bool s, string_t filename = "");
@@ -203,6 +205,7 @@ namespace cnidaria
     static baseInt sCounter;
     merge_jfs (string_vec_t & srcfilesl, string_t basenamel = "cnidaria_db");
     void init ();
+    baseInt get_complete_registers ();
     void set_save_every (baseInt pe);
     void set_num_pieces (baseInt np);
     void set_piece_num (baseInt pn);
@@ -210,6 +213,8 @@ namespace cnidaria
     void set_max_val (double ma);
     void set_min_val (baseInt mi);
     void set_max_val (baseInt ma);
+    void set_complete_registers (baseInt cr);
+    void append_complete_registers (baseInt cr);
     void set_export_summary (bool s);
     void set_export_matrix (bool s);
     void set_export_complete (bool s, string_t filename = "");
