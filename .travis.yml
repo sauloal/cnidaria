@@ -26,7 +26,7 @@ before_install:
   - sed -i 's/TIME_UTC/TIME_UTC_/' src/libs/threadpool/boost/./threadpool/./detail/../task_adaptors.hpp
 
 install:
-  - GEN_SHARED=true make cnidaria
+  - GEN_SHARED=true make jelly cnidaria run
 
 script:
   - scripts/cnidaria.py -h
