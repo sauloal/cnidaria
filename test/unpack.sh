@@ -9,7 +9,7 @@ function get {
     if [[ ! -f "$SPP/$SPP.fasta" ]]; then
         mkdir -p $SPP
         cd $SPP
-        wget --no-clobber --continue --timeout=60 --tries=2 --random-wait ${PREFIX}*.fna
+        wget --quiet --no-clobber --continue --timeout=60 --tries=2 --random-wait ${PREFIX}*.fna
         cat *.fna > ../$SPP.fasta
         cd ..
     fi
