@@ -30,7 +30,7 @@ install:
 
 script:
   - scripts/cnidaria.py -h
-  - make -C test fastas
+  - cd test && unpack.sh
   - SAMPLEDATA=true NOIMAGE=true make -C test jfs
   - SAMPLEDATA=true NOIMAGE=true make -C test maker
   - make -C test/out/test/test

@@ -164,7 +164,7 @@ help:
 	@echo "JELLY_NUM_FILES       ?= 300   - number of disk files"
 
 
-.PHONY: json makefile fastas maker jfs
+.PHONY: json maker jfs
 
 json: $(OUT_FILE)
 
