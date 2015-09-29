@@ -10,8 +10,7 @@ function get {
         mkdir -p $SPP
         cd $SPP
         wget --quiet --no-clobber --continue --timeout=60 --tries=2 --random-wait ${PREFIX}*.fna
-        cat *.fna > ../$SPP.fasta
-        ls
+        cat *.fna > $SPP.fasta
         cd ..
     fi
 }
