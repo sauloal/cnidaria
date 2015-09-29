@@ -31,6 +31,7 @@ install:
 script:
   - scripts/cnidaria.py -h
   - cd test && ./unpack.sh && cd ..
+  - SAMPLEDATA=true NOIMAGE=true make -C test print
   - SAMPLEDATA=true NOIMAGE=true make -C test jfs
   - SAMPLEDATA=true NOIMAGE=true make -C test maker
   - make -C test/out/test/test

@@ -11,6 +11,7 @@ function get {
         cd $SPP
         wget --quiet --no-clobber --continue --timeout=60 --tries=2 --random-wait ${PREFIX}*.fna
         cat *.fna > ../$SPP.fasta
+        ls
         cd ..
     fi
 }
