@@ -33,5 +33,5 @@ script:
   - make -C test fastas
   - SAMPLEDATA=true NOIMAGE=true make -C test jfs
   - SAMPLEDATA=true NOIMAGE=true make -C test maker
-  - make -C test/out/test/ $PWD/test/out/test/test.all.csv
+  - make -C test/out/test/test
 

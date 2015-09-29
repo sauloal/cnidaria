@@ -1,10 +1,10 @@
 CNIDARIA: fast, reference-free phylogenomic clustering
 
-![Travis Continuous Integration Build Status](https://travis-ci.org/sauloal/cnidaria.svg?branch=master "Travis Continuous Integration Build Status")
+[https://travis-ci.org/sauloal/cnidaria](![Travis Continuous Integration Build Status](https://travis-ci.org/sauloal/cnidaria.svg?branch=master "Travis Continuous Integration Build Status"))
 
 Manual & Wiki: https://github.com/sauloal/cnidaria/wiki
 
-Instalation: INSTALL.md
+Cnidaria does not need to be compiled but if you really want to, please refer to INSTALL.md.
 
 Motivation: Identification of biological specimens is a major requirement 
 for a range of applications. Reference-free methods analyse unprocessed 
