@@ -51,7 +51,7 @@ ifdef PIGZ
     DECOMPRESS=pigz -kdc
 else
     $(info USING GZIP $(PIGZ))
-    COMPRESS=gzip -k1
+    COMPRESS=gzip -1
     DECOMPRESS=gunzip -kdc
 endif
 
