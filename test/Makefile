@@ -52,7 +52,7 @@ ifdef PIGZ
 else
     $(info USING GZIP $(PIGZ))
     COMPRESS=gzip --stdout -1
-    DECOMPRESS=gunzip --keep --stdout
+    DECOMPRESS=gunzip --stdout
 endif
 
 
