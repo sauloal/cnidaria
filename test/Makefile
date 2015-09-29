@@ -44,8 +44,17 @@ endif
 ####
 # PROGRAMS
 ####
-COMPRESS=pigz -k1
-DECOMPRESS=pigz -kdc
+PIGZ:=$(shell which pigz &>/dev/null)
+ifdef PIGZ
+    $(info USING PIGZ $(PIGZ))
+    COMPRESS=pigz -k1
+    DECOMPRESS=pigz -kdc
+else
+    $(info USING GZIP $(PIGZ))
+    COMPRESS=gzip -k1
+    DECOMPRESS=gunzip -kdc
+endif
+
 
 
 
