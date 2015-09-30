@@ -2,7 +2,6 @@
 import os, sys
 import time
 import copy
-import math
 
 import reloader
 reloader.add_all(add_lib=False, add_c=False)
@@ -33,6 +32,8 @@ import stats
 
 methods_to_apply = [ "jaccard_dissimilarity" ]
 
+methods_to_apply = stats.methods_available.keys()
+
 stats.init( methods_to_apply )
 
 
@@ -53,7 +54,7 @@ class statsfh(object):
         
         self.filetype                           = self.jfinst.getKey( "filetype"           )
         self.speciesNames                       = self.jfinst.getKey( "in_filenames"       )
-        self.num_kmers                          = self.jfinst.getKey( "in_filenames"       )
+        self.num_kmers                          = self.jfinst.getKey( "complete_registers" )
         self.speciesPosition                    = {}
         
         self.speciesCount                       = {}
@@ -287,6 +288,7 @@ def calcDistance(statistics, methods=stats.methods_enabled.keys(), matrixValue="
     data         = statistics.matrix[matrixType]
     analysisName = statistics.scaleType
     numSpps      = statistics.numSpps
+    num_kmers    = statistics.num_kmers
     dissi        = {}
 
 
@@ -318,7 +320,7 @@ def calcDistance(statistics, methods=stats.methods_enabled.keys(), matrixValue="
             
             for methodName in methods:
                 methodFunc = stats.methods_enabled[methodName]
-                methodFunc(dissi, x, y, totalX, totalY, countX, countY, val)
+                methodFunc(dissi, num_kmers, x, y, totalX, totalY, countX, countY, val)
     
     return dissi
 

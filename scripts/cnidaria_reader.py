@@ -397,11 +397,24 @@ class reader(object):
             self.getNumRegisters = self.getNumRegistersMatrix
             self.getAll          = self.getAllMatrix
             self.next            = self.nextMatrix
+            self.block_bytes     = self.json['block_bytes'       ]
+            self.kmer_size       = self.json['kmer_size'         ]
+            self.kmer_bytes      = self.json['kmer_bytes'        ]
+            self.num_infiles     = self.json['num_infiles'       ]
+            self.data_bytes      = self.json['data_bytes'        ]
+            self.numRegs         = self.json["complete_registers"]
+
         
         elif self.filetype == "cnidaria/json_matrix"  :
             self.getSize         = self.getSizeBytesMatrix
             self.getAll          = self.getAllJsonMatrix
             self.next            = self.nextJsonMatrix
+            self.block_bytes     = self.json['block_bytes'       ]
+            self.kmer_size       = self.json['kmer_size'         ]
+            self.kmer_bytes      = self.json['kmer_bytes'        ]
+            self.num_infiles     = self.json['num_infiles'       ]
+            self.data_bytes      = self.json['data_bytes'        ]
+            self.numRegs         = self.json["complete_registers"]
         
         else:
             print "unknown file format:", filetype
