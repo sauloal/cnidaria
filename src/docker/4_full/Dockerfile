@@ -10,7 +10,7 @@ WORKDIR /home/cnidaria
 
 RUN git clone https://github.com/sauloal/cnidaria.git && \
     cd cnidaria && \
-    make cnidaria jellyfish run
+    GEN_SHARED=true make jelly cnidaria run
 
 #    cd cnidaria/src && \
 #    make clean && \
