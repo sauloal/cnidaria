@@ -534,12 +534,12 @@ def attachMethodName( methodName,  func ):
             r = func()
 
         except ZeroDivisionError:
-            print "DIVISION BY ZERO"
+            #print "DIVISION BY ZERO"
             #stats_data.print_stats()
             r = 1
         
         except ValueError:
-            print "MATH ERROR"
+            #print "MATH ERROR"
             #stats_data.print_stats()
             r = 1
         

@@ -4,6 +4,8 @@ import sys
 curr_pwd = os.getcwd()
 
 def readFilesTitles(filetitles, verbose=True):
+    verbose = True
+
     macros = {
         'CURR_PWD': curr_pwd
     }
@@ -22,12 +24,15 @@ def readFilesTitles(filetitles, verbose=True):
                 if 'MACRO' in line:
                     if verbose:
                         print "has macro"
+
                     cols       = [x.strip() for x in line[1:].split(":")]
                     macro_type = cols[1]
                     macro_name = cols[2]
                     macro_val  = cols[3]
+
                     if verbose:
                         print "name %s type %s val %s" % ( macro_name, macro_type, macro_val )
+
                     if macro_type == 'A':
                         if macro_name not in macros:
                             macros[ macro_name ] = []
@@ -36,6 +41,7 @@ def readFilesTitles(filetitles, verbose=True):
                     elif macro_type == 'H':
                         if macro_name not in macros:
                             macros[ macro_name ] = {}
+
                         macro_key = macro_val
                         macro_val = cols[4]
                         macros[ macro_name ][ macro_key ] = macro_val
@@ -67,6 +73,12 @@ def readFilesTitles(filetitles, verbose=True):
                 exts = macros['EXTS']
                 for ext in exts:
                     fext         = fname + ext
+                    titles[fext] = fnewname
+
+                    fext         = (fname % macros) + ext
+                    titles[fext] = fnewname
+
+                    fext         = os.path.abspath(fname % macros) + ext
                     titles[fext] = fnewname
                     #print "adding ext %s to %s" % ( fext, fnewname )
 

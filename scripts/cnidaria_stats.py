@@ -289,6 +289,7 @@ def calcDistance(statistics, methods=stats.methods_enabled.keys(), matrixValue="
     analysisName = statistics.scaleType
     numSpps      = statistics.numSpps
     num_kmers    = statistics.num_kmers
+    valid        = statistics.speciesCount["Valid"]["Raw"     ]
     dissi        = {}
 
 
@@ -305,6 +306,7 @@ def calcDistance(statistics, methods=stats.methods_enabled.keys(), matrixValue="
 
     #print dissi
 
+    
     print "CALCULATING DISTANCE ... converting"
     print "CALCULATING DISTANCE ... converting ... ANALYSIS", analysisName, "... MATRIX VALUE", matrixValue, "... MATRIX TYPE", matrixType
 
@@ -320,6 +322,8 @@ def calcDistance(statistics, methods=stats.methods_enabled.keys(), matrixValue="
             
             for methodName in methods:
                 methodFunc = stats.methods_enabled[methodName]
+                if x == y:
+                    val = valid[x]
                 methodFunc(dissi, num_kmers, x, y, totalX, totalY, countX, countY, val)
     
     return dissi
@@ -427,7 +431,7 @@ def fixTitles( titles, statistics ):
     for fname in sorted(statistics.speciesPosition):
         found = False
         for tname in titles:
-            if tname in fname:
+            if tname == fname:
                 fnewname = titles[ tname ]
                 print " renaming", fname, "to", fnewname
                 pos = statistics.speciesPosition[ fname    ]
@@ -521,8 +525,11 @@ def processBin( infile, filetitles=None, ignore_file=None, scaleType=statsfh.SCA
 
     print "PRINTING DISTANCE"
     if filetitles is not None:
+        print "READING TITLES"
         titles = readFilesTitles(filetitles)
         fixTitles( titles, statistics )
+
+
 
     statistics.saveCSV()
 
