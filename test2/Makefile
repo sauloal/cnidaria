@@ -44,8 +44,17 @@ endif
 ####
 # PROGRAMS
 ####
-COMPRESS=pigz -k1
-DECOMPRESS=pigz -kdc
+PIGZ:=$(shell which pigz &>/dev/null)
+ifdef PIGZ
+    $(info USING PIGZ $(PIGZ))
+    COMPRESS=pigz --keep -1
+    DECOMPRESS=pigz --keep --stdout --decompress
+else
+    $(info USING GZIP $(PIGZ))
+    COMPRESS=gzip --stdout -1
+    DECOMPRESS=gunzip --stdout
+endif
+
 
 
 
@@ -187,6 +196,10 @@ $(DATA_FOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATA_FOLDER)/%/*.fastq.gz
 	$(DECOMPRESS) $? | head -$(NUM_SAMPLE_ROWS) | $(COMPRESS) > $(DATA_FOLDER)/$*/head.fqh.gz
 	test -f $@ || ( cd $(DATA_FOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) head.fqh.gz) && mv $@.tmp $@ )
 
+$(DATA_FOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATA_FOLDER)/%/*.fastq
+	head -$(NUM_SAMPLE_ROWS) $? | $(COMPRESS) > $(DATA_FOLDER)/$*/head.fqh.gz
+	test -f $@ || ( cd $(DATA_FOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) head.fqh.gz) && mv $@.tmp $@ )
+
 $(DATA_FOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATA_FOLDER)/%/*.fasta.gz
 	$(DECOMPRESS) $? | head -$(NUM_SAMPLE_ROWS) | $(COMPRESS) > $(DATA_FOLDER)/$*/head.fah.gz
 	test -f $@ || ( cd $(DATA_FOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) head.fah.gz) && mv $@.tmp $@ )
@@ -210,6 +223,9 @@ $(DATA_FOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATA_FOLDER)/%/*.fq.gz
 
 $(DATA_FOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATA_FOLDER)/%/*.fastq.gz
 	test -f $@ || ( cd $(DATA_FOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FQ) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) $?) && mv $@.tmp $@ )
+
+$(DATA_FOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATA_FOLDER)/%/*.fastq
+	test -f $@ || ( cd $(DATA_FOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming $? && mv $@.tmp $@ )
 
 $(DATA_FOLDER)/%/$(JELLY_KMER_SIZE).jf: $(DATA_FOLDER)/%/*.fasta.gz
 	test -f $@ || ( cd $(DATA_FOLDER)/$* && ulimit -Sn 4096 && $(JELLYFISH) count -m $(JELLY_KMER_SIZE) -s $(JELLY_HASH_SIZE) --lower-count=$(JELLY_LOWER_COUNT_FA) -t $(JELLY_THREADS) -F $(JELLY_NUM_FILES) --disk --counter-len=$(JELLY_COUNTER_LEN) --out-counter-len=$(JELLY_OUT_COUNTER_LEN) --canonical -o $@.tmp --timing=$@.timming <($(DECOMPRESS) $?) && mv $@.tmp $@ )

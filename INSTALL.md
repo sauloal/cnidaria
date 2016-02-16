@@ -9,7 +9,7 @@
 - add script folder to your PATH by:
     - type, from this folder, every time you open a new terminal
 ```
-export PATH=$PWD/scripts:$PATH
+source enable.sh
 ```
 
     - add (only once) cnidaria/scripts to your $HOME/.bashrc and restart (only once) your terminal
@@ -20,6 +20,16 @@ echo "export PATH=$PWD/scripts:$PATH" >> $HOME/.bashrc
 
 
 # Compiling (!Not necessary!)
+**NOT NECESSARY**
+**NOT NECESSARY**
+**NOT NECESSARY**
+**NOT NECESSARY**
+**NOT NECESSARY**
+**NOT NECESSARY**
+**NOT NECESSARY**
+**NOT NECESSARY**
+**NOT NECESSARY**
+
 If you still want to do so:
 
 

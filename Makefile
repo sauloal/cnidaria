@@ -1,6 +1,6 @@
 .PHONY: jelly cnidaria run test
 
-all: jelly cnidaria run test
+all: jelly cnidaria run
 
 clean:
 	$(MAKE) -C src  clean
@@ -16,4 +16,5 @@ run: cnidaria jelly
 	scripts/cnidaria.py -h
 
 test:
+	(cd test && ./unpack.sh)
 	$(MAKE) -C test

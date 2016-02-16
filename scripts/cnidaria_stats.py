@@ -32,7 +32,7 @@ import stats
 
 methods_to_apply = [ "jaccard_dissimilarity" ]
 
-methods_to_apply = stats.methods_available.keys()
+#methods_to_apply = stats.methods_available.keys()
 
 stats.init( methods_to_apply )
 
