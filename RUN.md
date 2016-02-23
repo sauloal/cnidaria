@@ -9,6 +9,7 @@ source enable.sh
     - add (only once) cnidaria/scripts to your $HOME/.bashrc and restart (only once) your terminal
 ```
 echo "export PATH=$PWD/scripts:$PATH" >> $HOME/.bashrc
+echo "export PATH=$PWD/src/libs/Jellyfish/bin/:$PATH" >> $HOME/.bashrc
 ```
 
 #Test
