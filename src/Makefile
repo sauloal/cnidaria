@@ -213,7 +213,10 @@ jelly:
 	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static config CFLAGS='' LDFLAGS='' LD_LIBRARY_PATH='' LIBRARY_PATH=''
 	$(MAKE) -C $(LIB_EXT)/Jellyfish
 	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static
-
+	rm $(LIB_EXT)/libs/Jellyfish/bin/.libs/jellyfish
+	rm $(LIB_EXT)/libs/Jellyfish/bin/jellyfish
+	cp $(LIB_EXT)/libs/Jellyfish/bin/.libs/lt-jellyfish $(LIB_EXT)/libs/Jellyfish/bin/.libs/jellyfish
+	cp $(LIB_EXT)/libs/Jellyfish/bin/.libs/lt-jellyfish $(LIB_EXT)/libs/Jellyfish/bin/jellyfish
 
 
 

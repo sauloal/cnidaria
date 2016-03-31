@@ -10,13 +10,42 @@ CNIDARIA_NUM_PIECES   ?= 1
 CNIDARIA_EXTRA_FILES  ?=
 
 JELLY_KMER_SIZE       ?= 21
-JELLY_HASH_SIZE       ?= 1G
 JELLY_LOWER_COUNT_FA  ?= 1
 JELLY_LOWER_COUNT_FQ  ?= 2
 JELLY_THREADS         ?= 5
 JELLY_COUNTER_LEN     ?= 7
 JELLY_OUT_COUNTER_LEN ?= 1
 JELLY_NUM_FILES       ?= 300
+#JELLY_HASH_SIZE       ?= 1G
+
+
+
+ifndef JELLY_HASH_SIZE
+
+ifeq      ($(JELLY_KMER_SIZE), 31)
+JELLY_HASH_SIZE=4G
+
+else ifeq ($(JELLY_KMER_SIZE), 21)
+JELLY_HASH_SIZE=1G
+
+else ifeq ($(JELLY_KMER_SIZE), 17)
+JELLY_HASH_SIZE=512M
+
+else ifeq ($(JELLY_KMER_SIZE), 15)
+JELLY_HASH_SIZE=256M
+
+else ifeq ($(JELLY_KMER_SIZE), 11)
+JELLY_HASH_SIZE=128M
+
+else
+JELLY_HASH_SIZE=2G
+
+endif
+
+
+endif
+
+
 
 
 # CREATE FULL DATABASE (SLOW)
@@ -71,7 +100,8 @@ DEF_FILE=$(CURR_DIR)/$(OUT_FOLDER)_def.csv
 
 OUT_DIR=$(CURR_DIR)/$(OUT_BASE)/$(OUT_FOLDER)
 
-JELLYFISH=$(CURR_DIR)/../src/libs/Jellyfish/bin/jellyfish
+#JELLYFISH=$(CURR_DIR)/../src/libs/Jellyfish/bin/jellyfish
+JELLYFISH=$(shell which jellyfish)
 
 OUT_MAKE=$(OUT_DIR)/Makefile
 OUT_FILE=$(OUT_DIR)/$(OUT_FOLDER)/$(OUT_FOLDER).json
@@ -141,6 +171,7 @@ endif
 	@echo "OUT_FILE              $(OUT_FILE)"
 	@echo "OUT_DIR               $(OUT_DIR)"
 	@echo "OUT_FOLDER            $(OUT_FOLDER)"
+	@echo "JELLYFISH             $(JELLYFISH)"
 	@echo
 	@echo "INFOLDERS             $(INFOLDERS)"
 	@echo
@@ -149,7 +180,7 @@ endif
 
 
 help:
-	@echo all, clean, print, help, json, maker, jfs
+	@echo AVAILABLE COMMANDS: all, clean, print, help, json, maker, jfs
 	@echo 
 	@echo 
 	@echo "DATA_BASE             ?= data  - base path for input"
@@ -250,7 +281,7 @@ $(OUT_MAKE): $(INJF) $(INCNE)
 	echo $(INJF)                                  | tr " " "\n" |                   xargs -n1 -L1 -I{} bash -c 'dn=`dirname {}`; bn=`basename $$dn`; echo -e "{}\t$$bn"'  > $(FILE_LIST).tmp && mv $(FILE_LIST).tmp $(FILE_LIST)
 	echo $(CNIDARIA_EXTRA_FILES) $(INCNE)         | tr " " "\n" |                   xargs -n1 -L1 -I{} bash -c '                 bn=`basename {}`;   echo -e "{}\t$$bn"' >> $(FILE_LIST)
 	echo $(INJF) $(CNIDARIA_EXTRA_FILES) $(INCNE) | tr " " "\n" | sed 's/\.cne//' | xargs -n1 -L1 -I{} bash -c 'echo -e "$(OUT_FOLDER)\t{}"' > $(DEF_FILE).tmp && mv $(DEF_FILE).tmp $(DEF_FILE)
-	$(CURR_DIR)/../scripts/gen_mkfile.py $(FILE_LIST) $(DEF_FILE) $(OUT_DIR) $(JELLY_KMER_SIZE) $(CNIDARIA_NUM_PIECES) $(DOIMAGE) $(DODB)
+	gen_mkfile.py $(FILE_LIST) $(DEF_FILE) $(OUT_DIR) $(JELLY_KMER_SIZE) $(CNIDARIA_NUM_PIECES) $(DOIMAGE) $(DODB)
 
 
 $(OUT_FILE): $(OUT_MAKE) $(INJF)
