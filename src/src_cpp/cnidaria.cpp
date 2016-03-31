@@ -19,8 +19,8 @@ int fact (int n)
 void version ()
                {
    std::cout   << "cnidaria version: " << __CNIDARIA_VERSION__ << "\n"
-               << "build date      : " << "Sep 29 2015"        << "\n"
-               << "build time      : " << "19:35:57"           << std::endl;
+               << "build date      : " << "Mar 31 2016"        << "\n"
+               << "build time      : " << "11:12:50"           << std::endl;
 }
 namespace cnidaria
 {

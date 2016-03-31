@@ -3,8 +3,9 @@ all: bin/jellyfish_exe
 bin/jellyfish_exe:
 	@#g++ -static -std=c++0x -g -O3 -std=c++0x -o bin/jellyfish sub_commands/jellyfish.o sub_commands/count_main.o sub_commands/info_main.o sub_commands/dump_main.o sub_commands/histo_main.o sub_commands/stats_main.o sub_commands/merge_main.o sub_commands/bc_main.o sub_commands/query_main.o sub_commands/cite_main.o jellyfish/merge_files.o  -lpthread -Wl,--whole-archive ./.libs/libjellyfish-2.0.a -Wl,--no-whole-archive -Wl,-rpath -Wl,.libs
 	@#g++ -static -std=c++0x -g -O3 -std=c++0x -o bin/jellyfish sub_commands/jellyfish.o sub_commands/count_main.o sub_commands/info_main.o sub_commands/dump_main.o sub_commands/histo_main.o sub_commands/stats_main.o sub_commands/merge_main.o sub_commands/bc_main.o sub_commands/query_main.o sub_commands/cite_main.o jellyfish/merge_files.o  -lpthread -Wl,--whole-archive ./.libs/libjellyfish-2.0.a -Wl,--no-whole-archive -Wl,-rpath -Wl,.libs
+	mv jellyfish jellyfish_src || true
 	g++ -static -std=c++0x -g -O3 -std=c++0x -o bin/jellyfish sub_commands/jellyfish.o sub_commands/count_main.o sub_commands/info_main.o sub_commands/dump_main.o sub_commands/histo_main.o sub_commands/stats_main.o sub_commands/merge_main.o sub_commands/bc_main.o sub_commands/query_main.o sub_commands/cite_main.o jellyfish/merge_files.o -Wl,--whole-archive ./.libs/libjellyfish-2.0.a -Wl,--no-whole-archive -lpthread
-	ln -s jellyfish bin/jellyfish_exe
+	ln -s jellyfish bin/jellyfish_exe || true
 	cp -ar .libs/* bin/.libs/
 
 .PHONY: config

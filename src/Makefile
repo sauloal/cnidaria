@@ -71,7 +71,7 @@ CPP_INCL= \
 ifdef GEN_SHARED
 CPP_LIBS=-L/usr/lib/x86_64-linux-gnu -fopenmp -lboost_system -lboost_filesystem -lboost_thread -lpthread
 else
-CPP_LIBS=-nostdinc -static-libgcc -static-libstdc++ -fopenmp -Wl,-rpath,'$$ORIGIN/static' static/*.so -Wl,-Bstatic -lc -Wl,-Bdynamic 
+CPP_LIBS=-nostdinc -static-libgcc -static-libstdc++ -fopenmp -Wl,-rpath,'$(ORIGIN)/static' static/*.so -Wl,-Bstatic -lc -Wl,-Bdynamic 
 #-Wl,--dynamic-linker=static/ld-2.19.so 
 endif
 
@@ -158,11 +158,11 @@ $(UNIFIED): $(OPPS) $(J_OBJ)
 cpps: $(CPPS) $(HPPS)
 
 $(SRC_CPP)/%.cpp $(SRC_CPP)/%.hpp: $(SRC_LZZ)/%.lzz
-	mkdir -p $(SRC_CPP) || true
+	mkdir   -p $(SRC_CPP) || true
 	lzz/lzz -e $(CPP_VARS) -hx 'hpp' -I $(CPP_INCL) -c -o $(SRC_CPP) $<
 
 $(SRC_OBJ)/%.o: $(SRC_CPP)/%.cpp $(SRC_CPP)/%.hpp $(HEADERS)
-	mkdir -p $(SRC_OBJ) || true
+	mkdir  -p $(SRC_OBJ) || true
 	$(CPP) -c $(CPP_OPTS) $(CPP_INCL) $(CPP_VARS) $< -o $@ 2>&1
 
 $(JELLY_LIB)/%.o: $(JELLY_LIB)/%.cc
@@ -210,13 +210,15 @@ cnidariapy.py: _cnidariapy.so
 
 .PHONY: jelly
 jelly:
+	ls $(LIB_EXT)/Jellyfish
+	@#cd $(LIB_EXT)/Jellyfish && ./configure --enable-all-static
 	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static config CFLAGS='' LDFLAGS='' LD_LIBRARY_PATH='' LIBRARY_PATH=''
 	$(MAKE) -C $(LIB_EXT)/Jellyfish
 	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static
-	rm $(LIB_EXT)/Jellyfish/bin/.libs/jellyfish
-	rm $(LIB_EXT)/Jellyfish/bin/jellyfish
-	cp $(LIB_EXT)/Jellyfish/bin/.libs/lt-jellyfish $(LIB_EXT)/Jellyfish/bin/.libs/jellyfish
-	cp $(LIB_EXT)/Jellyfish/bin/.libs/lt-jellyfish $(LIB_EXT)/Jellyfish/bin/jellyfish
+	@#rm $(LIB_EXT)/Jellyfish/bin/.libs/jellyfish
+	@#rm $(LIB_EXT)/Jellyfish/bin/jellyfish
+	@#cp $(LIB_EXT)/Jellyfish/bin/.libs/lt-jellyfish $(LIB_EXT)/Jellyfish/bin/.libs/jellyfish
+	@#cp $(LIB_EXT)/Jellyfish/bin/.libs/lt-jellyfish $(LIB_EXT)/Jellyfish/bin/jellyfish
 
 
 
