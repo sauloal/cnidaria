@@ -1,4 +1,4 @@
-KMER_SIZE=21
+#KMER_SIZE=21
 #GEN_DEBUG=false
 #GEN_SHARED=false
 
@@ -77,7 +77,7 @@ endif
 
 
 
-CPP_VARS=-DKMER_SIZE=$(KMER_SIZE)
+#CPP_VARS=-DKMER_SIZE=$(KMER_SIZE)
 CPP_VARS=
 
 ifdef GEN_DEBUG
@@ -101,10 +101,10 @@ endif
 
 JELLY_LIB=$(LIB_EXT)/Jellyfish/lib
 
-J_SRC=  $(JELLY_LIB)/allocators_mmap.cc           \
-        $(JELLY_LIB)/jsoncpp.cc                   \
-        $(JELLY_LIB)/mer_dna.cc                   \
-        $(JELLY_LIB)/rectangular_binary_matrix.cc
+J_SRC=$(JELLY_LIB)/allocators_mmap.cc           \
+      $(JELLY_LIB)/jsoncpp.cc                   \
+      $(JELLY_LIB)/mer_dna.cc                   \
+      $(JELLY_LIB)/rectangular_binary_matrix.cc
 
 J_OBJ=$(J_SRC:.cc=.o  )
 
@@ -119,7 +119,7 @@ HEADERS=$(LIB_SRC)/*.hpp $(LIB_SRC)/*.h $(LIB_SRC)/*.cpp
 .PHONY: all clean
 
 ifdef GEN_DEBUG
-all: cnidaria build jelly
+all: build jelly cnidaria
 else
 all: build jelly
 endif
@@ -178,7 +178,7 @@ cnidaria: $(UNIFIED)
 
 
 
-$(COMPLETE): $(OPPS) $(J_OBJ) $(SRC_OBJ)/cnidariapy_wrap.o
+$(COMPLETE): $(OPPS) $(SRC_OBJ)/cnidariapy_wrap.o $(J_OBJ)
 	ar crf $@ $^
 
 
@@ -212,15 +212,22 @@ cnidariapy.py: _cnidariapy.so
 jelly:
 	ls $(LIB_EXT)/Jellyfish
 	@#cd $(LIB_EXT)/Jellyfish && ./configure --enable-all-static
-	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static config CFLAGS='' LDFLAGS='' LD_LIBRARY_PATH='' LIBRARY_PATH=''
-	$(MAKE) -C $(LIB_EXT)/Jellyfish
-	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static
+	@#cd $(LIB_EXT)/Jellyfish && touch tests/compat.sh.in && aclocal && autoconf && autoheader && automake --add-missing && ./configure
+	@#$(MAKE) -C $(LIB_EXT)/Jellyfish clean
+	cd $(LIB_EXT)/Jellyfish && cp tests_bkp/* tests/ && ./configure
+	$(MAKE) -C $(LIB_EXT)/Jellyfish                          all CFLAGS='' LDFLAGS='' LD_LIBRARY_PATH='' LIBRARY_PATH=''
+	$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static clean all CFLAGS='' LDFLAGS='' LD_LIBRARY_PATH='' LIBRARY_PATH=''
+	@#$(MAKE) -C $(LIB_EXT)/Jellyfish -f Makefile_static
 	@#rm $(LIB_EXT)/Jellyfish/bin/.libs/jellyfish
 	@#rm $(LIB_EXT)/Jellyfish/bin/jellyfish
 	@#cp $(LIB_EXT)/Jellyfish/bin/.libs/lt-jellyfish $(LIB_EXT)/Jellyfish/bin/.libs/jellyfish
 	@#cp $(LIB_EXT)/Jellyfish/bin/.libs/lt-jellyfish $(LIB_EXT)/Jellyfish/bin/jellyfish
 
 
+
+.PHONY: clean_j_obj
+clean_j_obj: $(J_OBJ)
+	rm -v $^ || true
 
 .PHONY: build
 build: cnidariapy.py _cnidariapy.so

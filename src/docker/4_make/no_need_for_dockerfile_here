@@ -1,0 +1,8 @@
+FROM sauloal/cnidaria_make_env
+
+CMD cd /data && ls -la && make clean && make all -j 1
+
+CMD /bin/bash -c if [[ -z "$USER_UID" ]]; then echo USER ID $USER_UID; fi
+
+VOLUME "/data"
+
