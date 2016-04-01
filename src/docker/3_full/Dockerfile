@@ -19,9 +19,9 @@ ENV PATH=/home/cnidaria/cnidaria/scripts:/home/cnidaria/cnidaria/src/libs/Jellyf
 
 #VOLUME "/home/cnidaria/cnidaria/data"
 
-WORKDIR /home/cnidaria/cnidaria
+WORKDIR /home/cnidaria/cnidaria/data
 
-CMD ["/bin/bash"]
+CMD ["make", "help"]
 
 
 
