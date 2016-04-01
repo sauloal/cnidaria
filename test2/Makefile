@@ -183,25 +183,25 @@ help:
 	@echo AVAILABLE COMMANDS: all, clean, print, help, json, maker, jfs
 	@echo 
 	@echo 
-	@echo "DATA_BASE             ?= data  - base path for input"
-	@echo "OUT_BASE              ?= out   - base path for output"
-	@echo "OUT_FOLDER            ?= test  - project name"
-	@echo "NUM_SAMPLE_ROWS       ?= 40000 - number of rows to sample if sampling, must be multiple of 4"
-	@echo "SAMPLEDATA                     - sample the data"
+	@echo "DATA_BASE             ?=data  - base path for input"
+	@echo "OUT_BASE              ?=out   - base path for output"
+	@echo "OUT_FOLDER            ?=test  - project name"
+	@echo "NUM_SAMPLE_ROWS       ?=40000 - number of rows to sample if sampling, must be multiple of 4"
+	@echo "SAMPLEDATA            ?=0     - sample the data"
 	@echo 
-	@echo "CNIDARIA_NUM_PIECES   ?= 1     - number of pieces for cnidaria to multithread"
-	@echo "CNIDARIA_NOIMAGE               - do not export images"
-	@echo "CNIDARIA_GENDB                 - create full database [slow]"
-	@echo "CNIDARIA_EXTRA_FILES           - add extra files to cnidaria"
+	@echo "CNIDARIA_NUM_PIECES   ?=1     - number of pieces for cnidaria to multithread"
+	@echo "CNIDARIA_NOIMAGE      ?=0     - do not export images"
+	@echo "CNIDARIA_GENDB        ?=0     - create full database [slow]"
+	@echo "CNIDARIA_EXTRA_FILES  ?=      - add extra files to cnidaria"
 	@echo 
-	@echo "JELLY_KMER_SIZE       ?= 21    - kmer size"
-	@echo "JELLY_HASH_SIZE       ?= 1G    - hash size"
-	@echo "JELLY_LOWER_COUNT_FA  ?= 1     - lower count for fastA files"
-	@echo "JELLY_LOWER_COUNT_FQ  ?= 2     - lower count for fastQ files"
-	@echo "JELLY_THREADS         ?= 5     - number of threads"
-	@echo "JELLY_COUNTER_LEN     ?= 7     - counter len"
-	@echo "JELLY_OUT_COUNTER_LEN ?= 1     - out counter len"
-	@echo "JELLY_NUM_FILES       ?= 300   - number of disk files"
+	@echo "JELLY_KMER_SIZE       ?=21    - kmer size"
+	@echo "JELLY_HASH_SIZE       ?=1G    - hash size"
+	@echo "JELLY_LOWER_COUNT_FA  ?=1     - lower count for fastA files"
+	@echo "JELLY_LOWER_COUNT_FQ  ?=2     - lower count for fastQ files"
+	@echo "JELLY_THREADS         ?=5     - number of threads"
+	@echo "JELLY_COUNTER_LEN     ?=7     - counter len"
+	@echo "JELLY_OUT_COUNTER_LEN ?=1     - out counter len"
+	@echo "JELLY_NUM_FILES       ?=300   - number of disk files"
 
 
 .PHONY: json maker jfs
