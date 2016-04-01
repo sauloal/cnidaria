@@ -40,7 +40,7 @@ def main():
     parser.add_argument('-nm'    , '-nomerge' , '--do-not-merge'    , dest='do_merge'       ,                                              action='store_false', help='Do not merge')
     parser.add_argument('-ec'    , '-complete', '--export-complete' , dest='export_complete',                                              action='store_true' , help='Export COMPLETE database')
     parser.add_argument('-nem'   , '-nomatrix', '--no-export-matrix', dest='export_matrix'  ,                                              action='store_false', help='DO NOT Export MATRIX database')
-    parser.add_argument('-nimg'  , '-noimage' , '--no-gen-image'    , dest='gen_image'      ,                                              action='store_false', help='DO NOT Generage PNG images')
+    parser.add_argument('-img'   , '-image'   , '--gen-image'       , dest='gen_image'      ,                                              action='store_true' , help='Generage PNG images. Requires X11')
 
     args = parser.parse_args()
     

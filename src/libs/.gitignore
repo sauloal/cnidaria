@@ -17,4 +17,7 @@ threadpool/libs/threadpool/example/mergesort/mergesort.cpp
 threadpool/libs/threadpool/quickstart/quickstart.cpp
 threadpool/libs/threadpool/test/
 threadpool/libs/threadpool/tutorial/tutorial.cpp
+autom4te.cache
+compile
+test-driver
 
