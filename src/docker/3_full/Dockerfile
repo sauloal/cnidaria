@@ -4,10 +4,10 @@ ARG USER_UID=1001
 
 RUN echo USER_UID $USER_UID; \
     useradd --uid $USER_UID --create-home --shell /bin/bash cnidaria && \
-    echo `echo "cnidaria\ncnidaria\n" | passwd cnidaria` \
+    echo `echo "cnidaria\ncnidaria\n" | passwd cnidaria` && \
     adduser cnidaria sudo
 
-#RUN ln -snf /bin/bash /bin/sh
+RUN ln -snf /bin/bash /bin/sh
 
 USER cnidaria
 

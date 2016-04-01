@@ -45,7 +45,7 @@ class statholder(object):
         names = [ x for x in      names if x.startswith("D_") or x.startswith("S_") ]
         
         names.sort()
-        print "NAMES", names
+        print "NAMES", ", ".join(names)
 
         for n in names:
             m[n] = getattr(self, n)
@@ -476,7 +476,8 @@ def attachMethodName( methodName,  func ):
  
     if methodName not in methods_enabled:
         print "unknown method:", methodName
-        sys.exit(1)
+        #sys.exit(1)
+        raise KeyError
         
     def ffunc(dissi, num_kmers, x, y, totalX, totalY, countX, countY, val):
         #print "running attached function", methodName
@@ -553,7 +554,8 @@ def init( methods_to_apply ):
     for m in methods_to_apply:
         if m not in methods_available:
             print " unkknown method %s" % m
-            sys.exit(1)
+            #sys.exit(1)
+            raise KeyError
 
         print "enabling %s method" % m
 

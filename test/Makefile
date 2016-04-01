@@ -124,8 +124,8 @@ all: $(OUT_FILE)
 
 
 clean:
-	rm $(DATA_FOLDER)/*/*.jf
-	rm -rf $(OUT_DIR)/*
+	rm $(DATA_FOLDER)/*/*.jf 2>/dev/null
+	rm -rf $(OUT_DIR)/*      2>/dev/null
 
 
 print:

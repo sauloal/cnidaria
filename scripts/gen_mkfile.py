@@ -443,7 +443,7 @@ INFILES=%(infiles)s
 
 
         line            = """%(out_ok)s: $(INFILES)
-\trm %(out_err)s %(out_db)s %(out_mat)s %(out_json)s %(out_csv)s %(out_log)s 2>&1 || true
+\trm %(out_err)s %(out_db)s %(out_mat)s %(out_json)s %(out_csv)s %(out_log)s 2>/dev/null || true
 \t( ulimit -c unlimited && time $(CNIDARIA_EXE) %(cnidaria_opts)s --num-pieces %(num_pieces)d --piece-num %(piece_num)d --outfile %(proj_name)s $^ 2>&1 && touch %(out_ok)s ) | tee %(out_log)s
 \tif [ ! -f %(out_ok)s ]; then echo ERROR RUNNING %(out_json)s; touch %(out_err)s; rm %(out_db)s %(out_mat)s %(out_json)s %(out_csv)s %(out_log)s 2>&1 || true; false; else echo SUCCESS RUNNING %(out_json)s; fi\n\n""" % data
 
@@ -545,7 +545,7 @@ META_FILES=%(meta_files)s
 
 %(out_ok)s: $(OK_FILES)
 \techo GENERATING %(out_ok)s. DELETING OLD FILES
-\trm %(out_err)s %(out_db)s %(out_mat)s %(out_json)s %(out_csv)s %(out_log)s 2>&1 || true
+\trm %(out_err)s %(out_db)s %(out_mat)s %(out_json)s %(out_csv)s %(out_log)s 2>/dev/null || true
 \t( ulimit -c unlimited && time $(CNIDARIA_EXE) --merge-only %(cnidaria_opts)s --num-pieces %(num_pieces)d --outfile %(proj_name)s $(INFILES) 2>&1 && touch %(out_ok)s ) | tee %(out_log)s
 \tif [ ! -f %(out_ok)s ]; then echo ERROR RUNNING %(out_json)s; touch %(out_err)s; rm %(out_db)s %(out_mat)s %(out_json)s %(out_csv)s 2>&1 || true; false; else echo SUCCESS RUNNING %(out_json)s; fi\n""" % gdata
 

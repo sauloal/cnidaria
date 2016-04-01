@@ -30,7 +30,8 @@ from cogent.draw          import dendrogram
 print " cnidaria stats : importing stats"
 import stats
 
-methods_to_apply = [ "jaccard_dissimilarity" ]
+#methods_to_apply = [ "jaccard_dissimilarity" ]
+methods_to_apply = [ "D_jaccard" ]
 
 #methods_to_apply = stats.methods_available.keys()
 
