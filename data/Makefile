@@ -61,11 +61,12 @@ JELLY_HASH_SIZE=256M
 endif
 
 # DO NOT EXPORT IMAGES
-ifdef CNIDARIA_NOIMAGE
-DOIMAGE="--no-gen-image"
+ifdef CNIDARIA_DOIMAGE
+DOIMAGE="--gen-image"
 else
 DOIMAGE=
 endif
+
 
 
 
@@ -141,10 +142,10 @@ print:
 	@echo "CNIDARIA_NUM_PIECES   $(CNIDARIA_NUM_PIECES)"
 	@echo "CNIDARIA_EXTRA_FILES  $(CNIDARIA_EXTRA_FILES)"
 
-ifdef CNIDARIA_NOIMAGE
-	@echo "CNIDARIA_NOIMAGE      true"
+ifdef CNIDARIA_DOIMAGE
+	@echo "CNIDARIA_DOIMAGE      true"
 else
-	@echo "CNIDARIA_NOIMAGE      false"
+	@echo "CNIDARIA_DOIMAGE      false"
 endif
 
 
