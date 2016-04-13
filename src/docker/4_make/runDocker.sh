@@ -9,8 +9,8 @@ USER_UID=`id -u $USER`
 #docker build --rm --build-arg USER_UID=`id -u $USER` -t sauloal/cnidaria_make .
 
 docker run --rm -it --name cnidaria_making -v $PWD/../../../:/home/cnidaria/cnidaria sauloal/cnidaria_full bash -c '\
-cd src && \
 echo $PWD && \
+cd ../src && \
 ls -la && \
 GEN_SHARED=true make all && \
 chown -R '$USER_UID':'$USER_UID' .'

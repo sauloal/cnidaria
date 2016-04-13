@@ -1246,11 +1246,8 @@ namespace cnidaria
 
                 std::cout << "waiting for sub threads" << std::endl;
                 tp.wait();
-                std::cout << "sub threads finished"
+                std::cout << "sub threads finished "
                                           << "gCounter "               << gCounter << std::endl;
-
-
-                                append_complete_registers(gCounter);
   }
 }
 namespace cnidaria

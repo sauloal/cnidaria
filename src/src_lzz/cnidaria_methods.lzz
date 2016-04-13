@@ -958,11 +958,11 @@ namespace cnidaria {
                 
                 std::cout << "waiting for sub threads" << std::endl;
                 tp.wait();
-                std::cout << "sub threads finished"
+                std::cout << "sub threads finished "
 				          << "gCounter "               << gCounter << std::endl;
 				
 				//hda.complete_registers = gCounter;
-				append_complete_registers(gCounter);
+				//append_complete_registers(gCounter);
             }
             
             void run_process( const baseInt thread_num, boost::recursive_mutex *g_guard_s, boost::recursive_mutex *g_guard_m, boost::recursive_mutex *g_guard_e ) {
