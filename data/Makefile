@@ -150,9 +150,9 @@ endif
 
 
 ifdef CNIDARIA_GENDB
-	@echo "CNIDARIA_NOIMAGE      true"
+	@echo "CNIDARIA_GENDB        true"
 else
-	@echo "CNIDARIA_NOIMAGE      false"
+	@echo "CNIDARIA_GENDB        false"
 endif
 
 
@@ -191,8 +191,8 @@ help:
 	@echo "SAMPLEDATA            ?=0     - sample the data"
 	@echo 
 	@echo "CNIDARIA_NUM_PIECES   ?=1     - number of pieces for cnidaria to multithread"
-	@echo "CNIDARIA_NOIMAGE      ?=0     - do not export images"
-	@echo "CNIDARIA_GENDB        ?=0     - create full database [slow]"
+	@echo "CNIDARIA_DOIMAGE      ?=      - Export images (needs X11)"
+	@echo "CNIDARIA_GENDB        ?=      - create full database [slow]"
 	@echo "CNIDARIA_EXTRA_FILES  ?=      - add extra files to cnidaria"
 	@echo 
 	@echo "JELLY_KMER_SIZE       ?=21    - kmer size"
